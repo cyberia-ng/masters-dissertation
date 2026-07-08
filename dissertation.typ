@@ -150,11 +150,52 @@
 
 = Type theory
 
+The basic objects of study in type theory are types, which are denoted by uppercase letters:
+$A$, $B$, etc. Unlike in set theory, every object in type theory has a type. In
+set-theoretic mathematics, we might make statements such as _"Let $n$ be a natural number.
+Then $n$ has a successor."_ What is meant by this is something like "let $n$ denote
+something", and then "if $n in NN$, then $n$ has a successor". In type theory this is not
+allowed: every object we consider must be constrained by its type. Supposing we have defined
+a type $NN$ of natural numbers (which we will do later), we would write $n : NN$ to indicate
+that $n$ is a natural number. We may then proceed with the claim about its successor.
+// TODO tidy this example
+
+In this way, we can view types as "containing" elements. Notationally, we write
+$
+  x : A
+$
+to mean that $x$ is an element of type $A$.
+
+We will show how to construct types out of other types, but first we introduce the important
+notion of type universes.
+
+== Universes
+
+In order to avoid a situation similar to Russell's paradox, we define a hierarchy of
+*universes*, denoted
+
+$ UU_0 : UU_1 : ... $
+
+Each $UU_i$ is an element of $UU_(i + 1)$, and furthermore every universe contains all the
+types contained in previous universes. I.e. if $x : UU_i$ then $x : UU_j$ for all $j >= i$.
+This is known as the *cumulative* property. When we say $A$ is a type, what we mean is that
+$A : UU_i$ for some universe $UU_i$. When working with (a finite number of) types in
+different universes, the cumulative property guarantees that we can always find a universe
+in which all our types are present.
+
+== Function types
+
+with the following rules: supposing $A$ and $B$ are types,
+- There is a *function type* $A -> B$.
+- There is a *product type* $A times B$.
+- There is a *coproduct type* $A + B$.
+
+
+---
+
 - Judgemental equality vs propositional equality: $peq$ vs $=$
 - Function types
   - Definition in closed form or open form
-
-== Universes
 
 == Type families
 
