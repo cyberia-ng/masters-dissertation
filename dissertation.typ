@@ -147,6 +147,7 @@
 #let UU = $cal(U)$
 #let peq = $equiv$
 #let rec = $"rec"$
+#let one = $bold(1)$
 
 = Type theory
 
@@ -159,6 +160,7 @@ allowed: every object we consider must be constrained by its type. Supposing we 
 a type $NN$ of natural numbers (which we will do later), we would write $n : NN$ to indicate
 that $n$ is a natural number. We may then proceed with the claim about its successor.
 // TODO tidy this example
+// TODO mention lambda calculus
 
 In this way, we can view types as "containing" elements. Notationally, we write
 $
@@ -166,13 +168,25 @@ $
 $
 to mean that $x$ is an element of type $A$.
 
-We will show how to construct types out of other types, but first we introduce the important
-notion of type universes.
+Types are either *basic types*, which we assume to exist axiomatically, or *compound types*,
+which are constructed recursively out of other types. The basic types we choose will be
+natural "units" for the various recursive type constructors, for example we will take a
+basic type $one$ corresponding to a product type constructor $- times -$.
+
+== Terms
+
+In order to speak about elements of types, we use *terms*. Terms are syntactic strings which
+can be rewritten according to certain deductive rules. The idea is to be able to introduce
+terms and eliminate them.
 
 == Universes
 
-In order to avoid a situation similar to Russell's paradox, we define a hierarchy of
-*universes*, denoted
+Before we define our basic and compound types, we first introduce the important notion of
+type universes.
+
+
+In order to avoid a situation similar to Russell's paradox (TODO cite and/or clarify), we
+define a hierarchy of *universes*, denoted
 
 $ UU_0 : UU_1 : ... $
 
@@ -184,6 +198,26 @@ different universes, the cumulative property guarantees that we can always find 
 in which all our types are present.
 
 == Function types
+
+== Product types
+
+#definition[If $A$ and $B$ are types, there is a *product type* $A times B$. There is also a
+  nullary product type $one$.]
+
+An element of a product type may be introduced as a *pair* using bracketing notation. If
+$s : A$ and $t : B$ are terms, then $(s, t) : A times B$ is a term.
+
+We assume that a function out of $A times B$ is completely determined by is action on pairs,
+and a function out of $one$ is completely determined by is action on a (unique?) element
+$star : one$. Using this, we will prove (TODO) that the elements of $A times B$ are
+precisely the pairs, and $one$ has a unique element $star$.
+
+
+== ...
+
+
+
+---
 
 with the following rules: supposing $A$ and $B$ are types,
 - There is a *function type* $A -> B$.
