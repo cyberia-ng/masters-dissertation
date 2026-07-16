@@ -179,6 +179,8 @@ In order to speak about elements of types, we use *terms*. Terms are syntactic s
 can be rewritten according to certain deductive rules. The idea is to be able to introduce
 terms and eliminate them.
 
+== Contexts
+
 == Universes
 
 Before we define our basic and compound types, we first introduce the important notion of
@@ -197,7 +199,29 @@ $A : UU_i$ for some universe $UU_i$. When working with (a finite number of) type
 different universes, the cumulative property guarantees that we can always find a universe
 in which all our types are present.
 
+== Data for types
+
+For each new type we introduce, we give the following data
+
+- *Formation rules* which specify how to make the type out of existing types.
+- *Introduction rules* which specify how to construct terms of the new type.
+- *Elimination rules* which specify how to reduce terms of the new type to terms of a
+  simpler type.
+- *Computation rules* which specify how elimination interacts with construction.
+- *Uniqueness principle* (optional) which ???
+
 == Function types
+
+#definition([Function types])[
+  - *Formation*: If $A$ and $B$ are types, then $A -> B$ is a type.
+  - *Introduction*: if $t : B$ is a term, then $lambda x : A sd t : A -> B$ is a term.
+  - *Elimination*: if $t : A -> B$ is a term and $s : A$ is a term, then $t s : B$ is a
+    term, representing the function $t$ applied at a parameter $s$.
+  - *Computation*: if $lambda x : A sd t : A -> B$ is a term and $s : A$ is a term, then
+    $(lambda x : A sd t) s peq t[s slash x]$. The notation $t[s slash x]$ means the term $t$
+    with all free occurrences of $x$ replaced with $s$.
+  - *Uniqueness*: if $f : A -> B$ is a term, then $f peq lambda x : A sd f x$.
+]
 
 == Product types
 
