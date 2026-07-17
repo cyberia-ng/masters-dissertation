@@ -146,8 +146,26 @@
 #let sd = $thin . thin$
 #let UU = $cal(U)$
 #let peq = $equiv$
-#let rec = $"rec"$
+#let rec = $sans("rec")$
 #let one = $bold(1)$
+#let ctx = $sans("ctx")$
+#let pt(label: none, ..args) = {
+  if label != none {
+    [#math.equation(
+        block: true,
+        numbering: "(1)",
+        ..args,
+      )
+      #std.label(label)
+    ]
+  } else {
+    math.equation(
+      block: true,
+      ..args,
+    )
+  }
+  v(0.5em)
+}
 
 = Type theory
 
@@ -173,19 +191,16 @@ which are constructed recursively out of other types. The basic types we choose 
 natural "units" for the various recursive type constructors, for example we will take a
 basic type $one$ corresponding to a product type constructor $- times -$.
 
-== Terms
+== Variables
 
-In order to speak about elements of types, we use *terms*. Terms are syntactic strings which
-can be rewritten according to certain deductive rules. The idea is to be able to introduce
-terms and eliminate them.
+The concept of a variable is familiar to logicians. They are denoted by a single lowercase
+letter, usually taken from $x, y, z$, with an optional subscript. To indicate $n$ variables
+we will use $x_1, x_2, ..., x_n$. In type theory, all variables are of a particular type,
+which is written $x : A$.
 
-== Contexts
+== Judgments
 
-== Universes
-
-Before we define our basic and compound types, we first introduce the important notion of
-type universes.
-
+== Universes and contexts
 
 In order to avoid a situation similar to Russell's paradox (TODO cite and/or clarify), we
 define a hierarchy of *universes*, denoted
@@ -198,6 +213,30 @@ This is known as the *cumulative* property. When we say $A$ is a type, what we m
 $A : UU_i$ for some universe $UU_i$. When working with (a finite number of) types in
 different universes, the cumulative property guarantees that we can always find a universe
 in which all our types are present.
+
+A *context* is a (possibly empty) collection of distinct variables and their types, for
+example $x_1 : A_1, x_2 : A_2$. Contexts are denoted by an uppercase Greek letter, usually
+$Gamma$ or $Delta$. The judgment that $Gamma$ is a well-formed context is denoted
+$Gamma ctx$, and the empty context is denoted $dot$.
+
+We have the following rules for universes and contexts.
+
+#pt(rule-set(
+  prooftree(rule($dot ctx$)),
+  prooftree(rule(
+    $x_1 : A_1, ..., x_(n-1) : A_(n-1) tack A_n : UU_i$,
+    $(x_1 : A_1, ..., x_n : A_n) ctx$,
+  )),
+  prooftree(rule($Gamma ctx$, $Gamma tack UU_i : UU_(i+1)$)),
+  prooftree(rule($Gamma tack A : UU_i$, $Gamma tack A : UU_(i+1)$)),
+))
+
+== Terms
+
+In order to speak about elements of types, we use *terms*. Terms are syntactic strings which
+can be rewritten according to certain deductive rules.
+
+TODO structural rules
 
 == Data for types
 
@@ -212,6 +251,8 @@ For each new type we introduce, we give the following data
 
 == Function types
 
+TODO: make discursive, set up for formal defn of dependent function types
+
 #definition([Function types])[
   - *Formation*: If $A$ and $B$ are types, then $A -> B$ is a type.
   - *Introduction*: if $t : B$ is a term, then $lambda x : A sd t : A -> B$ is a term.
@@ -222,6 +263,41 @@ For each new type we introduce, we give the following data
     with all free occurrences of $x$ replaced with $s$.
   - *Uniqueness*: if $f : A -> B$ is a term, then $f peq lambda x : A sd f x$.
 ]
+
+== Dependent function types
+
+TODO check universes
+
+#pt(rule-set(
+  prooftree(rule(
+    $Gamma tack A : UU_i$,
+    $Gamma, x : A tack B : UU_j$,
+    $Gamma tack product_(x : A) B : UU_j$,
+    name: [$Pi$-Form],
+  )),
+  prooftree(rule(
+    $Gamma, x : A tack b : B$,
+    $Gamma tack lambda (x : A) sd b : product_(x : A) B$,
+    name: [$Pi$-Intr],
+  )),
+  prooftree(rule(
+    $Gamma tack f : product_(x: A) B$,
+    $Gamma tack a : A$,
+    $Gamma tack f a : B[a slash x]$,
+    name: [$Pi$-Elim],
+  )),
+  prooftree(rule(
+    $Gamma, x : A tack b : B$,
+    $Gamma tack a : A$,
+    $Gamma tack (lambda (x : A) sd b)(a) peq b[a slash x] : B[a slash x]$,
+    name: [$Pi$-Comp],
+  )),
+  prooftree(rule(
+    $Gamma tack f : product_(x : A)B$,
+    $Gamma tack f peq lambda (x : A) sd f x : product_(x : A) B$,
+    name: [$Pi$-Uniq],
+  )),
+))
 
 == Product types
 
