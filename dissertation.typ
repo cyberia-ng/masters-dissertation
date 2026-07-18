@@ -191,14 +191,61 @@ which are constructed recursively out of other types. The basic types we choose 
 natural "units" for the various recursive type constructors, for example we will take a
 basic type $one$ corresponding to a product type constructor $- times -$.
 
-== Variables
+== Terms
 
-The concept of a variable is familiar to logicians. They are denoted by a single lowercase
-letter, usually taken from $x, y, z$, with an optional subscript. To indicate $n$ variables
-we will use $x_1, x_2, ..., x_n$. In type theory, all variables are of a particular type,
-which is written $x : A$.
+Type theory is an instance of a *typed $lambda$-calculus*, and in our presentation the basic
+terms may be _variables_, _primitive constants_ or _defined constants_. Terms are formed
+according to the rule
+
+$
+  t ::= x | lambda x sd t | t(t') | c | f.
+$
+
+Here, $x$ stands for any variable, $t$ is any term, $c$ is any primitive constant and $f$ is
+any defined constant.
+
+The distinction between primitive and defined constants is that primitive constants are used
+to encode new syntax, and will not be able to be reduced by some definition, while defined
+constants are taken to be equivalent to some term (by a judgmental equality, which we will
+introduce in the next subsection) and thus able to be eliminated or reduced.
+
+Note that we do not distinguish between the language of types and the language of terms.
+Since we will be presenting a dependent type theory, types may depend on terms and vice
+versa, so they are part of the same language.
+
+// == Variables
+
+// The concept of a variable is familiar to logicians. They are denoted by a single lowercase
+// letter, usually taken from $x, y, z$, with an optional subscript. To indicate $n$ variables
+// we will use $x_1, x_2, ..., x_n$. In type theory, all variables are of a particular type,
+// which is written $x : A$.
 
 == Judgments
+
+We introduce three kinds of judgments in our presentation of type theory, namely *context
+judgments*, *typing judgments* and *judgmental equalities*.
+
+We discuss context judgments in more depth in the next subsection, but for now suffice to
+say they have the form
+$
+  Gamma ctx.
+$
+
+Typing judgments are of the form
+$
+  t : A
+$
+which is to be read as "the term $t$ is of the type $A$". Typing judgments are useful for
+demonstrating the existence of a term of a particular type.
+
+The final kind of judgment is the judmental equality, which takes the form
+$
+  t peq t' : A.
+$
+Sometimes the type annotation "$: A$" will be omitted when it is clear from context. This
+judgment is a metatheoretic equality, which is to be contrasted with "internal" equality
+which we will introduce later. It says that whenever we see the term $t$, we may rewrite it
+as $t'$. (TODO: does $t$ need to be in closed form?)
 
 == Universes and contexts
 
@@ -271,8 +318,8 @@ TODO check universes
 #pt(rule-set(
   prooftree(rule(
     $Gamma tack A : UU_i$,
-    $Gamma, x : A tack B : UU_j$,
-    $Gamma tack product_(x : A) B : UU_j$,
+    $Gamma, x : A tack B : UU_i$,
+    $Gamma tack product_(x : A) B : UU_i$,
     name: [$Pi$-Form],
   )),
   prooftree(rule(
