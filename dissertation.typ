@@ -203,6 +203,11 @@ to encode new syntax, and will not be able to be reduced by some definition, whi
 constants are taken to be equivalent to some term (by a judgmental equality, which we will
 introduce in the next subsection) and thus able to be eliminated or reduced.
 
+The third term-forming rule, $t(t')$, represents function application, and we take the
+convention that it associates to the left, i.e. $t_1(t_2)(t_3)$ means $(t_1(t_2))(t_3)$. We
+will also write repeated application as $t_1(t_2, t_3)$, for reasons which will become clear
+soon.
+
 Note that we do not distinguish between the language of types and the language of terms.
 Since we will be presenting a dependent type theory, types may depend on terms and vice
 versa, so they are part of the same language.
@@ -304,6 +309,23 @@ For each new type we introduce, we give the following data
 
 == Function types
 
+The first type we will introduce is the (non-dependent) function type. We introduce a
+primitive constant $c_(->)$, and we will write $c_(->)(A, B)$ using the syntactic sugar
+$A -> B$.
+
+Conceptually, functions take a value and return a value, so a term of type $A -> B$ takes a
+value of type $A$ and returns a value of type $B$. Functions of multiple variables are
+represented in *curried* form (after Haskell Curry), meaning that they are of type
+$A -> (B -> C)$. That is, they are represented as a function which takes an $A$ and returns
+another function of type $B -> C$. We will use the convention that $->$ associates to the
+right, so the above type may be written as simply $A -> B -> C$.
+
+Function terms are written using $lambda$ syntax, so $lambda (x : A) sd t$ is conceptually a
+function which binds its input to the variable $x$, and returns the term $t$ with its free
+occurrences of $x$ replaced with the input.
+
+The data for function types and terms are given by the following rules:
+
 #pt(rule-set(
   prooftree(rule(
     $Gamma tack A : UU_i$,
@@ -336,6 +358,9 @@ For each new type we introduce, we give the following data
     name: [$->$-Uniq ($eta$)],
   )),
 ))
+
+The $->$-Comp and $->$-Uniq rules are respectively also known as the $beta$ and $eta$ rules
+in $lambda$-calculus.
 
 == Type families
 
