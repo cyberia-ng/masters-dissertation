@@ -149,6 +149,7 @@
 #let rec = $sans("rec")$
 #let one = $bold(1)$
 #let ctx = $sans("ctx")$
+#let Fin = $"Fin"$
 #let pt(label: none, ..args) = {
   if label != none {
     [#math.equation(
@@ -169,36 +170,29 @@
 
 = Type theory
 
-The basic objects of study in type theory are types, which are denoted by uppercase letters:
-$A$, $B$, etc. Unlike in set theory, every object in type theory has a type. In
-set-theoretic mathematics, we might make statements such as _"Let $n$ be a natural number.
-Then $n$ has a successor."_ What is meant by this is something like "let $n$ denote
-something", and then "if $n in NN$, then $n$ has a successor". In type theory this is not
-allowed: every object we consider must be constrained by its type. Supposing we have defined
-a type $NN$ of natural numbers (which we will do later), we would write $n : NN$ to indicate
-that $n$ is a natural number. We may then proceed with the claim about its successor.
-// TODO tidy this example
-// TODO mention lambda calculus
-
-In this way, we can view types as "containing" elements. Notationally, we write
-$
-  x : A
-$
-to mean that $x$ is an element of type $A$.
-
-Types are either *basic types*, which we assume to exist axiomatically, or *compound types*,
-which are constructed recursively out of other types. The basic types we choose will be
-natural "units" for the various recursive type constructors, for example we will take a
-basic type $one$ corresponding to a product type constructor $- times -$.
+Type theory is a logical system, encoding *types* and *terms*, which is used as a foundation
+of mathematics. Loosely, a type may be considered as an object which contains elements,
+similar to a set in set theory. However, type theory is distinct from set theory in that
+every object in type theory has a type. In mathematics, we might make statements such as
+_"Let $n$ be a natural number. Then $n$ has a successor."_ What is meant by this in a
+set-theoretic context is something like "let $n$ denote something", and then "if $n in NN$,
+then $n$ has a successor". In type theory this is not allowed: every object we consider must
+be constrained by its type. Supposing we have defined a type $NN$ of natural numbers (which
+we will do later), we would write $n : NN$ to indicate that $n$ is a natural number. We may
+then proceed with the claim about its successor.
 
 == Terms
 
-Type theory is an instance of a *typed $lambda$-calculus*, and in our presentation the basic
-terms may be _variables_, _primitive constants_ or _defined constants_. Terms are formed
-according to the rule
+As type theory is syntactic system, we define the construction of its terms. In our
+presentation the basic terms may be _variables_, _primitive constants_ or _defined
+constants_. Terms are formed according to the rule
 
 $
   t ::= x | lambda x sd t | t(t') | c | f.
+$
+TODO: or
+$
+  t ::= x | lambda (x : t) sd t | t(t') | c | f.
 $
 
 Here, $x$ stands for any variable, $t$ is any term, $c$ is any primitive constant and $f$ is
@@ -225,8 +219,8 @@ versa, so they are part of the same language.
 We introduce three kinds of judgments in our presentation of type theory, namely *context
 judgments*, *typing judgments* and *judgmental equalities*.
 
-We discuss context judgments in more depth in the next subsection, but for now suffice to
-say they have the form
+We will present context judgments in the next subsection, but for now suffice to say they
+have the form
 $
   Gamma ctx.
 $
@@ -238,21 +232,27 @@ $
 which is to be read as "the term $t$ is of the type $A$". Typing judgments are useful for
 demonstrating the existence of a term of a particular type.
 
-The final kind of judgment is the judmental equality, which takes the form
+The final kind of judgment is the judgmental equality, which takes the form
 $
   t peq t' : A.
 $
 Sometimes the type annotation "$: A$" will be omitted when it is clear from context. This
 judgment is a metatheoretic equality, which is to be contrasted with "internal" equality
 which we will introduce later. It says that whenever we see the term $t$, we may rewrite it
-as $t'$. (TODO: does $t$ need to be in closed form?)
+as $t'$ and vice versa. (TODO: does $t$ need to have no free variables?)
+
+We write deductive rules in the "proof tree" style, where antecedents are written above a
+line and consequents below it:
+#pt(prooftree(rule($cal(J)_1$, $cal(J)_2$, $cal(J)_3$)))
+This deduction says that from the judgments $cal(J)_1$ and $cal(J)_2$ we may conclude
+$cal(J)_3$.
 
 == Universes and contexts
 
 In order to avoid a situation similar to Russell's paradox (TODO cite and/or clarify), we
 define a hierarchy of *universes*, denoted
 
-$ UU_0 : UU_1 : ... $
+$ UU_0 quad UU_1 quad UU_2 quad ... quad UU_i quad ... $
 
 Each $UU_i$ is an element of $UU_(i + 1)$, and furthermore every universe contains all the
 types contained in previous universes. I.e. if $x : UU_i$ then $x : UU_j$ for all $j >= i$.
@@ -261,10 +261,19 @@ $A : UU_i$ for some universe $UU_i$. When working with (a finite number of) type
 different universes, the cumulative property guarantees that we can always find a universe
 in which all our types are present.
 
-A *context* is a (possibly empty) collection of distinct variables and their types, for
-example $x_1 : A_1, x_2 : A_2$. Contexts are denoted by an uppercase Greek letter, usually
-$Gamma$ or $Delta$. The judgment that $Gamma$ is a well-formed context is denoted
-$Gamma ctx$, and the empty context is denoted $dot$.
+A *context* is a (possibly empty) ordered list of distinct variables and their types, for
+example $x_1 : A_1, x_2 : A_2$. Since types are terms, each type may use variables occurring
+before it in the list, hence the order being important. Contexts are denoted by an uppercase
+Greek letter, usually $Gamma$ or $Delta$. The judgment that $Gamma$ is a well-formed context
+is denoted $Gamma ctx$, and the empty context is denoted $dot$.
+
+Contexts appear on the left-hand side of a $tack$ symbol, with a judgment on the right, as
+in
+$
+  Gamma tack cal(J).
+$
+This is to be read as "in the context $Gamma$, $cal(J)$ holds", and means that the judgment
+$cal(J)$ contains variables (TODO and types?) declared in the context $Gamma$.
 
 We have the following rules for universes and contexts.
 
@@ -278,12 +287,9 @@ We have the following rules for universes and contexts.
   prooftree(rule($Gamma tack A : UU_i$, $Gamma tack A : UU_(i+1)$)),
 ))
 
-== Terms
+== Structural rules
 
-In order to speak about elements of types, we use *terms*. Terms are syntactic strings which
-can be rewritten according to certain deductive rules.
-
-TODO structural rules
+TODO: which of these do we need?
 
 == Data for types
 
@@ -298,45 +304,84 @@ For each new type we introduce, we give the following data
 
 == Function types
 
-TODO: make discursive, set up for formal defn of dependent function types
+#pt(rule-set(
+  prooftree(rule(
+    $Gamma tack A : UU_i$,
+    $Gamma tack B : UU_i$,
+    $Gamma tack A -> B : UU_i$,
+    name: [$->$-Form],
+  )),
+  prooftree(rule(
+    $Gamma tack B : UU_i$,
+    $Gamma, x : A tack t : B$,
+    $Gamma tack lambda(x : A) sd t : A -> B$,
+    name: [$->$-Intr],
+  )),
+  prooftree(rule(
+    $Gamma tack f : A -> B$,
+    $Gamma tack t : A$,
+    $Gamma tack f(t) : B$,
+    name: [$->$-Elim],
+  )),
+  prooftree(rule(
+    $Gamma tack B : UU_i$,
+    $Gamma, x : A tack t : B$,
+    $Gamma tack s : A$,
+    $Gamma tack (lambda (x : A) sd t)(s) peq t[s slash x] : B$,
+    name: [$->$-Comp ($beta$)],
+  )),
+  prooftree(rule(
+    $Gamma tack f : A -> B$,
+    $Gamma tack f peq lambda(x : A) sd f(x) : A->B$,
+    name: [$->$-Uniq ($eta$)],
+  )),
+))
 
-#definition([Function types])[
-  - *Formation*: If $A$ and $B$ are types, then $A -> B$ is a type.
-  - *Introduction*: if $t : B$ is a term, then $lambda x : A sd t : A -> B$ is a term.
-  - *Elimination*: if $t : A -> B$ is a term and $s : A$ is a term, then $t s : B$ is a
-    term, representing the function $t$ applied at a parameter $s$.
-  - *Computation*: if $lambda x : A sd t : A -> B$ is a term and $s : A$ is a term, then
-    $(lambda x : A sd t) s peq t[s slash x]$. The notation $t[s slash x]$ means the term $t$
-    with all free occurrences of $x$ replaced with $s$.
-  - *Uniqueness*: if $f : A -> B$ is a term, then $f peq lambda x : A sd f x$.
-]
+== Type families
+
+A type family is an element of a function type $A -> UU_i$, i.e. it is a function which
+takes some parameter (of type $A$) and returns a type. In this way, we can construct types
+which depend on values, which is central to dependent type theory. An example (which we will
+return to later) is the type family of finite sets, $Fin : NN -> UU_i$. We have not yet
+introduced the type $NN$ of natural numbers, but (we hope) readers will nevertheless be
+familiar with the natural numbers and may therefore have some intuition about this type. The
+type $Fin(0)$ has 0 elements, the type $Fin(1)$ has exactly 1 element, and so on. We will
+precisely define $Fin$ in a later section, after defining the natural numbers.
+
+Another example of a type family is a family $UU_i -> UU_i$, which takes a _type_ as a
+parameter. This is familiar to programmers of common non-dependently-typed programming
+languages such as Rust or Haskell as a _generic type parameter_. For instance, the type
+family defined by
+$ lambda (T : UU_i) sd (T -> T) : UU_i -> UU_i $
+represents generically the type of an automorphism on $T$.
 
 == Dependent function types
 
-TODO check universes
+- TODO check universes
+- TODO check this presentation is valid with contexts
 
 #pt(rule-set(
   prooftree(rule(
     $Gamma tack A : UU_i$,
-    $Gamma, x : A tack B : UU_i$,
-    $Gamma tack product_(x : A) B : UU_i$,
+    $Gamma tack B : A -> UU_i$,
+    $Gamma tack product_(x : A) B(x) : UU_i$,
     name: [$Pi$-Form],
   )),
   prooftree(rule(
-    $Gamma, x : A tack b : B$,
-    $Gamma tack lambda (x : A) sd b : product_(x : A) B$,
+    $Gamma, x : A tack b : B(x)$,
+    $Gamma tack lambda (x : A) sd b : product_(x : A) B(x)$,
     name: [$Pi$-Intr],
   )),
   prooftree(rule(
-    $Gamma tack f : product_(x: A) B$,
+    $Gamma tack f : product_(x: A) B(x)$,
     $Gamma tack a : A$,
-    $Gamma tack f a : B[a slash x]$,
+    $Gamma tack f(a) : B(a)$,
     name: [$Pi$-Elim],
   )),
   prooftree(rule(
-    $Gamma, x : A tack b : B$,
+    $Gamma, x : A tack b : B(x)$,
     $Gamma tack a : A$,
-    $Gamma tack (lambda (x : A) sd b)(a) peq b[a slash x] : B[a slash x]$,
+    $Gamma tack (lambda (x : A) sd b)(a) peq b[a slash x] : B(a)$,
     name: [$Pi$-Comp],
   )),
   prooftree(rule(
@@ -377,10 +422,6 @@ with the following rules: supposing $A$ and $B$ are types,
 - Judgemental equality vs propositional equality: $peq$ vs $=$
 - Function types
   - Definition in closed form or open form
-
-== Type families
-
-Functions of type $B : A -> UU$, i.e. for $x : A$, we have $B(x)$ a type.
 
 == Dependent functions
 
