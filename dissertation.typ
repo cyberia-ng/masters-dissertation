@@ -489,45 +489,48 @@ Elimination and computation:
 // precisely the pairs, and $one$ has a unique element $star$.
 
 
-== ... Fragments ...
+#block[
+  #set text(luma(130))
+  == ... Fragments ...
 
 
 
----
+  ---
 
-with the following rules: supposing $A$ and $B$ are types,
-- There is a *function type* $A -> B$.
-- There is a *product type* $A times B$.
-- There is a *coproduct type* $A + B$.
+  with the following rules: supposing $A$ and $B$ are types,
+  - There is a *function type* $A -> B$.
+  - There is a *product type* $A times B$.
+  - There is a *coproduct type* $A + B$.
 
 
----
+  ---
 
-- Judgemental equality vs propositional equality: $peq$ vs $=$
-- Function types
-  - Definition in closed form or open form
+  - Judgemental equality vs propositional equality: $peq$ vs $=$
+  - Function types
+    - Definition in closed form or open form
 
-== Dependent functions
+  == Dependent functions
 
-Functions whose output type depends on the input (type or value). Given a type $A$ and a
-family $B : A -> UU$, write
-$ f : product_(x : A) B(x) $
-to mean a function which takes a parameter $x$ of type $A$ and returns a value of type
-$B(x)$.
+  Functions whose output type depends on the input (type or value). Given a type $A$ and a
+  family $B : A -> UU$, write
+  $ f : product_(x : A) B(x) $
+  to mean a function which takes a parameter $x$ of type $A$ and returns a value of type
+  $B(x)$.
 
-== Product types
+  == Product types
 
-=== "Recursor"
+  === "Recursor"
 
-- Generic way to construct functions taking product parameters, using simple functions
+  - Generic way to construct functions taking product parameters, using simple functions
 
-$
-  & rec_(A times B) : product_(C: UU) (A -> B -> C) -> A times B -> C \
-  & rec_(A times B) (C, g, (a, b)) :peq g(a)(b)
-$
+  $
+    & rec_(A times B) : product_(C: UU) (A -> B -> C) -> A times B -> C \
+    & rec_(A times B) (C, g, (a, b)) :peq g(a)(b)
+  $
 
-Projections:
-$
-  pi_1 & :peq rec_(A times B)(A, lambda a sd lambda b sd a) \
-  pi_2 & :peq rec_(A times B)(B, lambda a sd lambda b sd b)
-$
+  Projections:
+  $
+    pi_1 & :peq rec_(A times B)(A, lambda a sd lambda b sd a) \
+    pi_2 & :peq rec_(A times B)(B, lambda a sd lambda b sd b)
+  $
+]
