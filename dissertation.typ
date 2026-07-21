@@ -147,6 +147,7 @@
 #let UU = $cal(U)$
 #let peq = $equiv$
 #let rec = $sans("rec")$
+#let ind = $sans("ind")$
 #let one = $bold(1)$
 #let ctx = $sans("ctx")$
 #let Fin = $"Fin"$
@@ -418,19 +419,77 @@ represents generically the type of an automorphism on $T$.
 
 == Product types
 
-#definition[If $A$ and $B$ are types, there is a *product type* $A times B$. There is also a
-  nullary product type $one$.]
+- Introduce primitive constants $c_Sigma$ and $c_"pair"$, writing
+  $c_Sigma (A, lambda (x : A) sd B)$ as $sum_(x : A) B(x)$ and $c_"pair" (a, b)$ as
+  $(a, b)$.
+- Write $sum_(x : A) B(x)$ as $A times B$ if $x$ not free in $B$.
 
-An element of a product type may be introduced as a *pair* using bracketing notation. If
-$s : A$ and $t : B$ are terms, then $(s, t) : A times B$ is a term.
+Formation and introduction:
+#pt(rule-set(
+  prooftree(rule(
+    $Gamma tack A : UU_i$,
+    $Gamma tack B : A -> UU_i$,
+    $Gamma tack sum_(x : A) B(x) : UU_i$,
+    name: [$Sigma$-Form],
+  )),
+  prooftree(rule(
+    $Gamma tack a : A$,
+    $Gamma, x : A tack b : B(x)$,
+    $Gamma tack (a, b) : sum_(x : A) B(x)$,
+    name: [$Sigma$-Intr],
+  )),
+  prooftree(rule(
+    $Gamma, x : A tack B(x) : UU_i$,
+    $Gamma tack a : A$,
+    $Gamma tack b : B(a)$,
+    $Gamma tack (a, b) : sum_(x : A) B(x)$,
+    name: [$Sigma$-Intr\*],
+  )),
+))
 
-We assume that a function out of $A times B$ is completely determined by is action on pairs,
-and a function out of $one$ is completely determined by is action on a (unique?) element
-$star : one$. Using this, we will prove (TODO) that the elements of $A times B$ are
-precisely the pairs, and $one$ has a unique element $star$.
+TODO: is $Sigma$-Intr correct? differs from appendix slightly.
+
+Elimination and computation:
+
+#pt(rule-set(
+  prooftree(rule(
+    $Gamma tack C : sum_(x : A) B(x) -> UU_i$,
+    $Gamma tack g : product_(x : A) product_(y : B) C((x, y))$,
+    $Gamma tack p : sum_(x : A) B(x)$,
+    $Gamma tack ind_(sum_(x : A) B(x)) (C, g, p) : C(p)$,
+    name: [$Sigma$-Elim],
+  )),
+  prooftree(rule(
+    $Gamma tack C : sum_(x : A) B(x) -> UU_i$,
+    $Gamma tack g : product_(x : A) product_(y : B) C((x, y))$,
+    $Gamma tack a : A$,
+    $Gamma, x : A tack b : B(x)$,
+    $Gamma tack ind_(sum_(x : A) B(x)) (C, g, (a, b)) peq g(a, b)$,
+    name: [$Sigma$-Comp],
+  )),
+  prooftree(rule(
+    $Gamma tack C : sum_(x : A) B(x) -> UU_i$,
+    $Gamma tack g : product_(x : A) product_(y : B) C((x, y))$,
+    $Gamma tack a : A$,
+    $Gamma tack b : B(a)$,
+    $Gamma tack ind_(sum_(x : A) B(x)) (C, g, (a, b)) peq g(a, b)$,
+    name: [$Sigma$-Comp\*],
+  )),
+))
+
+// #definition[If $A$ and $B$ are types, there is a *product type* $A times B$. There is also a
+//   nullary product type $one$.]
+
+// An element of a product type may be introduced as a *pair* using bracketing notation. If
+// $s : A$ and $t : B$ are terms, then $(s, t) : A times B$ is a term.
+
+// We assume that a function out of $A times B$ is completely determined by is action on pairs,
+// and a function out of $one$ is completely determined by is action on a (unique?) element
+// $star : one$. Using this, we will prove (TODO) that the elements of $A times B$ are
+// precisely the pairs, and $one$ has a unique element $star$.
 
 
-== ...
+== ... Fragments ...
 
 
 
