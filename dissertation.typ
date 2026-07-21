@@ -381,10 +381,22 @@ family defined by
 $ lambda (T : UU_i) sd (T -> T) : UU_i -> UU_i $
 represents generically the type of an automorphism on $T$.
 
+TODO talk about type families vs just using contexts
+
 == Dependent function types
 
-- TODO check universes
-- TODO check this presentation is valid with contexts
+Now we have introduced function types and type families, we introduce *dependent* function
+types. A dependent function is one in which the output type may depend on the input _value_.
+The notation for a dependent function type is $product_(x : A) B(x)$, where $B : A -> UU_i$
+is a type family. This represents the type of a function which takes a parameter $x$ of type
+$A$ and returns a value of type $B(x)$. Continuing the example of finite sets from above, we
+might define a function $sans("max") : product_(n : NN) Fin(n)$ which returns the highest
+number available in $Fin(n)$; that is, $max(1) peq 0_(Fin(1))$, $max(2) peq 1_(Fin(2))$
+etc., where we use a subscript on the numeral to emphasize that the elements of each type
+$Fin(n)$ are distinct.
+
+The rules for dependent function types correspond closely with their counterparts for
+non-dependent functions:
 
 #pt(rule-set(
   prooftree(rule(
@@ -417,7 +429,7 @@ represents generically the type of an automorphism on $T$.
   )),
 ))
 
-== Product types
+== Dependent pair types
 
 - Introduce primitive constants $c_Sigma$ and $c_"pair"$, writing
   $c_Sigma (A, lambda (x : A) sd B)$ as $sum_(x : A) B(x)$ and $c_"pair" (a, b)$ as
