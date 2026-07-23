@@ -295,6 +295,8 @@ We have the following rules for universes and contexts.
   prooftree(rule($Gamma tack A : UU_i$, $Gamma tack A : UU_(i+1)$)),
 ))
 
+TODO: note about assuming that types appearing in contexts exist
+
 == Structural rules
 
 TODO: which of these do we need?
@@ -397,8 +399,9 @@ which returns the highest number available in $Fin(n)$; that is, $max(1) peq 0_(
 $max(2) peq 1_(Fin(2))$ etc., where we use a subscript on the numeral to emphasize that the
 elements of each type $Fin(n)$ are distinct.
 
-The rules for dependent function types correspond closely with their counterparts for
-non-dependent functions:
+Using primitive constants to represent syntax, we introduce a primitive constant $c_Pi$, and
+write $c_Pi (A, lambda (x : A) sd B)$ as $product_(x : A) B(x)$. The rules for dependent
+function types correspond closely with their counterparts for non-dependent functions:
 
 #pt(rule-set(
   prooftree(rule(
