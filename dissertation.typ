@@ -204,6 +204,8 @@ to encode new syntax, and will not be able to be reduced by some definition, whi
 constants are taken to be equivalent to some term (by a judgmental equality, which we will
 introduce in the next subsection) and thus able to be eliminated or reduced.
 
+TODO: discuss how to write definitions in open form for defined constants.
+
 The third term-forming rule, $t(t')$, represents function application, and we take the
 convention that it associates to the left, i.e. $t_1(t_2)(t_3)$ means $(t_1(t_2))(t_3)$. We
 will also write repeated application as $t_1(t_2, t_3)$, for reasons which will become clear
@@ -310,7 +312,7 @@ For each new type we introduce, we give the following data
 
 == Function types
 
-The first type we will introduce is the (non-dependent) function type. We introduce a
+The first type we will introduce is the (non-dependent) *function type*. We introduce a
 primitive constant $c_(->)$, and we will write $c_(->)(A, B)$ using the syntactic sugar
 $A -> B$.
 
@@ -385,15 +387,15 @@ TODO talk about type families vs just using contexts
 
 == Dependent function types
 
-Now we have introduced function types and type families, we introduce *dependent* function
-types. A dependent function is one in which the output type may depend on the input _value_.
-The notation for a dependent function type is $product_(x : A) B(x)$, where $B : A -> UU_i$
-is a type family. This represents the type of a function which takes a parameter $x$ of type
-$A$ and returns a value of type $B(x)$. Continuing the example of finite sets from above, we
-might define a function $sans("max") : product_(n : NN) Fin(n)$ which returns the highest
-number available in $Fin(n)$; that is, $max(1) peq 0_(Fin(1))$, $max(2) peq 1_(Fin(2))$
-etc., where we use a subscript on the numeral to emphasize that the elements of each type
-$Fin(n)$ are distinct.
+Now we have introduced function types and type families, we introduce *_dependent_ function
+types*. A dependent function is one in which the output type may depend on the input
+_value_. The notation for a dependent function type is $product_(x : A) B(x)$, where
+$B : A -> UU_i$ is a type family. This represents the type of a function which takes a
+parameter $x$ of type $A$ and returns a value of type $B(x)$. Continuing the example of
+finite sets from above, we might define a function $sans("max") : product_(n : NN) Fin(n)$
+which returns the highest number available in $Fin(n)$; that is, $max(1) peq 0_(Fin(1))$,
+$max(2) peq 1_(Fin(2))$ etc., where we use a subscript on the numeral to emphasize that the
+elements of each type $Fin(n)$ are distinct.
 
 The rules for dependent function types correspond closely with their counterparts for
 non-dependent functions:
@@ -431,12 +433,24 @@ non-dependent functions:
 
 == Dependent pair types
 
-- Introduce primitive constants $c_Sigma$ and $c_"pair"$, writing
-  $c_Sigma (A, lambda (x : A) sd B)$ as $sum_(x : A) B(x)$ and $c_"pair" (a, b)$ as
-  $(a, b)$.
-- Write $sum_(x : A) B(x)$ as $A times B$ if $x$ not free in $B$.
+We now introduce *pair types*. In its non-dependent variety, a pair type is written
+$A times B$ and its elements are pairs $(a, b)$ of elements of $A$ and $B$ respectively.
+This should be reasonably familiar to the reader from set theory or computer science. In
+fact, we will not take it as an axiom that all elements of $A times B$ are such pairs, but
+rather we will prove it using the uniqueness principle for functions. Generalizing this
+concept to a dependent form, we may consider pair types where the second type $B$ depends on
+the value of the first element of the pair. We write this as
+$
+  sum_(x : A) B(x)
+$
+where $A$ is a type and $B$ is a type family of type $A -> UU_i$.
 
-Formation and introduction:
+Our formal presentation defines dependent pair types first, and considers non-dependent pair
+types as a special case. Again using primitive constants to represent syntax, we introduce
+primitive constants $c_Sigma$ and $c_"pair"$, and we write
+$c_Sigma (A, lambda (x : A) sd B)$ as $sum_(x : A) B(x)$ and $c_"pair" (a, b)$ as $(a, b)$.
+
+These are the rules for formation and introduction of dependent pair types:
 #pt(rule-set(
   prooftree(rule(
     $Gamma tack A : UU_i$,
@@ -445,49 +459,45 @@ Formation and introduction:
     name: [$Sigma$-Form],
   )),
   prooftree(rule(
-    $Gamma tack a : A$,
-    $Gamma, x : A tack b : B(x)$,
-    $Gamma tack (a, b) : sum_(x : A) B(x)$,
-    name: [$Sigma$-Intr],
-  )),
-  prooftree(rule(
     $Gamma, x : A tack B(x) : UU_i$,
     $Gamma tack a : A$,
     $Gamma tack b : B(a)$,
     $Gamma tack (a, b) : sum_(x : A) B(x)$,
-    name: [$Sigma$-Intr\*],
+    name: [$Sigma$-Intr],
   )),
 ))
 
-TODO: is $Sigma$-Intr correct? differs from appendix slightly.
+For the special case of non-dependent pairs, where $x$ is not free in $B$, we write
+$sum_(x: A) B(x)$ as $A times B$.
 
-Elimination and computation:
+For the elimination and computation rules, we introduce a defined constant
+$ind_(sum_(x : A) B(x))$ (standing for "inductor") for each dependent pair type. The point
+of the inductor is to convert dependent functions of two variables into functions on
+dependent pairs. Our rules say that in order to define a (dependent) function out of a pair
+type, it is sufficient to provide a (dependent) function in two variables, which is applied
+to the first element of the pair and then the second. For the non-dependent case, this
+corresponds to the equivalence between functions $A times B -> C$ and functions
+$A -> B -> C$.
 
+The formal elimination and computation rules are as follows:
 #pt(rule-set(
   prooftree(rule(
     $Gamma tack C : sum_(x : A) B(x) -> UU_i$,
     $Gamma tack g : product_(x : A) product_(y : B) C((x, y))$,
-    $Gamma tack p : sum_(x : A) B(x)$,
-    $Gamma tack ind_(sum_(x : A) B(x)) (C, g, p) : C(p)$,
+    // $Gamma tack p : sum_(x : A) B(x)$,
+    $Gamma tack ind_(sum_(x : A) B(x)) (C, g) : product_(p : sum_(x : A) B(x)) C(p)$,
     name: [$Sigma$-Elim],
   )),
   prooftree(rule(
     $Gamma tack C : sum_(x : A) B(x) -> UU_i$,
     $Gamma tack g : product_(x : A) product_(y : B) C((x, y))$,
     $Gamma tack a : A$,
-    $Gamma, x : A tack b : B(x)$,
+    $Gamma tack b : B(a)$,
     $Gamma tack ind_(sum_(x : A) B(x)) (C, g, (a, b)) peq g(a, b)$,
     name: [$Sigma$-Comp],
   )),
-  prooftree(rule(
-    $Gamma tack C : sum_(x : A) B(x) -> UU_i$,
-    $Gamma tack g : product_(x : A) product_(y : B) C((x, y))$,
-    $Gamma tack a : A$,
-    $Gamma tack b : B(a)$,
-    $Gamma tack ind_(sum_(x : A) B(x)) (C, g, (a, b)) peq g(a, b)$,
-    name: [$Sigma$-Comp\*],
-  )),
 ))
+
 
 // #definition[If $A$ and $B$ are types, there is a *product type* $A times B$. There is also a
 //   nullary product type $one$.]
