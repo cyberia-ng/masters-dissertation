@@ -400,7 +400,7 @@ $max(2) peq 1_(Fin(2))$ etc., where we use a subscript on the numeral to emphasi
 elements of each type $Fin(n)$ are distinct.
 
 Using primitive constants to represent syntax, we introduce a primitive constant $c_Pi$, and
-write $c_Pi (A, lambda (x : A) sd B)$ as $product_(x : A) B(x)$. The rules for dependent
+write $c_Pi (A, lambda (x : A) sd B(x))$ as $product_(x : A) B(x)$. The rules for dependent
 function types correspond closely with their counterparts for non-dependent functions:
 
 #pt(rule-set(
@@ -428,8 +428,8 @@ function types correspond closely with their counterparts for non-dependent func
     name: [$Pi$-Comp],
   )),
   prooftree(rule(
-    $Gamma tack f : product_(x : A)B$,
-    $Gamma tack f peq lambda (x : A) sd f x : product_(x : A) B$,
+    $Gamma tack f : product_(x : A) B(x)$,
+    $Gamma tack f peq lambda (x : A) sd f x : product_(x : A) B(x)$,
     name: [$Pi$-Uniq],
   )),
 ))
@@ -451,7 +451,8 @@ where $A$ is a type and $B$ is a type family of type $A -> UU_i$.
 Our formal presentation defines dependent pair types first, and considers non-dependent pair
 types as a special case. Again using primitive constants to represent syntax, we introduce
 primitive constants $c_Sigma$ and $c_"pair"$, and we write
-$c_Sigma (A, lambda (x : A) sd B)$ as $sum_(x : A) B(x)$ and $c_"pair" (a, b)$ as $(a, b)$.
+$c_Sigma (A, lambda (x : A) sd B(x))$ as $sum_(x : A) B(x)$ and $c_"pair" (a, b)$ as
+$(a, b)$.
 
 These are the rules for formation and introduction of dependent pair types:
 #pt(rule-set(
