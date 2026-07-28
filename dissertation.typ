@@ -149,10 +149,12 @@
 #let rec = $sans("rec")$
 #let ind = $sans("ind")$
 #let one = $bold(1)$
+#let zero = $bold(0)$
 #let ctx = $sans("ctx")$
 #let Fin = $"Fin"$
 #let inl = $sans("inl")$
 #let inr = $sans("inr")$
+#let succ = $sans("succ")$
 #let pt(label: none, ..args) = {
   if label != none {
     [#math.equation(
@@ -584,6 +586,104 @@ Rules:
   ),
 )
 
+== Booleans, or finite types
+
+=== The singleton type $one$
+
+#pt(
+  rule-set(
+    prooftree(rule($one : UU_i$, name: [$one$-Form])),
+    prooftree(rule($star : one$, name: [$one$-Intr])),
+  ),
+)
+
+- We need to define $C$ as a type family because we have not yet proved that $one$ only has
+  a single element. Similarly the inductor returns a function $product_(a: one) C(a)$.
+
+#pt(rule-set(
+  prooftree(rule(
+    $Gamma tack C : one -> UU_i$,
+    $Gamma tack c : C(star)$,
+    $Gamma tack ind_one (C, c) : product_(a : one) C(a)$,
+    name: [$one$-Elim],
+  )),
+  prooftree(rule(
+    $Gamma tack C : one -> UU_i$,
+    $Gamma tack c : C(*)$,
+    $Gamma tack ind_one (C, c, star) peq c$,
+    name: [$one$-Comp],
+  )),
+))
+
+- We can view $one$ as the "unit" for the non-dependent pair type $- times -$.
+
+=== The empty type $zero$
+
+- There is no introduction rule
+#pt(
+  rule-set(
+    prooftree(rule($zero : UU_i$, name: [$zero$-Form])),
+  ),
+)
+
+- There is no computation rule
+#pt(rule-set(
+  prooftree(rule(
+    $Gamma tack C : zero -> UU_i$,
+    $Gamma tack ind_zero (C) : product_(a : zero) C(a)$,
+    name: [$one$-Elim],
+  )),
+))
+
+- We can view $zero$ as the "unit" for the non-dependent coproduct type $- thin + thin -$.
+
+== Natural numbers
+
+#pt(rule-set(
+  prooftree(rule($Gamma tack NN : UU_i$, name: [$NN$-Form])),
+  prooftree(rule(
+    $Gamma tack 0 : NN$,
+    name: [$NN$-Intro-0],
+  )),
+  prooftree(rule(
+    $Gamma tack n : NN$,
+    $Gamma tack succ(n) : NN$,
+    name: [$NN$-Intro-$succ$],
+  )),
+))
+
+#pt(rule-set(
+  prooftree(rule(
+    $Gamma tack C : NN -> UU_i$,
+    $Gamma tack c_0 : C(0)$,
+    $Gamma tack c_s : product_(n : NN) (C(n) -> C(succ(n)))$,
+    $Gamma tack ind_NN (C, c_0, c_s) : product_(n : NN) C(n)$,
+    name: [$NN$-Elim],
+  )),
+  prooftree(rule(
+    $Gamma tack C : NN -> UU_i$,
+    $Gamma tack c_0 : C(0)$,
+    $Gamma tack c_s : product_(n : NN) (C(n) -> C(succ(n)))$,
+    $Gamma tack ind_NN (C, c_0, c_s, 0) peq c_0$,
+    name: [$NN$-Comp-0],
+  )),
+  prooftree(rule(
+    $Gamma tack C : NN -> UU_i$,
+    $Gamma tack c_0 : C(0)$,
+    $Gamma tack c_s : product_(n : NN) (C(n) -> C(succ(n)))$,
+    $Gamma tack n : NN$,
+    $Gamma tack ind_NN (C, c_0, c_s, succ(n)) peq c_s (n, ind_NN (C, c_0, c_s, n))$,
+    name: [$NN$-Comp-$succ$],
+  )),
+))
+
+- These computation rules are known as primitive recursion
+  - TODO expand on what is _primitive_ recursion
+- Remark that although in defining functions out of $NN$, we have to give $c_s$, which is a
+  function out of $NN$, we can always define constant functions which throw away $n$ (such
+  as iterators like product, sum), which can then form a basis for $c_s$ for more complex
+  functions such as factorial.
+  - Define all these
 
 // #definition[If $A$ and $B$ are types, there is a *product type* $A times B$. There is also a
 //   nullary product type $one$.]
