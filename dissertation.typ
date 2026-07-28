@@ -685,6 +685,12 @@ Rules:
   functions such as factorial.
   - Define all these
 
+== Proofs about our types
+
+- Pair types consist only of pairs
+- $one$ has only one element
+- Construct finite sets
+
 // #definition[If $A$ and $B$ are types, there is a *product type* $A times B$. There is also a
 //   nullary product type $one$.]
 
