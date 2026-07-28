@@ -151,6 +151,8 @@
 #let one = $bold(1)$
 #let ctx = $sans("ctx")$
 #let Fin = $"Fin"$
+#let inl = $sans("inl")$
+#let inr = $sans("inr")$
 #let pt(label: none, ..args) = {
   if label != none {
     [#math.equation(
@@ -474,33 +476,113 @@ These are the rules for formation and introduction of dependent pair types:
 For the special case of non-dependent pairs, where $x$ is not free in $B$, we write
 $sum_(x: A) B(x)$ as $A times B$.
 
-For the elimination and computation rules, we introduce a defined constant
-$ind_(sum_(x : A) B(x))$ (standing for "inductor") for each dependent pair type. The point
-of the inductor is to convert dependent functions of two variables into functions on
-dependent pairs. Our rules say that in order to define a (dependent) function out of a pair
-type, it is sufficient to provide a (dependent) function in two variables, which is applied
-to the first element of the pair and then the second. For the non-dependent case, this
-corresponds to the equivalence between functions $A times B -> C$ and functions
-$A -> B -> C$.
+For the elimination and computation rules, we introduce, for each dependent pair type, a
+defined constant $ind_(sum_(x : A) B(x))$ (standing for "inductor"). The point of the
+inductor is to convert dependent functions of two variables into functions on dependent
+pairs. Our rules say that in order to define a (dependent) function out of a pair type, it
+is sufficient to provide a (dependent) function in two variables, which is applied to the
+first element of the pair and then the second. For the non-dependent case, this corresponds
+to the equivalence between functions $A times B -> C$ and functions $A -> B -> C$.
+
+The action of transforming binary functions into functions on pair types is captured by the
+following type of $ind_(sum_(x : A) B(x))$.
+
+$
+  ind_(sum_(x: A) B(x)) : product_(C : (sum_(x: A) B(x)) -> UU_i) ((product_(x: A) product_(y:B(x))
+      C((x, y))) -> product_(p : sum_(x: A) B(x)) C(p))
+$
 
 The formal elimination and computation rules are as follows:
 #pt(rule-set(
   prooftree(rule(
-    $Gamma tack C : sum_(x : A) B(x) -> UU_i$,
+    $Gamma tack sum_(x: A) B(x) : UU_i$,
+    $Gamma tack C : (sum_(x : A) B(x)) -> UU_i$,
     $Gamma tack g : product_(x : A) product_(y : B) C((x, y))$,
     // $Gamma tack p : sum_(x : A) B(x)$,
     $Gamma tack ind_(sum_(x : A) B(x)) (C, g) : product_(p : sum_(x : A) B(x)) C(p)$,
     name: [$Sigma$-Elim],
   )),
   prooftree(rule(
+    $Gamma tack sum_(x: A) B(x) : UU_i$, // TODO necessary?
     $Gamma tack C : sum_(x : A) B(x) -> UU_i$,
-    $Gamma tack g : product_(x : A) product_(y : B) C((x, y))$,
+    $Gamma tack g : product_(x : A) product_(y : B(x)) C((x, y))$,
     $Gamma tack a : A$,
     $Gamma tack b : B(a)$,
     $Gamma tack ind_(sum_(x : A) B(x)) (C, g, (a, b)) peq g(a, b)$,
     name: [$Sigma$-Comp],
   )),
 ))
+
+== Coproduct types
+
+- Constants $c_+$, $inl$, $inr$
+  - $c_+(A, B)$ written as $A + B$
+- Analogous to discriminated unions of two elements, aka `Either` in Haskell
+
+#pt(rule-set(
+  prooftree(rule(
+    $Gamma tack A : UU_i$,
+    $Gamma tack B : UU_i$,
+    $Gamma tack A + B : UU_i$,
+    name: [$+$-Form],
+  )),
+  prooftree(rule(
+    $Gamma tack A : UU_i$,
+    $Gamma tack B : UU_i$,
+    $Gamma tack a : A$,
+    $Gamma tack inl(a) : A + B$,
+    name: [$+$-Intr-L],
+  )),
+  prooftree(rule(
+    $Gamma tack A : UU_i$,
+    $Gamma tack B : UU_i$,
+    $Gamma tack b : B$,
+    $Gamma tack inr(b) : A + B$,
+    name: [$+$-Intr-R],
+  )),
+))
+
+Elim and comp:
+
+- Constant $ind_(A+B)$ for each coproduct type
+
+Type of $ind_(A+B)$:
+$
+  ind_(A+B) : product_(C:A + B -> UU_i) ((product_(x : A) C(inl(x))) -> (product_(x: B) C(inr(x))) -> product_(x : A+B) C(x))
+$
+
+Rules:
+
+#pt(
+  rule-set(
+    prooftree(rule(
+      $Gamma tack A + B : UU_i$, // TODO: necessary?
+      $Gamma tack C : A + B -> UU_i$,
+      $Gamma tack f : product_(x : A) C(inl(x))$,
+      $Gamma tack g : product_(x : B) C(inr(x))$,
+      $Gamma tack ind_(A+B) (C, f, g) : product_(x:A) C(x)$,
+      name: [$+$-Elim],
+    )),
+    prooftree(rule(
+      $Gamma tack A + B : UU_i$, // TODO: necessary?
+      $Gamma tack C : A + B -> UU_i$,
+      $Gamma tack f : product_(x : A) C(inl(x))$,
+      $Gamma tack g : product_(x : B) C(inr(x))$,
+      $Gamma tack a : A$,
+      $Gamma tack ind_(A+B) (C, f, g, inl(a)) peq f(a)$,
+      name: [$+$-Comp-L],
+    )),
+    prooftree(rule(
+      $Gamma tack A + B : UU_i$, // TODO: necessary?
+      $Gamma tack C : A + B -> UU_i$,
+      $Gamma tack f : product_(x : A) C(inl(x))$,
+      $Gamma tack g : product_(x : B) C(inr(x))$,
+      $Gamma tack b : B$,
+      $Gamma tack ind_(A+B) (C, f, g, inl(b)) peq g(b)$,
+      name: [$+$-Comp-R],
+    )),
+  ),
+)
 
 
 // #definition[If $A$ and $B$ are types, there is a *product type* $A times B$. There is also a
