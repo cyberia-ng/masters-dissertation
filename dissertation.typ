@@ -155,6 +155,7 @@
 #let inl = $sans("inl")$
 #let inr = $sans("inr")$
 #let succ = $sans("succ")$
+#let refl = $sans("refl")$
 #let pt(label: none, ..args) = {
   if label != none {
     [#math.equation(
@@ -685,11 +686,68 @@ Rules:
   functions such as factorial.
   - Define all these
 
+== Identity types
+
+#pt(rule-set(
+  prooftree(rule(
+    $Gamma tack A : UU_i$,
+    $Gamma tack a : A$,
+    $Gamma tack b : B$,
+    $Gamma tack a =_A b : UU_i$,
+    name: [=-Form],
+  )),
+  prooftree(rule(
+    $Gamma tack A : UU_i$,
+    $Gamma tack a : A$,
+    $Gamma tack refl_a : a =_A a$,
+    name: [=-Intr],
+  )),
+))
+
+#pt(rule-set(
+  prooftree(rule(
+    $Gamma tack A : UU_i$,
+    $Gamma tack C : product_(x : A) product_(y : A) ((x =_A y) -> UU_i)$,
+    $Gamma tack c : product_(z : A) C(z, z, refl_z)$,
+    $Gamma tack ind_=_A (C, c) : product_(a : A) product_(b : A) product_(p : a =_A b) C(a, b, p)$,
+    name: [=-Elim],
+  )),
+  prooftree(rule(
+    $Gamma tack A : UU_i$,
+    $Gamma tack C : product_(x : A) product_(y : A) ((x =_A y) -> UU_i)$,
+    $Gamma tack c : product_(z : A) C(z, z, refl_z)$,
+    $Gamma tack a : A$,
+    $Gamma tack ind_=_A (C, c, a, a, refl_a) peq c(a)$,
+    name: [=-Comp],
+  )),
+))
+
 == Proofs about our types
 
-- Pair types consist only of pairs
+#proposition[(TODO wording) Pair types consist only of pairs.]
+#proof[
+  Define projections:
+  $
+    pi_0 &:peq ind_(A times B)(lambda (\_ : A times B) sd A, lambda (x : A) sd lambda (y : B) sd x) : A times B -> A \
+    pi_1 &:peq ind_(A times B)(lambda (\_ : A times B) sd B, lambda (x : A) sd lambda (y : B) sd y) : A times B -> B.
+  $
+  Now in the inductor put
+  $
+    C :peq lambda (x : A times B) sd ((pi_0(x), pi_1(x)) =_(A times B) x) : A times B -> UU_i,
+  $
+  so need to provide a function of type
+  $ product_(x : A) product_(y : B) ((pi_0((x, y)), pi_1(x, y)) =_(A times B) (x, y)). $
+  But $(pi_0((x, y)), pi_1(x, y)) peq (x, y)$, so $refl_((x, y))$ is such a function.
+  Therefore
+  $
+    ind_(A times B) (C, refl_((x, y))) : product_(p : A times B) ((pi_0(p), pi_1(p)) =_(A times B) p)
+  $
+  as required.
+]
+
 - $one$ has only one element
 - Construct finite sets
+- TODO Something using equality elim/comp
 
 // #definition[If $A$ and $B$ are types, there is a *product type* $A times B$. There is also a
 //   nullary product type $one$.]
