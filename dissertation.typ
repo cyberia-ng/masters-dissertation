@@ -156,6 +156,17 @@
 #let inr = $sans("inr")$
 #let succ = $sans("succ")$
 #let refl = $sans("refl")$
+#let bigrule = (..args) => {
+  let judgments = args.pos()
+  let kwargs = args.named()
+  rule(
+    ..judgments.map(j => block(
+      inset: (left: 0em, right: 0em, top: 0em, bottom: 0.27em),
+      j,
+    )),
+    ..kwargs,
+  )
+}
 #let pt(label: none, ..args) = {
   if label != none {
     [#math.equation(
@@ -415,12 +426,12 @@ function types correspond closely with their counterparts for non-dependent func
     $Gamma tack product_(x : A) B(x) : UU_i$,
     name: [$Pi$-Form],
   )),
-  prooftree(rule(
+  prooftree(bigrule(
     $Gamma, x : A tack b : B(x)$,
     $Gamma tack lambda (x : A) sd b : product_(x : A) B(x)$,
     name: [$Pi$-Intr],
   )),
-  prooftree(rule(
+  prooftree(bigrule(
     $Gamma tack f : product_(x: A) B(x)$,
     $Gamma tack a : A$,
     $Gamma tack f(a) : B(a)$,
@@ -432,7 +443,7 @@ function types correspond closely with their counterparts for non-dependent func
     $Gamma tack (lambda (x : A) sd b)(a) peq b[a slash x] : B(a)$,
     name: [$Pi$-Comp],
   )),
-  prooftree(rule(
+  prooftree(bigrule(
     $Gamma tack f : product_(x : A) B(x)$,
     $Gamma tack f peq lambda (x : A) sd f x : product_(x : A) B(x)$,
     name: [$Pi$-Uniq],
@@ -497,7 +508,7 @@ $
 
 The formal elimination and computation rules are as follows:
 #pt(rule-set(
-  prooftree(rule(
+  prooftree(bigrule(
     $Gamma tack sum_(x: A) B(x) : UU_i$,
     $Gamma tack C : (sum_(x : A) B(x)) -> UU_i$,
     $Gamma tack g : product_(x : A) product_(y : B) C((x, y))$,
@@ -505,7 +516,7 @@ The formal elimination and computation rules are as follows:
     $Gamma tack ind_(sum_(x : A) B(x)) (C, g) : product_(p : sum_(x : A) B(x)) C(p)$,
     name: [$Sigma$-Elim],
   )),
-  prooftree(rule(
+  prooftree(bigrule(
     $Gamma tack sum_(x: A) B(x) : UU_i$, // TODO necessary?
     $Gamma tack C : sum_(x : A) B(x) -> UU_i$,
     $Gamma tack g : product_(x : A) product_(y : B(x)) C((x, y))$,
@@ -558,7 +569,7 @@ Rules:
 
 #pt(
   rule-set(
-    prooftree(rule(
+    prooftree(bigrule(
       $Gamma tack A + B : UU_i$, // TODO: necessary?
       $Gamma tack C : A + B -> UU_i$,
       $Gamma tack f : product_(x : A) C(inl(x))$,
@@ -566,7 +577,7 @@ Rules:
       $Gamma tack ind_(A+B) (C, f, g) : product_(x:A) C(x)$,
       name: [$+$-Elim],
     )),
-    prooftree(rule(
+    prooftree(bigrule(
       $Gamma tack A + B : UU_i$, // TODO: necessary?
       $Gamma tack C : A + B -> UU_i$,
       $Gamma tack f : product_(x : A) C(inl(x))$,
@@ -575,7 +586,7 @@ Rules:
       $Gamma tack ind_(A+B) (C, f, g, inl(a)) peq f(a)$,
       name: [$+$-Comp-L],
     )),
-    prooftree(rule(
+    prooftree(bigrule(
       $Gamma tack A + B : UU_i$, // TODO: necessary?
       $Gamma tack C : A + B -> UU_i$,
       $Gamma tack f : product_(x : A) C(inl(x))$,
@@ -654,21 +665,21 @@ Rules:
 ))
 
 #pt(rule-set(
-  prooftree(rule(
+  prooftree(bigrule(
     $Gamma tack C : NN -> UU_i$,
     $Gamma tack c_0 : C(0)$,
     $Gamma tack c_s : product_(n : NN) (C(n) -> C(succ(n)))$,
     $Gamma tack ind_NN (C, c_0, c_s) : product_(n : NN) C(n)$,
     name: [$NN$-Elim],
   )),
-  prooftree(rule(
+  prooftree(bigrule(
     $Gamma tack C : NN -> UU_i$,
     $Gamma tack c_0 : C(0)$,
     $Gamma tack c_s : product_(n : NN) (C(n) -> C(succ(n)))$,
     $Gamma tack ind_NN (C, c_0, c_s, 0) peq c_0$,
     name: [$NN$-Comp-0],
   )),
-  prooftree(rule(
+  prooftree(bigrule(
     $Gamma tack C : NN -> UU_i$,
     $Gamma tack c_0 : C(0)$,
     $Gamma tack c_s : product_(n : NN) (C(n) -> C(succ(n)))$,
@@ -705,14 +716,15 @@ Rules:
 ))
 
 #pt(rule-set(
-  prooftree(rule(
+  prooftree(bigrule(
     $Gamma tack A : UU_i$,
     $Gamma tack C : product_(x : A) product_(y : A) ((x =_A y) -> UU_i)$,
     $Gamma tack c : product_(z : A) C(z, z, refl_z)$,
     $Gamma tack ind_=_A (C, c) : product_(a : A) product_(b : A) product_(p : a =_A b) C(a, b, p)$,
+
     name: [=-Elim],
   )),
-  prooftree(rule(
+  prooftree(bigrule(
     $Gamma tack A : UU_i$,
     $Gamma tack C : product_(x : A) product_(y : A) ((x =_A y) -> UU_i)$,
     $Gamma tack c : product_(z : A) C(z, z, refl_z)$,
