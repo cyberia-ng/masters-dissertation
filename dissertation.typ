@@ -498,6 +498,13 @@ is sufficient to provide a (dependent) function in two variables, which is appli
 first element of the pair and then the second. For the non-dependent case, this corresponds
 to the equivalence between functions $A times B -> C$ and functions $A -> B -> C$.
 
+The name "inductor" in this context is somewhat confusing, since no induction is being
+performed. However, it is a concept which will be generalized to the other types we will
+introduce, and in the case of the natural numbers its name will be more appropriate. It is
+generally useful to have a common pattern for the computation and elimination rules of a
+type, and the purpose of the inductor is to represent this pattern. In general, the inductor
+provides a way to construct functions out of a type by providing simpler functions.
+
 The action of transforming binary functions into functions on pair types is captured by the
 following type of $ind_(sum_(x : A) B(x))$.
 
@@ -529,9 +536,15 @@ The formal elimination and computation rules are as follows:
 
 == Coproduct types
 
-- Constants $c_+$, $inl$, $inr$
-  - $c_+(A, B)$ written as $A + B$
-- Analogous to discriminated unions of two elements, aka `Either` in Haskell
+The next type we introduce is the coproduct. These correspond to disjoint unions from set
+theory, or to discriminated unions from computer science. Conceptually, it represents a type
+whose elements can be either elements of a type $A$ or elements of a type $B$. In the
+functional programming language Haskell, for example, this type is called `Either`.
+
+We introduce three more primitive constants, $c_+$, $inl$ and $inr$. We write $c_+ (A, B)$
+as $A + B$. Elements of $A + B$ can be constructed by terms $inl(a)$, where $a : A$, and
+$inl(b)$, where $b : B$. These are the formal rules for formation and construction of the
+coproduct:
 
 #pt(rule-set(
   prooftree(rule(
@@ -556,16 +569,19 @@ The formal elimination and computation rules are as follows:
   )),
 ))
 
-Elim and comp:
+In order to define a function out of a coproduct type, we need to provide two functions: one
+which operates on elements of type $A$ and one which operates on elements of type $B$, and
+then we choose which function to use depending on the "source" type of the particular
+element. We use a defined constant $ind_(A+B)$ to perform this construction, using the
+pattern of the inductor established previously. This situation is captured by the following
+type of $ind_(A+B)$:
 
-- Constant $ind_(A+B)$ for each coproduct type
-
-Type of $ind_(A+B)$:
 $
   ind_(A+B) : product_(C:A + B -> UU_i) ((product_(x : A) C(inl(x))) -> (product_(x: B) C(inr(x))) -> product_(x : A+B) C(x))
 $
 
-Rules:
+The following are the elimination and computation rules for the coproduct, using the
+inductor:
 
 #pt(
   rule-set(
@@ -600,7 +616,13 @@ Rules:
 
 == Booleans, or finite types
 
+Having given a number of ways of forming types from existing types, we now move on to
+defining some "basic" types, which exist without prerequisites. We begin with two important
+types, namely the boolean types $one$ and $zero$.
+
 === The singleton type $one$
+
+
 
 #pt(
   rule-set(
@@ -621,7 +643,7 @@ Rules:
   )),
   prooftree(rule(
     $Gamma tack C : one -> UU_i$,
-    $Gamma tack c : C(*)$,
+    $Gamma tack c : C(star)$,
     $Gamma tack ind_one (C, c, star) peq c$,
     name: [$one$-Comp],
   )),
