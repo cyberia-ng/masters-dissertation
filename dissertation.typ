@@ -614,15 +614,26 @@ inductor:
   ),
 )
 
-== Booleans, or finite types
+== Finite types
 
 Having given a number of ways of forming types from existing types, we now move on to
-defining some "basic" types, which exist without prerequisites. We begin with two important
-types, namely the boolean types $one$ and $zero$.
+defining some "basic" types, which exist without prerequisites. We begin with two types
+related to pairs and coproducts.
 
 === The singleton type $one$
 
+When considering non-dependent pair types, we note that we can recursively construct $n$-ary
+tuple types by considering a $times$-chain such as $(A_1 times A_2) times A_3$ and so on.
+This gives rise to the question of what we might mean by a "nullary" pair type, i.e. the
+type of an empty $times$-chain. The nullary type for pairs is the *singleton type*, denoted
+$one$. Unlike in set theory, where the singleton set is defined as a set with exactly one
+element, we will define $one$ in our usual way with introduction and computation rules, and
+_prove_ that it contains only one element.
 
+In functional programming, this type is often known as the "unit type". In Haskell and Rust,
+it is written `()`.
+
+The formation and introduction rules for $one$ are:
 
 #pt(
   rule-set(
@@ -631,8 +642,20 @@ types, namely the boolean types $one$ and $zero$.
   ),
 )
 
-- We need to define $C$ as a type family because we have not yet proved that $one$ only has
-  a single element. Similarly the inductor returns a function $product_(a: one) C(a)$.
+
+When defining the elimination and computation rules for $one$, using the inductor, we cannot
+assume that $one$ has exactly one element. Indeed, the introduction rule states only that
+there is at least one element of type $one$, making no restrictions on the possibility of
+other elements. As a consequence of this, the inductor must be generic over a type family
+$C : one -> UU_i$, rather than a particular type $C' : UU_i$, even though we know
+intuitively that each such family $C$ can only identify one type in $UU_i$.
+
+The type of the inductor is therefore
+$
+  ind_one : product_(C : one -> UU_i) (C(star) -> product_(a : one) C(a)).
+$
+
+The elimination and computation rules for $one$ are as follows:
 
 #pt(rule-set(
   prooftree(rule(
@@ -649,27 +672,30 @@ types, namely the boolean types $one$ and $zero$.
   )),
 ))
 
-- We can view $one$ as the "unit" for the non-dependent pair type $- times -$.
-
 === The empty type $zero$
 
-- There is no introduction rule
+Analogously to considering the nullary type of the pair type $times$, we may consider the
+nullary type of the coproduct $+$. We call this type the *empty type*, denoted $zero$. Since
+we intend this type to have no elements, it has no introduction or computation rules: the
+only thing we can say about it is that it is a type (its formation rule) and that functions
+out of it can be constructed (its elimination rule). The lack of a computation rule
+corresponds to the idea that functions out of it cannot be evaluated, since it is impossible
+to construct an element.
+
+In functional programming, this type is often known as the "bottom type". In Haskell it is
+written $bot$, and in Rust it is written `!`. It is used as the return type of functions
+which diverge (i.e. either do not terminate or crash the program).
+
 #pt(
   rule-set(
     prooftree(rule($zero : UU_i$, name: [$zero$-Form])),
+    prooftree(rule(
+      $Gamma tack C : zero -> UU_i$,
+      $Gamma tack ind_zero (C) : product_(a : zero) C(a)$,
+      name: [$one$-Elim],
+    )),
   ),
 )
-
-- There is no computation rule
-#pt(rule-set(
-  prooftree(rule(
-    $Gamma tack C : zero -> UU_i$,
-    $Gamma tack ind_zero (C) : product_(a : zero) C(a)$,
-    name: [$one$-Elim],
-  )),
-))
-
-- We can view $zero$ as the "unit" for the non-dependent coproduct type $- thin + thin -$.
 
 == Natural numbers
 
