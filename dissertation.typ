@@ -699,6 +699,9 @@ which diverge (i.e. either do not terminate or crash the program).
 
 == Natural numbers
 
+We are now ready to introduce the type of natural numbers, $NN$. We first declare that there
+is a natural number 0, and from there say that every natural number has a successor.
+
 #pt(rule-set(
   prooftree(rule($Gamma tack NN : UU_i$, name: [$NN$-Form])),
   prooftree(rule(
@@ -711,6 +714,11 @@ which diverge (i.e. either do not terminate or crash the program).
     name: [$NN$-Intro-$succ$],
   )),
 ))
+
+The process of defining functions out of the natural numbers is by *primitive recursion*.
+That is to say, we provide the value that our desired function takes at 0, and we provide a
+"successor" function which computes the value of the function at the successor of a natural
+number $n$, given $n$ itself and the value at $n$.
 
 #pt(rule-set(
   prooftree(bigrule(
@@ -736,6 +744,63 @@ which diverge (i.e. either do not terminate or crash the program).
     name: [$NN$-Comp-$succ$],
   )),
 ))
+
+#remark[It may seem counterintuitive that in order to construct functions out of the natural
+  numbers, we must provide a successor function $c_s$ which is itself a function out of the
+  natural numbers. However, there is no circular logic here, since we may always define
+  constant functions which simply throw away their argument. These kinds of successor
+  functions, which ignore the first argument (the value of $n$) and consume only the second
+  argument (the value of our target function at the predecessor value) are useful for
+  defining "accumulator" functions such as sum and product. More complex functions which
+  require knowledge of $n$ itself, such as the factorial, may then be constructed out of
+  these more basic functions.]
+
+#let add = $sans("add")$
+#example(add)[
+  $ add : NN -> NN -> NN $
+  We introduce a defined constant $add$, and define it using the inductor where
+  - $C :peq lambda (\_ : NN) sd NN$, i.e. $C$ is a constant type family always returning
+    $NN$;
+  - $c_0 :peq a$, where $a$ will be the first parameter to $add$; and
+  - $c_s :peq lambda (\_ : NN) sd lambda (p : NN) sd succ(p)$, i.e. at every step, $c_s$
+    returns the successor of the value at the previous step.
+
+  These amount to the following definition rule:
+  #pt(rule-set(prooftree(rule(
+    $Gamma tack a : NN$,
+    $Gamma tack add(a) peq ind_NN (lambda (\_ : NN) sd NN, a, lambda (\_: NN) sd lambda (p : NN)) sd succ(p))$,
+  ))))
+
+  Using the conventional notation of $1$ for $succ(0)$, $2$ for $succ(1)$, etc., let us
+  compute the value of $add(1, 1)$. In this computation we will use $C$ and $c_s$ to refer
+  to the terms defined above.
+
+  Since we have $0 : NN$, we have $1 : NN$ by rule "$NN$-Intro-$succ$", so the antecedent
+  $a : NN$ is satisfied. Then using the definition rule for $add$, we have the following
+  judgment for $add(1, 1)$:
+  $
+    add(1, 1) peq ind_NN (C, 1, c_s, 1).
+  $
+  Unwrapping $1$ as $succ(0)$, we then use the rule "$NN$-Comp-$succ$". (We omit the
+  verification that our $C$ and $c_s$ terms satisfy the necessary antecedents.) We obtain
+  $
+    add(1, 1) peq c_s (0, ind_NN (C, 1, c_s, 0)).
+  $
+  We use the rule "$NN$-Comp-0" on the inner $ind_NN$ term to get
+  $
+    add(1, 1) peq c_s (0, 1),
+  $
+  i.e.
+  $
+    add(1, 1) peq (lambda (\_ : NN) sd lambda (p : NN) sd succ(p)) (0, 1).
+  $
+
+  Using the rule "$->$-Comp" (the $beta$ rule) twice to perform the function application, we
+  get
+  $
+    add(1, 1) peq succ(1) peq 2.
+  $
+]
 
 - These computation rules are known as primitive recursion
   - TODO expand on what is _primitive_ recursion
