@@ -758,7 +758,7 @@ number $n$, given $n$ itself and the value at $n$.
 #let add = $sans("add")$
 #example(add)[
   $ add : NN -> NN -> NN $
-  We introduce a defined constant $add$, and define it using the inductor where
+  We introduce a defined constant $add$, and define it using the inductor, where
   - $C :peq lambda (\_ : NN) sd NN$, i.e. $C$ is a constant type family always returning
     $NN$;
   - $c_0 :peq a$, where $a$ will be the first parameter to $add$; and
@@ -781,8 +781,9 @@ number $n$, given $n$ itself and the value at $n$.
   $
     add(1, 1) peq ind_NN (C, 1, c_s, 1).
   $
-  Unwrapping $1$ as $succ(0)$, we then use the rule "$NN$-Comp-$succ$". (We omit the
-  verification that our $C$ and $c_s$ terms satisfy the necessary antecedents.) We obtain
+  Unwrapping the second occurrence of $1$ as $succ(0)$, we then use the rule
+  "$NN$-Comp-$succ$". (We omit the verification that our $C$ and $c_s$ terms satisfy the
+  necessary antecedents.) We obtain
   $
     add(1, 1) peq c_s (0, ind_NN (C, 1, c_s, 0)).
   $
@@ -799,6 +800,100 @@ number $n$, given $n$ itself and the value at $n$.
   get
   $
     add(1, 1) peq succ(1) peq 2.
+  $
+]<example:add>
+
+#let prod = $sans("prod")$
+#example(prod)[
+  $ prod : NN -> NN -> NN $
+  Similarly to $add$, we introduce a defined constant $prod$ and define it using the
+  inductor, where
+  - $C :peq lambda (\_ : NN) sd NN$
+  - $c_0 :peq 0$
+  - $c_s :peq lambda (\_: NN) sd lambda (p : NN) sd add(a, p)$, where $a$ will be the first
+    parameter to $prod$.
+
+  These amount to the following definition rule:
+  #pt(prooftree(rule(
+    $Gamma tack a : NN$,
+    $prod(a) peq ind_NN (lambda (\_ : NN) sd NN, 0, lambda (\_ : NN) sd lambda (p: NN) sd add(p, a))$,
+  )))
+
+  Let us again compute an example product, $prod(3, 2)$, following the convention of
+  @example:add.
+
+  We apply the definition rule to obtain
+  $
+    prod(3, 2) peq ind_NN (C, 0, c_s, 3, 2).
+  $
+
+  Then, unwrapping $2$ as $succ(1)$, we apply $NN$-Comp-$succ$ to obtain
+  $
+    prod(3, 2) peq c_s (1, ind_NN (C, 0, c_s, 1)).
+  $
+
+  Using the $beta$-rule to apply $c_s$, we get
+  $
+    prod(3, 2) peq add(3, ind_NN (C, 0, c_s, 1)).
+  $
+
+  By another application of $NN$-Comp-$succ$ and the $beta$-rule on the inner $ind$ term, we
+  obtain
+  $
+    prod(3, 2) peq add(3, add(3, ind_NN (C, 0, c_s, 0))).
+  $
+
+  Now, by applying $NN$-Comp-0 to the inner $ind$ term, we obtain
+  $
+    prod(3, 2) peq add(3, add(3, 0)).
+  $
+
+  Finally, by computing the resulting expression using the process in @example:add, we
+  arrive at
+  $
+    prod(3, 2) peq 6.
+  $
+]<example:prod>
+
+#let fact = $sans("fact")$
+#example(fact)[
+  Both @example:add and @example:prod used a step function $c_s$ which ignored its first
+  parameter, i.e. the recursion counter. We now demonstrate a function, namely the factorial
+  function, which uses this value.
+
+  $ fact : NN -> NN $
+
+  We introduce a defined constant $fact$ and define it using the inductor, where
+  - $C :peq lambda (\_ : NN) sd NN$
+  - $c_0 :peq 1$
+  - $c_s :peq lambda (s: NN) sd lambda (p: NN) sd prod(succ(s), p)$
+
+  These amount to the following definition rule:
+  #pt(prooftree(rule(
+    $fact peq ind_NN (lambda (\_ : NN) sd NN, 1, lambda (s : NN) sd lambda (p : NN) sd prod(s, p))$,
+  )))
+
+  For a demonstration, we compute $fact(3)$. We apply the definition rule to obtain
+  $
+    fact(3) peq ind_NN (C, 1, c_s, 3),
+  $
+  to which we then apply the $NN$-Comp-$succ$ rule to obtain
+  $
+    fact(3) peq c_s (2, ind_NN (C, 1, c_s, 2)).
+  $
+  Repeated applications of the $beta$-rule and $NN$-Comp-$succ$ gets us
+  $
+    fact(3) & peq prod(3, c_s (1, ind_NN (C, 1, c_s, 1))) \
+            & peq prod(3, prod(2, c_s (0, ind_NN (C, 1, c_s, 0)))) \
+            & peq prod(3, prod(2, prod(1, ind_NN (C, 1, c_s, 0)))).
+  $
+  Then, we apply $NN$-Comp-0 to the remaining $ind$ term to get
+  $
+    fact(3) peq prod(3, prod(2, prod(1, 1)))
+  $
+  and applying the process in @example:prod we arrive at
+  $
+    fact(3) peq 6.
   $
 ]
 
