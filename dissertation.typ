@@ -899,6 +899,92 @@ number $n$, given $n$ itself and the value at $n$.
 
 - TODO expand on what is _primitive_ recursion
 
+== Propositions as types
+
+An interesting property of type theory is that it corresponds with the principles of
+(constructive) logic. Indeed, we may translate propositional logic into types as follows:
+(TODO make table, cite book explicitly)
+- True: $one$
+- False: $zero$
+- A and B: $A times B$
+- A or B: $A + B$
+- A implies B: $A -> B$
+- Not A: $A -> zero$.
+
+We consider a proposition to be true if its corresponding type has an element, and we call
+this element a *witness* to the truth of the proposition. A worked example in (TODO: HOTT
+book) gives a proof of one of de Morgan's laws,
+$ "if not A and not B, then not (A or B)". $
+The type translation of this is
+$ (A -> zero) times (B -> zero) -> (A + B) -> zero. $
+In order to prove this, we must exhibit an element of this type. Such an element is given as
+$
+  f((x, y), inl(z)) & :peq x(z) \
+  f((x, y), inr(z)) & :peq y(z).
+$
+In our formal definitions this translates to
+$
+  C_1 &:peq lambda (\_: (A -> zero) times (B -> zero)) sd zero \
+  C_2 &:peq lambda (\_: A + B) sd zero \
+  g &:peq ind_(A + B) (C_2, lambda (z : A) sd x(z), lambda (z : B) sd y(z)) \
+  f &:peq ind_((A -> zero) times (B -> zero)) (C_1, lambda (x : A -> zero) sd lambda (y : B -> zero) sd g).
+$
+
+#example[
+  It is left as an exercise in (HOTT book) to show the converse, i.e.
+  $
+    "if not (A or B) then (not A) and (not B)"
+  $
+
+  That is to say, we want to exhibit an element
+  $ t : ((A + B) -> zero) -> ((A -> zero) times (B -> zero)). $
+
+  Let $Gamma tack A : UU_i, b : UU_i, z : (A + B) -> zero$. Then we have
+
+  #pt(prooftree(
+    rule(
+      rule(
+        rule($Gamma, a : A tack inl(a) : A + B$, name: [$+$-Intr-L]),
+        $Gamma, a : A tack f(inl(a)) : zero$,
+        name: [$->$-Elim],
+      ),
+      $Gamma tack lambda (a : A) sd f(inl(a)) : A -> zero$,
+      name: [$->$-Intr],
+    ),
+  ))
+
+  By a similar deduction we get
+  #pt(prooftree(rule(
+    $Gamma tack lambda (b : B) sd f(inr(b)) : B -> zero$,
+  )))
+
+  Writing these as a pair, we get
+  #pt(prooftree(rule(
+    rule(
+      $Gamma tack lambda (a : A) sd f(inl(a)) : A -> zero$,
+    ),
+    rule(
+      $Gamma tack lambda (b : B) sd f(inr(b)) : B -> zero$,
+    ),
+    $Gamma tack (lambda (a : A) sd f(inl(a)), lambda (b : B) sd f (inr(b))) : (A -> zero) times (B -> zero)$,
+    name: [$Sigma$-Intr],
+  )))
+
+  Then applying $->$-Intr (removing $f$ from the context) we obtain a term
+  $
+    lambda (f : (A + B) -> zero) sd (lambda (a : A) sd f(inl(a)), lambda (b : B) sd f(inr(b))),
+  $
+  which has type
+  $ ((A + B) -> zero) -> ((A -> zero) times (B -> zero)) $
+  as required.
+]
+
+We may use the fact that we are working in dependent type theory to move from propositional
+to predicate logic by considering a type family $P : A -> UU_i$ as a predicate and
+translating
+- "for all $x$, $P(x)$" to $product_(x : A) P(x)$, and
+- "there exists an $x$ such that $P(x)$" to $sum_(x : A) P(x)$.
+
 == Identity types
 
 We now arrive at one of the more powerful mechanics of dependent type theory, the concept of
@@ -927,14 +1013,6 @@ and introduction rules are:
   )),
 ))
 
-put
-$ C :peq lambda (x : A) sd lambda (y : A) sd lambda (\_ : (x =_A y)) sd D(y) $
-no - should be D(x) -> D(y)
-then
-$
-ind_(=_A) (C) : product_(a : A) product_(b : A) product_(p : a =_A b) product_(c : product_(z : A) D(z)) D(b)
-$
-
 
 #pt(rule-set(
   prooftree(bigrule(
@@ -954,6 +1032,25 @@ $
     name: [=-Comp],
   )),
 ))
+
+#example([Derivation of indiscernibility of identicals])[
+  put
+  $ C :peq lambda (x : A) sd lambda (y : A) sd lambda (\_ : (x =_A y)) sd (D(x) -> D(y)) $
+  and
+  $
+    c & : product_(z : A) C(z, z, refl_z)             && peq product_(z: A) D(z) -> D(z) \
+    c & :peq lambda (z : A) sd lambda (x : D(z)) sd x && peq lambda (z : A) sd id_D(z)
+  $
+  then there is a function
+  $
+    ind_(=_A) (C, c) : product_(x : A) product_(y : A) product_(p : x =_A y) D(x) -> D(y)
+  $
+  such that
+  $
+    ind_(=_A) (C, c, x, x, refl_x) peq id_D(x)
+  $
+]
+
 
 == Proofs about our types
 
