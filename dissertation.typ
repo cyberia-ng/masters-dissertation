@@ -927,6 +927,15 @@ and introduction rules are:
   )),
 ))
 
+put
+$ C :peq lambda (x : A) sd lambda (y : A) sd lambda (\_ : (x =_A y)) sd D(y) $
+no - should be D(x) -> D(y)
+then
+$
+ind_(=_A) (C) : product_(a : A) product_(b : A) product_(p : a =_A b) product_(c : product_(z : A) D(z)) D(b)
+$
+
+
 #pt(rule-set(
   prooftree(bigrule(
     $Gamma tack A : UU_i$,
