@@ -897,15 +897,19 @@ number $n$, given $n$ itself and the value at $n$.
   $
 ]
 
-- These computation rules are known as primitive recursion
-  - TODO expand on what is _primitive_ recursion
-- Remark that although in defining functions out of $NN$, we have to give $c_s$, which is a
-  function out of $NN$, we can always define constant functions which throw away $n$ (such
-  as iterators like product, sum), which can then form a basis for $c_s$ for more complex
-  functions such as factorial.
-  - Define all these
+- TODO expand on what is _primitive_ recursion
 
 == Identity types
+
+We now arrive at one of the more powerful mechanics of dependent type theory, the concept of
+the *identity type*. The identity type is a way of proving an equality _within_ type theory,
+as opposed to the judgmental (metatheoretic) equality we have been using up to now. The idea
+is that, since types may depend on values, we can construct a type $a =_A b$ for $a$ and $b$
+terms of type $A$, and an element of this type is a _proof_ of the equality of $a$ and $b$.
+
+The introduction rule consists of an element $refl_a$ of type $a =_A a$, i.e. it is an axiom
+that there is a proof of equality of $a$ with itself. The formal statements of the formation
+and introduction rules are:
 
 #pt(rule-set(
   prooftree(rule(
