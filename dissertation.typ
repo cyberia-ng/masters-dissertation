@@ -479,7 +479,7 @@ These are the rules for formation and introduction of dependent pair types:
     name: [$Sigma$-Form],
   )),
   prooftree(rule(
-    $Gamma, x : A tack B(x) : UU_i$,
+    $Gamma tack B : A -> UU_i$,
     $Gamma tack a : A$,
     $Gamma tack b : B(a)$,
     $Gamma tack (a, b) : sum_(x : A) B(x)$,
@@ -932,9 +932,9 @@ $
 
 #example[
   It is left as an exercise in (HOTT book) to show the converse, i.e.
-  $
-    "if not (A or B) then (not A) and (not B)"
-  $
+  #align(center)[
+    if not ($A$ or $B$) then (not $A$) and (not $B$)
+  ]
 
   That is to say, we want to exhibit an element
   $ t : ((A + B) -> zero) -> ((A -> zero) times (B -> zero)). $
@@ -984,6 +984,51 @@ to predicate logic by considering a type family $P : A -> UU_i$ as a predicate a
 translating
 - "for all $x$, $P(x)$" to $product_(x : A) P(x)$, and
 - "there exists an $x$ such that $P(x)$" to $sum_(x : A) P(x)$.
+
+#example[The statement
+  #block(inset: (left: 2em, right: 2em))[#align(center)[if for all $x : A$, $P(x)$ and
+    $Q(x)$, then for all $x : A$, $P(x)$ and for all $x : A$, $Q(x)$]]
+  translates to the type
+  $
+    (product_(x : A) P(x) times Q(x)) -> (product_(x : A) P(x)) times (product_(x : A) Q(x))
+  $
+  which has an element
+  $
+    lambda (f : product_(x : A) P(x) times Q(x)) sd (lambda (x : A) sd pi_0(f(x)), lambda (x : A) sd pi_1(f(x))).
+  $
+]
+
+#let leq = $sans("leq")$
+#example[We define inequality on the natural numbers as a function $leq$. For ease of
+  notation, we express $leq(n, m)$ and $add(a, b)$ (from @example:add) using infix notation:
+  $n <= m$ and $a + b$ respectively.
+
+  We define $leq$ as
+  $
+    n <= m :peq sum_(p : NN) n + p =_NN m.
+  $
+
+  We are jumping the gun here by using the identity type $=_NN$, which will be introduced in
+  the next section. For now, it suffices to know that for any type $A$ and element $a : A$,
+  there is a type $a =_A a$ and an element $refl_a : a =_A a$.
+
+  Considering the statement $1 <= 2$, we translate this to the dependent pair
+  $ sum_(p : NN) 1 + p =_NN 2. $
+  To show this is inhabited, consider the element $refl_2 : 2 =_NN 2$. Since we have shown
+  that $1 + 1 peq 2$, we may rewrite the 2 on the left hand side of $refl_2$ to get
+  $refl_2 : 1 + 1 =_NN 2$. Then applying the rules for dependent pair types, we have
+
+  #pt(prooftree(rule(
+    bigrule($Gamma tack lambda (p : NN) sd 1 + p =_NN 2 : NN -> UU_i$),
+    bigrule($Gamma tack 1 : NN$),
+    bigrule($Gamma tack refl_2 : 1 + 1 =_NN 2$),
+    $Gamma tack (1, refl_2) : sum_(p : NN) (1 + p =_NN 2)$,
+    name: [$Sigma$-Intr],
+  )))
+
+  so the type $1 <= 2$ is inhabited by the pair $(1, refl_2)$.
+]
+
 
 == Identity types
 
