@@ -1036,11 +1036,11 @@ We now arrive at one of the more powerful mechanics of dependent type theory, th
 the *identity type*. The identity type is a way of proving an equality _within_ type theory,
 as opposed to the judgmental (metatheoretic) equality we have been using up to now. The idea
 is that, since types may depend on values, we can construct a type $a =_A b$ for $a$ and $b$
-terms of type $A$, and an element of this type is a _proof_ of the equality of $a$ and $b$.
+terms of type $A$, and an element of this type is a witness to the equality of $a$ and $b$.
 
 The introduction rule consists of an element $refl_a$ of type $a =_A a$, i.e. it is an axiom
-that there is a proof of equality of $a$ with itself. The formal statements of the formation
-and introduction rules are:
+that there is a witness to the equality of $a$ with itself. The formal statements of the
+formation and introduction rules are:
 
 #pt(rule-set(
   prooftree(rule(
@@ -1058,11 +1058,14 @@ and introduction rules are:
   )),
 ))
 
+The elimination and computation rules represent the *path induction principle*, which is
+"one of the most subtle parts of type theory". We will state the formal definitions of the
+rules first, and then examine their meaning using examples.
 
 #pt(rule-set(
   prooftree(bigrule(
     $Gamma tack A : UU_i$,
-    $Gamma tack C : product_(x : A) product_(y : A) ((x =_A y) -> UU_i)$,
+    $Gamma tack C : product_(x : A) product_(y : A) (x =_A y) -> UU_i$,
     $Gamma tack c : product_(z : A) C(z, z, refl_z)$,
     $Gamma tack ind_=_A (C, c) : product_(a : A) product_(b : A) product_(p : a =_A b) C(a, b, p)$,
 
@@ -1070,7 +1073,7 @@ and introduction rules are:
   )),
   prooftree(bigrule(
     $Gamma tack A : UU_i$,
-    $Gamma tack C : product_(x : A) product_(y : A) ((x =_A y) -> UU_i)$,
+    $Gamma tack C : product_(x : A) product_(y : A) (x =_A y) -> UU_i$,
     $Gamma tack c : product_(z : A) C(z, z, refl_z)$,
     $Gamma tack a : A$,
     $Gamma tack ind_=_A (C, c, a, a, refl_a) peq c(a)$,
@@ -1078,23 +1081,53 @@ and introduction rules are:
   )),
 ))
 
-#example([Derivation of indiscernibility of identicals])[
-  put
-  $ C :peq lambda (x : A) sd lambda (y : A) sd lambda (\_ : (x =_A y)) sd (D(x) -> D(y)) $
-  and
+A useful first point of understanding these rules is to compute a consequence of them, the
+*indiscernibility of identicals*. It means that predicates (or types) which are satisfied by
+some element remain satisfied by any equal element, i.e. that equal terms may be substituted
+for each other.
+
+#proposition([Indiscernibility of identicals])[For every type family $D : A -> UU_i$ there
+  is a function
   $
-    c & : product_(z : A) C(z, z, refl_z)             && peq product_(z: A) D(z) -> D(z) \
-    c & :peq lambda (z : A) sd lambda (x : D(z)) sd x && peq lambda (z : A) sd id_D(z)
+    f : product_(x : A) product_(y : A) product_(x =_A y) D(x) -> D(y)
   $
-  then there is a function
+  such that for all $z : A$
+  $
+    f(z, z, refl_z) peq id_D(z).
+  $
+]
+
+#proof[
+  Fix a type family $D : A -> UU_i$.
+
+  Define $C$, as in the computation and elimination rules, as
+  $ C :peq lambda (x : A) sd lambda (y : A) sd lambda (\_ : (x =_A y)) sd (D(x) -> D(y)), $
+  which has the type
+  $ C : product_(x : A) product_(y : A) (x =_A y) -> UU_i $
+  as required in the antecedents of the rules.
+
+  Also define $c$ as
+  $
+    c :peq lambda (z : A) sd lambda (x : D(z)) sd x peq lambda (z : A) sd id_D(z)
+  $
+  which has the type
+  $ c & : product_(z : A) C(z, z, refl_z) && peq product_(z: A) D(z) -> D(z) $
+  as similarly required in the antecedents.
+
+  Then by using the elimination rule, we obtain a function
   $
     ind_(=_A) (C, c) : product_(x : A) product_(y : A) product_(p : x =_A y) D(x) -> D(y)
   $
-  such that
+  and by using the computation rule (and function application), we have
   $
     ind_(=_A) (C, c, x, x, refl_x) peq id_D(x)
   $
+  as required.
 ]
+
+This principle says that, given $x : A$ and $y : A$, and a witness to their equality, we can
+transform any witness to the predicate $D(x)$ into a witness to $D(y)$, and that when we
+consider the witness $refl_x$ to the equality $x_A x$, this transformation is the identity.
 
 
 == Proofs about our types
