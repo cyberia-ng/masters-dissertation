@@ -1260,62 +1260,53 @@ our previously-defined types.
 - Construct finite sets
 - TODO Something using equality elim/comp
 
-// #definition[If $A$ and $B$ are types, there is a *product type* $A times B$. There is also a
-//   nullary product type $one$.]
-
-// An element of a product type may be introduced as a *pair* using bracketing notation. If
-// $s : A$ and $t : B$ are terms, then $(s, t) : A times B$ is a term.
-
-// We assume that a function out of $A times B$ is completely determined by is action on pairs,
-// and a function out of $one$ is completely determined by is action on a (unique?) element
-// $star : one$. Using this, we will prove (TODO) that the elements of $A times B$ are
-// precisely the pairs, and $one$ has a unique element $star$.
-
-
 #block[
   #set text(luma(130))
   == ... Fragments ...
-  === TODO
-  - construct finite sets
-
-
-
-  ---
-
-  with the following rules: supposing $A$ and $B$ are types,
-  - There is a *function type* $A -> B$.
-  - There is a *product type* $A times B$.
-  - There is a *coproduct type* $A + B$.
-
-
-  ---
-
   - Judgemental equality vs propositional equality: $peq$ vs $=$
-  - Function types
-    - Definition in closed form or open form
-
-  == Dependent functions
-
-  Functions whose output type depends on the input (type or value). Given a type $A$ and a
-  family $B : A -> UU$, write
-  $ f : product_(x : A) B(x) $
-  to mean a function which takes a parameter $x$ of type $A$ and returns a value of type
-  $B(x)$.
-
-  == Product types
-
-  === "Recursor"
-
-  - Generic way to construct functions taking product parameters, using simple functions
-
-  $
-    & rec_(A times B) : product_(C: UU) (A -> B -> C) -> A times B -> C \
-    & rec_(A times B) (C, g, (a, b)) :peq g(a)(b)
-  $
-
-  Projections:
-  $
-    pi_1 & :peq rec_(A times B)(A, lambda a sd lambda b sd a) \
-    pi_2 & :peq rec_(A times B)(B, lambda a sd lambda b sd b)
-  $
 ]
+
+= Homotopy
+
+In this section we will... TODO
+
+We begin with a brief discursive exposition of classical homotopy theory, from the point of
+view of a set-theoretic foundation of topological spaces.
+
+In a space $X$, consisting of points equipped with a topology, a *path* from a point $x$ to
+a point $y$ is a continuous map $f : [0, 1] -> X$ such that $f(0) = x$ and $f(1) = y$. We
+can construct the inverse of a path, such as $f^(-1)$ which walks from $y$ back to $x$, and
+also composition of paths: supposing $g : [0, 1] -> X$ is a path such that $g(0) = y$ and
+$g(1) = z$, the composition $f bullet g$ is a path which walks from $x$ to $z$ via $y$.
+(Note that our definition of the "inverse path" $f^(-1)$ is _not_ the inverse function of
+$f$ -- in general such an inverse function need not even exist -- and our definition of path
+composition is similarly unrelated to function composition, and notated in the opposite
+order.)
+
+Given spaces $X_1$, $X_2$ and two continuous maps $f, g : X_1 -> X_2$, we may consider a
+continuous map $H : [0, 1] times X_1 -> X_2$ such that $H(0, -) = f$ and $H(1, -) = g$.
+(Note that such a map $H$ does not in general always exist.) Such maps between maps are
+called *homotopies*. We may think of a homotopy as continuously deforming the map $f$ into
+$g$. If we additionally require that $H(t, 0) = x$ and $H(t, 1) = y$ for all $t in [0, 1]$,
+we say that $H$ is *endpoint preserving*.
+
+---
+
+Given two paths $f$ and $g$, we can consider a continuous deformation $phi$ of $f$ to $g$.
+The function $phi : [0, 1]^2 -> X$ must be continuous and satisfy $phi(0, -) = f$ and
+$phi(1, -) = g$. We may consider $phi$ as a 2-dimensional path, or a path between paths.
+Given another continuous deformation from $f$ to $g$, say $psi$, we may further consider
+continuous deformations from $phi$ to $psi$, and so on. Such $n$-dimensional paths are known
+as *homotopies*. Of course, if the space contains a hole, or some other kind of
+discontinuity, such deformations may not be possible.
+
+Homotopies form an equivalence relation on the paths they deform. The proofs of reflexivity
+and transitivity are trivial, and the proof of symmetry is trivial in the case of a strictly
+monotonic function, and easily generalizable from there. (TODO cite something?)
+
+- Paths and paths between paths
+- Structure: composition, inversion
+- $infinity$-groupoid
+  - associativity up to next level
+  - inverses up to next level
+  - identity?
