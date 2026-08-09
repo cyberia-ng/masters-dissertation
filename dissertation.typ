@@ -385,7 +385,7 @@ in $lambda$-calculus.
 
 == Type families
 
-A type family is an element of a function type $A -> UU_i$, i.e. it is a function which
+A *type family* is an element of a function type $A -> UU_i$, i.e. it is a function which
 takes some parameter (of type $A$) and returns a type. In this way, we can construct types
 which depend on values, which is central to dependent type theory. An example (which we will
 return to later) is the type family of finite sets, $Fin : NN -> UU_i$. We have not yet
@@ -449,6 +449,54 @@ function types correspond closely with their counterparts for non-dependent func
     name: [$Pi$-Uniq],
   )),
 ))
+
+=== Functions in "open form" vs "closed form"
+
+When we wish to introduce a constant which will be defined to be equal to some function, our
+syntax so far allows us to write expressions such as
+$
+  f :peq lambda (x : A) sd t.
+$
+For simple functions such as this one, this form is straightforward, however when
+considering functiosn of multiple arguments, the syntax quickly becomes unwieldy. Consider
+the definition
+$
+  g :peq lambda (C : A -> UU_i) sd lambda (x : A) sd lambda (y : C(x)) sd t.
+$
+If $t$ itself is a complicated expression, one can see how this syntax becomes difficult to
+read.
+
+To this end, we will sometimes adopt a definition in "open form", which is presentationally
+more similar to the standard mathematical style of function definition. Supposing the term
+$t$ has type $B$, we first declare the type of $g$:
+$ g : product_(C : A -> UU_i) product_(x : A) C(x) -> B $
+and then define it for all arguments
+$ g(C, x, y) :peq t. $
+
+We hope the reader agrees that this "open form" is clearer and easier to read.
+
+=== Discarded parameters
+
+Furthermore, we may use the symbol $\_$ as the name of a parameter to indicate that it will
+not occur freely in the definition of the function. This is to indicate "constant"
+functions, which because of their type must take a parameter, but immediately discard it. A
+common usage will be a type family that does not in fact use its parameter and always
+returns the same type. For example, when we later work with the type of natural numbers, we
+may use the type family
+$
+  & C : NN -> UU_i \
+  & C(\_) :peq A
+$
+or alternatively in closed form
+$
+  C :peq lambda (\_: NN) sd A.
+$
+This indicates a type family $C$ which may theoretically depend on a natural number, but in
+fact evaluates to the type $A$ at every number.
+
+This is useful when we wish to apply our induction terms (which are expressed in full
+generality using type families and dependent functions) in a way which happens to be
+non-dependent.
 
 == Dependent pair types
 
@@ -759,13 +807,13 @@ number $n$, given $n$ itself and the value at $n$.
 #example(add)[
   $ add : NN -> NN -> NN $
   We introduce a defined constant $add$, and define it using the inductor, where
-  - $C :peq lambda (\_ : NN) sd NN$, i.e. $C$ is a constant type family always returning
-    $NN$;
+  - $C(\_) :peq NN$, i.e. $C$ is a constant type family always returning $NN$;
   - $c_0 :peq a$, where $a$ will be the first parameter to $add$; and
-  - $c_s :peq lambda (\_ : NN) sd lambda (p : NN) sd succ(p)$, i.e. at every step, $c_s$
-    returns the successor of the value at the previous step.
+  - $c_s (\_, p) :peq succ(p)$, i.e. at every step, $c_s$ returns the successor of the value
+    at the previous step.
 
-  These amount to the following definition rule:
+  These amount to the following definition rule (taking $C$ and $c_s$ in their closed-form
+  equivalents):
   #pt(rule-set(prooftree(rule(
     $Gamma tack a : NN$,
     $Gamma tack add(a) peq ind_NN (lambda (\_ : NN) sd NN, a, lambda (\_: NN) sd lambda (p : NN)) sd succ(p))$,
@@ -808,10 +856,9 @@ number $n$, given $n$ itself and the value at $n$.
   $ prod : NN -> NN -> NN $
   Similarly to $add$, we introduce a defined constant $prod$ and define it using the
   inductor, where
-  - $C :peq lambda (\_ : NN) sd NN$
+  - $C(\_) :peq NN$
   - $c_0 :peq 0$
-  - $c_s :peq lambda (\_: NN) sd lambda (p : NN) sd add(a, p)$, where $a$ will be the first
-    parameter to $prod$.
+  - $c_s (\_, p) :peq add(a, p)$, where $a$ will be the first parameter to $prod$.
 
   These amount to the following definition rule:
   #pt(prooftree(rule(
@@ -864,9 +911,9 @@ number $n$, given $n$ itself and the value at $n$.
   $ fact : NN -> NN $
 
   We introduce a defined constant $fact$ and define it using the inductor, where
-  - $C :peq lambda (\_ : NN) sd NN$
+  - $C(n) :peq NN$
   - $c_0 :peq 1$
-  - $c_s :peq lambda (s: NN) sd lambda (p: NN) sd prod(succ(s), p)$
+  - $c_s (s, p) :peq prod(succ(s), p)$
 
   These amount to the following definition rule:
   #pt(prooftree(rule(
@@ -1103,18 +1150,21 @@ satisfied by any equal element, i.e. that equal terms may be substituted for eac
   Fix a type family $D : A -> UU_i$.
 
   Define $C$, as in the computation and elimination rules, as
-  $ C :peq lambda (x : A) sd lambda (y : A) sd lambda (\_ : (x =_A y)) sd (D(x) -> D(y)), $
-  which has the type
-  $ C : product_(x : A) product_(y : A) (x =_A y) -> UU_i $
-  as required in the antecedents of the rules.
+  $
+    C : product_(x : A) product_(y : A) (x =_A y) -> UU_i \
+    C(x, y, \_) :peq D(x) -> D(y).
+  $
 
   Also define $c$ as
   $
-    c :peq lambda (z : A) sd lambda (x : D(z)) sd x peq lambda (z : A) sd id_D(z)
+    c : product_(z : A) C(z, z, refl_z) \
+    c(z, x) :peq x,
   $
-  which has the type
-  $ c & : product_(z : A) C(z, z, refl_z) && peq product_(z: A) D(z) -> D(z) $
-  as similarly required in the antecedents.
+  or equivalently (by judgmental equality),
+  $
+    c : product_(z : A) D(z) -> D(z) \
+    c(z) :peq id_D(z).
+  $
 
   Then by using the elimination rule, we obtain a function
   $
@@ -1147,26 +1197,64 @@ are judgmentally equal.
 
 == Proofs about our types
 
-#proposition[(TODO wording) Pair types consist only of pairs.]
-#proof[
-  Define projections:
+Now that we have defined identity types, we can make some statements about identities within
+our previously-defined types.
+
+#proposition[Every element of a pair type $A times B$ is equal to $(x, y)$, for some
+  $x : A$, $y : B$.]
+#proof[Since we did not mention projections from pairs earlier, we define the projections
+  $pi_0$ and $pi_1$. First we define multi-parameter functions
   $
-    pi_0 &:peq ind_(A times B)(lambda (\_ : A times B) sd A, lambda (x : A) sd lambda (y : B) sd x) : A times B -> A \
-    pi_1 &:peq ind_(A times B)(lambda (\_ : A times B) sd B, lambda (x : A) sd lambda (y : B) sd y) : A times B -> B.
+    & pi'_0 : A -> B -> A \
+    & pi'_0 (x, y) :peq x \
+    & pi'_1 : A -> B -> B \
+    & pi'_1 (x, y) :peq y
   $
-  Now in the inductor put
+  and then define the projections as
   $
-    C :peq lambda (x : A times B) sd ((pi_0(x), pi_1(x)) =_(A times B) x) : A times B -> UU_i,
+    pi_0 & :peq ind_(A times B) (lambda (\_ : A times B) sd A, pi'_0) \
+    pi_1 & :peq ind_(A times B) (lambda (\_ : A times B) sd B, pi'_1)
   $
-  so need to provide a function of type
-  $ product_(x : A) product_(y : B) ((pi_0((x, y)), pi_1(x, y)) =_(A times B) (x, y)). $
-  But $(pi_0((x, y)), pi_1(x, y)) peq (x, y)$, so $refl_((x, y))$ is such a function.
-  Therefore
+  so that $pi_0$ and $pi_1$ have types
   $
-    ind_(A times B) (C, refl_((x, y))) : product_(p : A times B) ((pi_0(p), pi_1(p)) =_(A times B) p)
+    pi_0 & : A times B -> A \
+    pi_1 & : A times B -> B.
+  $
+  By some application of the rules for functions and pairs, it is easy to show that
+  $pi_0((x, y)) peq x$ and $pi_1((x, y)) peq y$ for all pairs $(x, y) : A times B$.
+
+  Now we define a type family $C$ as
+  $
+    C : A times B -> UU_i \
+    C(z) :peq (pi_0(z), pi_1(z)) =_(A times B) z.
+  $
+  That is to say, $C(z)$ represents the proposition that $z$ is equal to the pair of its
+  projections. Our aim, then, is to show that $C(z)$ is inhabited for all $z : A times B$.
+
+  To construct a function out of a pair type $A times B$, we know by the elimination rule
+  that it is sufficient to give a multi-parameter function on $A$ and $B$. So to construct a
+  function $f : product_(z : A times B) C(z)$, it is sufficient to show a function
+  $g : product_(x : A) product_(y : B) C((x, y))$.
+
+  Since we know that $pi_0((x, y)) peq x$ and $pi_1((x, y)) peq y$, we see that we can
+  rewrite the type of $refl_((x, y))$ as
+  $ refl_((x, y)) : (pi_0((x, y)), pi_1((x, y))) =_(A times B) (x, y) $
+  i.e.
+  $
+    refl_((x, y)) : C((x, y)).
+  $
+
+  Therefore for our function $g : product_(x : A) product_(y : B) C((x, y))$, we put
+  $
+    g(x, y) :peq refl_((x, y)).
+  $
+  Applying the inductor, we get
+  $
+    ind_(A times B) (C, g) : product_(z : A times B) C(z)
   $
   as required.
 ]
+
 
 - $one$ has only one element
 - Construct finite sets
@@ -1187,6 +1275,8 @@ are judgmentally equal.
 #block[
   #set text(luma(130))
   == ... Fragments ...
+  === TODO
+  - construct finite sets
 
 
 
