@@ -1082,14 +1082,16 @@ rules first, and then examine their meaning using examples.
 ))
 
 A useful first point of understanding these rules is to compute a consequence of them, the
-*indiscernibility of identicals*. It means that predicates (or types) which are satisfied by
-some element remain satisfied by any equal element, i.e. that equal terms may be substituted
-for each other.
+*indiscernibility of identicals*. In terms of types and elements, it gives us a way of
+"transporting" an element of a type $C(x)$ into an element of a type $C(y)$, as long as
+there is a witness to the equality of $x$ and $y$. Translated to the language of type
+families as predicates, it means that predicates which are satisfied by some element remain
+satisfied by any equal element, i.e. that equal terms may be substituted for each other.
 
 #proposition([Indiscernibility of identicals])[For every type family $D : A -> UU_i$ there
   is a function
   $
-    f : product_(x : A) product_(y : A) product_(x =_A y) D(x) -> D(y)
+    f : product_(x : A) product_(y : A) (x =_A y) -> D(x) -> D(y)
   $
   such that for all $z : A$
   $
@@ -1127,7 +1129,20 @@ for each other.
 
 This principle says that, given $x : A$ and $y : A$, and a witness to their equality, we can
 transform any witness to the predicate $D(x)$ into a witness to $D(y)$, and that when we
-consider the witness $refl_x$ to the equality $x_A x$, this transformation is the identity.
+consider the witness $refl_x$ to the equality $x =_A x$, this transformation is the
+identity.
+
+Moving to the general form of the elimination rule, we allow $C$ to depend not only on
+$x : A$ and $y : A$ (which must be equal) but also on the specific witness $p$ to their
+equality. The rule supposes that we have such a family $C$, and an element of it ($c(z)$)
+for all $z : A$, where we plug in the axiomatic reflexive equality of $z$ with itself. We
+then get an element of $C(a, b, p)$ for all $a : A$, $b : A$ such that $a$ and $b$ are
+equal. In other words, if we want to construct an element of the family $C(a, b, p)$, it is
+sufficient to show an element of $C(z, z, refl_z)$. In the language of propositions and
+predicates, if $C(z, z, refl_z)$ is true -- i.e. $C$ is a reflexive predicate -- then
+$C(a, b, p)$ is true whenever $p$ proves that $a$ and $b$ are equal. Moreover, the general
+form of the computation rule gives us a judgmental equality in the case where $a$ and $b$
+are judgmentally equal.
 
 
 == Proofs about our types
