@@ -1270,6 +1270,8 @@ our previously-defined types.
 
 In this section we will... TODO
 
+== Classical homotopy theory
+
 We begin with a brief discursive exposition of classical homotopy theory, from the point of
 view of a set-theoretic foundation of topological spaces.
 
@@ -1288,25 +1290,59 @@ continuous map $H : [0, 1] times X_1 -> X_2$ such that $H(0, -) = f$ and $H(1, -
 (Note that such a map $H$ does not in general always exist.) Such maps between maps are
 called *homotopies*. We may think of a homotopy as continuously deforming the map $f$ into
 $g$. If we additionally require that $H(t, 0) = x$ and $H(t, 1) = y$ for all $t in [0, 1]$,
-we say that $H$ is *endpoint preserving*.
+we say that $H$ is *endpoint preserving*. By setting $X_1$ to the singleton set, we can
+consider paths themselves to be homotopies between points, and furthermore the notion of
+inverses and composition generalize to the case of homotopies.
 
----
+By considering the space of functions $[0, 1] -> X$ itself as a topological space (TODO
+verify we can do this), denoted $X'$, we get a notion of homotopies between homotopies. This
+concept can be iterated up to infinity, so we have a tower of homotopies at different
+"levels".
 
-Given two paths $f$ and $g$, we can consider a continuous deformation $phi$ of $f$ to $g$.
-The function $phi : [0, 1]^2 -> X$ must be continuous and satisfy $phi(0, -) = f$ and
-$phi(1, -) = g$. We may consider $phi$ as a 2-dimensional path, or a path between paths.
-Given another continuous deformation from $f$ to $g$, say $psi$, we may further consider
-continuous deformations from $phi$ to $psi$, and so on. Such $n$-dimensional paths are known
-as *homotopies*. Of course, if the space contains a hole, or some other kind of
-discontinuity, such deformations may not be possible.
+Moreover, homotopies form an equivalence relation on the paths or homotopies they transform.
+For paths (or homotopies) $f$ and $g$, we say $f ~ g$ if there exists an endpoint-preserving
+homotopy $H$ between them. The rules of equivalence relations then follow from the above
+construction of inverses and composition. For example, if we have a path $p$ from a point
+$x$ to a point $y$, the composition $p bullet p^(-1)$, which walks from $x$ to $y$ and then
+back again, can be deformed continuously to the constant path $q$, which does not move from
+$x$. Therefore we have $p bullet p^(-1) ~ q$.
 
-Homotopies form an equivalence relation on the paths they deform. The proofs of reflexivity
-and transitivity are trivial, and the proof of symmetry is trivial in the case of a strictly
-monotonic function, and easily generalizable from there. (TODO cite something?)
+== $infinity$-groupoids
 
-- Paths and paths between paths
-- Structure: composition, inversion
-- $infinity$-groupoid
-  - associativity up to next level
-  - inverses up to next level
-  - identity?
+This structure of paths which can be inverted and composed, with an equivalence relation
+that works up to the next "level", is structurally represented by the concept of an
+$infinity$-groupoid. In category theory, a groupoid is a category where all morphisms are
+invertible. An $infinity$-groupoid is a categorical object (precisely, a quasi-category),
+characterized by a base level of objects and morphisms, and morphisms at level $n$ form the
+objects at level $n + 1$. Furthermore, morphisms at level $n$ follow the usual categorical
+notions of identity and composition, as well as having an inverse, up to transformation by
+morphisms at level $n + 1$.
+
+That is to say, every object at every level has an identity morphism, denoted $1_X$ for an
+object $X$, and for a morphism
+$X -->^f Y$
+at level $n$, there is a morphism
+$Y -->^(f^(-1)) X$
+at level $n$ and a morphism
+$ f bullet f^(-1) -->^H 1_X $
+at level $n + 1$, so that we have an equivalence
+$ f bullet f^(-1) ~ 1_X. $
+Furthermore, if we have morphisms
+$ W -->^f X -->^g Y -->^h Z $
+at level $n$, then we have associativity expressed as
+$ (f bullet g) bullet h ~ f bullet (g bullet h) : W --> Z, $
+i.e. there is a (by definition, invertible) morphism
+$(f bullet g) bullet h -->^H f bullet (g bullet h)$ at level $n + 1$.
+
+This structure describes very well the structure of our identity types from the previous
+chapter. We may consider the type $x =_A y$ as representing the collection of paths (or
+morphisms) from $x$ to $y$. Given some witness (or path) $p : x =_A y$, we may wish to know
+if it is equal to some other witness $q : x =_A y$, which would be represented by the type
+$ p =_((x =_A y)) q. $
+The type $p = q$ exists at the next level up from the type $x = y$, so this fits naturally
+into the $infinity$-groupoid structure.
+
+For the remainder of this chapter, we will forget the topological specifics of homotopies,
+and work structurally using $infinity$-groupoids.
+
+TODO: actually show reflexivity and associativity of identity types.
