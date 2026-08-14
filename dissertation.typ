@@ -1188,15 +1188,28 @@ identity.
 
 Moving to the general form of the elimination rule, we allow $C$ to depend not only on
 $x : A$ and $y : A$ (which must be equal) but also on the specific witness $p$ to their
-equality. The rule supposes that we have such a family $C$, and an element of it ($c(z)$)
-for all $z : A$, where we plug in the axiomatic reflexive equality of $z$ with itself. We
-then get an element of $C(a, b, p)$ for all $a : A$, $b : A$ such that $a$ and $b$ are
-equal. In other words, if we want to construct an element of the family $C(a, b, p)$, it is
-sufficient to show an element of $C(z, z, refl_z)$. In the language of propositions and
-predicates, if $C(z, z, refl_z)$ is true -- i.e. $C$ is a reflexive predicate -- then
-$C(a, b, p)$ is true whenever $p$ proves that $a$ and $b$ are equal. Moreover, the general
-form of the computation rule gives us a judgmental equality in the case where $a$ and $b$
-are judgmentally equal.
+equality. The rule supposes that we have such a family $C$, and for each $z : A$, an element
+$c(z) : C(z, z, refl_z)$. We then get an element of $C(a, b, p)$ for all $a : A$, $b : A$
+such that $a$ and $b$ are (propositionally) equal. In other words, if we want to construct
+an element of the family $C(a, b, p)$, it is sufficient to show an element of
+$C(z, z, refl_z)$.
+
+This is precisely analogous to the principle of induction on natural numbers -- if we want
+to construct a function $f : NN -> T$, it is sufficient to provide a value $c_0 : T$ and a
+step function $c_s : NN -> NN -> T$. The difference between the induction principle for
+identity types and for natural numbers is then one of intuition: as mathematicians, we can
+intuit that the induction principle holds for the natural numbers, because of our
+familiarity with their structure, so we take the principle as an axiom of the type $NN$.
+When working with identity types, we have to work the other way: we first see the axiom for
+the induction principle and have to build an intuition from it.
+
+// TODO do we? surely whoever came up with the principle had some intuition for it first
+
+In the language of propositions and predicates, the induction principle says that if
+$C(z, z, refl_z)$ is true -- i.e. $C$ is a reflexive predicate -- then $C(a, b, p)$ is true
+whenever $p$ proves that $a$ and $b$ are equal. Moreover, the general form of the
+computation rule gives us a judgmental equality in the case where $a$ and $b$ are
+judgmentally equal.
 
 
 == Proofs about our types
