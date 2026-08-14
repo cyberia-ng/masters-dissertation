@@ -1046,13 +1046,17 @@ translating
 ]
 
 #let leq = $sans("leq")$
-#example[We define inequality on the natural numbers as a function $leq$. For ease of
-  notation, we express $leq(n, m)$ and $add(a, b)$ (from @example:add) using infix notation:
-  $n <= m$ and $a + b$ respectively.
+#example[We define inequality on the natural numbers as a type family
+  $leq : NN -> NN -> UU_i$. For ease of notation, we express $leq(n, m)$ and $add(a, b)$
+  (from @example:add) using infix notation: $n <= m$ and $a + b$ respectively.
 
   We define $leq$ as
   $
-    n <= m :peq sum_(p : NN) n + p =_NN m.
+    n <= m :peq sum_(p : NN) n + p =_NN m
+  $
+  or in closed form
+  $
+    leq :peq lambda (n : NN) sd lambda (m : NN) sd sum_(p : NN) n + p =_N m.
   $
 
   We are jumping the gun here by using the identity type $=_NN$, which will be introduced in
