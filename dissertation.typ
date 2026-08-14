@@ -498,6 +498,23 @@ This is useful when we wish to apply our induction terms (which are expressed in
 generality using type families and dependent functions) in a way which happens to be
 non-dependent.
 
+=== Equivalence of non-dependent $Pi$-types with function types
+
+TODO
+
+- In the case where $x$ is not free in $B$, $Pi$-types are equivalent to function types
+- Therefore, we may write a non-dependent $Pi$ type using the function syntax $->$
+- This is also the reason there is no ambiguity in the introduction rules for both, which
+  use $lambda$ syntax
+
+=== Reordering of arguments
+
+TODO
+
+- Can reorder arguments to functions
+- HOTT book uses syntax like $product_(x : A, y : B) t$ for this, but we will not
+- Prove it?
+
 == Dependent pair types
 
 We now introduce *pair types*. In its non-dependent variety, a pair type is written
@@ -1272,10 +1289,55 @@ our previously-defined types.
   as required.
 ]
 
+We now show that identity types form an equivalence relation.
+
+#lemma[For a type $A : UU_i$, there is a function
+  $ f : product_(x : A) product_(y : A) (x =_A y) -> (y =_A x). $
+  That is to say, any element $p : x =_A y$ can be transformed into an element
+  $q : y =_A x$, so the identity type is symmetric.
+]<lemma:identity-symmetry>
+#proof[
+  - Put $C(x, y, \_) :peq y =_A x$
+  - Put $c(z) :peq refl_z$
+  - Apply inductor to get
+    $
+      ind_(=_A)(C, c) : product_(a : A) product_(b : A) product_(p : a =_A b) b =_A a
+    $
+    which is non-dependent in the innermost function so equivalent to
+    $
+      ind_(=_A)(C, c) : product_(x : A) product_(y : A) (x =_A y) -> (y =_A x)
+    $
+    as required.
+]
+
+#lemma[For a type $A : UU_i$, there is a function
+  $
+    f : product_(x : A) product_(y : A) product_(z : A) (x =_A y) -> (y =_A z) -> (x =_A z).
+  $
+  That is to say, given elements $p : x =_A y$ and $q : y =_A z$, we may construct an
+  element $r : x =_A z$, so the identity type is transitive.]<lemma:identity-transitivity>
+#proof[Let $A : UU_i$ and $z : A$ be in the context. Then
+
+  - Put $C(x, y, \_) :peq (y =_A z) -> (x =_A z)$
+  - Put $c(w) :peq id_(w =_A z)$
+  - Then get
+    $ind(C, c) : product_(x : A) product_(y : A) product_(p : x =_A y) (y =_A z) -> (x =_A z)$
+  - I.e. $ind(C, c) : product_(x : A) product_(y : A) (x =_A y) -> (y =_A z) -> (x =_A z)$
+  - Apply $Pi$-Intr on $z$ to get
+    $
+      f' : product_(z : A) product_(x : A) product_(y : A) (x =_A y) -> (y =_A z) -> (x =_A z)
+    $
+  - Reorder arguments of $f'$ to get required $f$.
+]
+
+#proposition[The identity type forms an equivalence relation.]
+#proof[We have reflexivity axiomatically by the "$=$-Intr" rule. We have symmetry by
+  @lemma:identity-symmetry and transitivity is by @lemma:identity-transitivity.]
+
 
 - $one$ has only one element
 - Construct finite sets
-- TODO Something using equality elim/comp
+- TODO move projections to pair type
 
 #block[
   #set text(luma(130))
