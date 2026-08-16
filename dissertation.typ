@@ -313,6 +313,20 @@ We have the following rules for universes and contexts.
 
 TODO: note about assuming that types appearing in contexts exist
 
+When working with formal constructions of type theory, there are (at least) two schools of
+thought regarding contexts. One formulation (TODO cite appendix) makes heavy use of explicit
+contexts and variable substitution, which change frequently from deduction to deduction; the
+other formulation keeps contexts fixed at the beginning of the proof, prefering the
+mechanics of function application instead of variable substitution.
+
+We proceed with the latter, since it is more familiar to dependently-typed programming
+language theory. As a result, we will often leave contexts fairly implicit, using language
+such as "for types $A : UU_i$ and elements $x : A$" to discursively define a context. Where
+explicit manipulation of a context is required (for example in introducing a function by
+capturing a variable in a $lambda$ expression), we will of course make a note of the change.
+Moreover, in our proof trees, we will write the context explicitly as part of the judgment,
+even if we will not do much manipulation of it.
+
 == Structural rules
 
 TODO: which of these do we need?
