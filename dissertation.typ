@@ -331,6 +331,8 @@ even if we will not do much manipulation of it.
 
 TODO: which of these do we need?
 
+TODO: comment on the fact we will be using these implicitly
+
 == Data for types
 
 For each new type we introduce, we give the following data
