@@ -342,7 +342,8 @@ For each new type we introduce, we give the following data
 - *Elimination rules* which specify how to reduce terms of the new type to terms of a
   simpler type.
 - *Computation rules* which specify how elimination interacts with construction.
-- *Uniqueness principle* (optional) which ???
+- *Uniqueness principle* (optional) which may impose constraints on the elements of a type
+  by declaring certain elements to be equivalent under given conditions.
 
 == Function types
 
