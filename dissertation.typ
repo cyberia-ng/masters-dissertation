@@ -616,6 +616,93 @@ The formal elimination and computation rules are as follows:
   )),
 ))
 
+=== Projections
+
+It will be useful later to work with the *projection functions* on a pair type. These will
+be functions $pi_0$ and $pi_1$, which intuitively will pick the left and right elements
+(respectively) out of the pair elements of the pair type. In the case of a non-dependent
+pair, these functions have signature
+$
+  pi_0 & : A times B -> A \
+  pi_1 & : A times B -> B.
+$
+
+In the case of a dependent pair type, the signature of $pi_0$ translates by an equivalence
+of notation to
+$ pi_0 : sum_(x : A) B(x) -> A, $
+however the case of $pi_1$ on a dependent pair type is not so easy. Recall that the type of
+the right element of the pair depends on the value of the left element, so we require a
+dependent function, whose type contains a reference to $pi_0$:
+$
+  pi_1 : product_(p : sum_(x : A) B(x)) B(pi_0(p))
+$
+
+To construct these functions, we use the inductor on the following multi-parameter "helper"
+functions:
+
+$
+  & pi'_0 : product_(x : A) B(x) -> A \
+  & pi'_0 (x, y) :peq x \
+  & pi'_1 : product_(x : A) product_(y : B(x)) B(x) \
+  & pi'_1 (x, y) :peq y
+$
+and then define the projections as
+$
+  pi_0 & :peq ind_(sum_(x : A) B(x)) (lambda (\_ : sum_(x : A) B(x)) sd A, pi'_0) \
+  pi_1 & :peq ind_(sum_(x : A) B(x)) (lambda (p : sum_(x : A) B(x)) sd B(pi_0(p)), pi'_1).
+$
+
+#proposition[
+  The functions $pi_0$ and $pi_1$ have the desired types
+  $
+    pi_0 & : sum_(x : A) B(x) -> A \
+    pi_1 & : product_(p : sum_(x : A) B(x)) B(pi_0(p))
+  $
+]
+#proof[
+  Omitted (TODO should prove?)
+]
+
+
+The following proposition will be useful later, as part of the proof that all elements of
+pair types are indeed pairs.
+
+#proposition[For a type $A : UU_i$ and a type family $B : A -> UU_i$ and elements $x : A$,
+  $y : B(x)$, we have
+  $ pi_0((x, y)) peq x $
+  and
+  $
+    pi_1((x, y)) peq y.
+  $
+]<prop:projection_equality>
+#proof[
+  (TODO note this is the first real proof and comment on style, using transitivity of
+  equality and substition implicitly?)
+
+  By definition of $pi_0$, we have
+  $
+    pi_0((x, y)) peq ind_(sum_(x : A) B(x)) (lambda (\_ : sum_(x : A) B(x)) sd A, pi'_0, (x, y)).
+  $
+
+  Then we apply $Sigma$-Comp and equalities to get
+  $
+    pi_0((x, y)) peq pi'_0(x, y).
+  $
+
+  Then applying the definition of $pi'_0$ in closed form we get
+  $
+    pi_0((x, y)) peq (lambda (x : A) sd lambda (y : B(x)) sd x)(x, y)
+  $
+
+  Applying $beta$-reduction we get
+  $
+    pi_0((x, y)) peq pi_0((x, y)) peq x
+  $
+  as required.
+
+  The proof for $pi_1$ is completely analogous.
+]
+
 == Coproduct types
 
 The next type we introduce is the coproduct. These correspond to disjoint unions from set
@@ -1253,26 +1340,10 @@ our previously-defined types.
 
 #proposition[Every element of a pair type $A times B$ is equal to $(x, y)$, for some
   $x : A$, $y : B$.]
-#proof[Since we did not mention projections from pairs earlier, we define the projections
-  $pi_0$ and $pi_1$. First we define multi-parameter functions
-  $
-    & pi'_0 : A -> B -> A \
-    & pi'_0 (x, y) :peq x \
-    & pi'_1 : A -> B -> B \
-    & pi'_1 (x, y) :peq y
-  $
-  and then define the projections as
-  $
-    pi_0 & :peq ind_(A times B) (lambda (\_ : A times B) sd A, pi'_0) \
-    pi_1 & :peq ind_(A times B) (lambda (\_ : A times B) sd B, pi'_1)
-  $
-  so that $pi_0$ and $pi_1$ have types
-  $
-    pi_0 & : A times B -> A \
-    pi_1 & : A times B -> B.
-  $
-  By some application of the rules for functions and pairs, it is easy to show that
-  $pi_0((x, y)) peq x$ and $pi_1((x, y)) peq y$ for all pairs $(x, y) : A times B$.
+#proof[
+  Recall that by @prop:projection_equality, we have
+  $ pi_0((x, y)) peq x wide "and" wide pi_1((x, y)) peq y $
+  for all pairs $(x, y) : A times B$.
 
   Now we define a type family $C$ as
   $
