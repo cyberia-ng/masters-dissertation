@@ -200,7 +200,7 @@ then proceed with the claim about its successor.
 
 == Terms
 
-As type theory is syntactic system, we define the construction of its terms. In our
+As type theory is a syntactic system, we define the construction of its terms. In our
 presentation the basic terms may be _variables_, _primitive constants_ or _defined
 constants_. Terms are formed according to the rule
 
@@ -462,7 +462,7 @@ function types correspond closely with their counterparts for non-dependent func
   )),
   prooftree(bigrule(
     $Gamma tack f : product_(x : A) B(x)$,
-    $Gamma tack f peq lambda (x : A) sd f x : product_(x : A) B(x)$,
+    $Gamma tack f peq lambda (x : A) sd f(x) : product_(x : A) B(x)$,
     name: [$Pi$-Uniq],
   )),
 ))
@@ -600,7 +600,7 @@ The formal elimination and computation rules are as follows:
   prooftree(bigrule(
     $Gamma tack sum_(x: A) B(x) : UU_i$,
     $Gamma tack C : (sum_(x : A) B(x)) -> UU_i$,
-    $Gamma tack g : product_(x : A) product_(y : B) C((x, y))$,
+    $Gamma tack g : product_(x : A) product_(y : B(x)) C((x, y))$,
     // $Gamma tack p : sum_(x : A) B(x)$,
     $Gamma tack ind_(sum_(x : A) B(x)) (C, g) : product_(p : sum_(x : A) B(x)) C(p)$,
     name: [$Sigma$-Elim],
@@ -712,7 +712,7 @@ functional programming language Haskell, for example, this type is called `Eithe
 
 We introduce three more primitive constants, $c_+$, $inl$ and $inr$. We write $c_+ (A, B)$
 as $A + B$. Elements of $A + B$ can be constructed by terms $inl(a)$, where $a : A$, and
-$inl(b)$, where $b : B$. These are the formal rules for formation and construction of the
+$inr(b)$, where $b : B$. These are the formal rules for formation and construction of the
 coproduct:
 
 #pt(rule-set(
@@ -777,7 +777,7 @@ inductor:
       $Gamma tack f : product_(x : A) C(inl(x))$,
       $Gamma tack g : product_(x : B) C(inr(x))$,
       $Gamma tack b : B$,
-      $Gamma tack ind_(A+B) (C, f, g, inl(b)) peq g(b)$,
+      $Gamma tack ind_(A+B) (C, f, g, inr(b)) peq g(b)$,
       name: [$+$-Comp-R],
     )),
   ),
