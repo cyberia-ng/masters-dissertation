@@ -1374,9 +1374,11 @@ our previously-defined types.
 We now show that identity types form an equivalence relation.
 
 #lemma[For a type $A : UU_i$, there is a function
-  $ f : product_(x : A) product_(y : A) (x =_A y) -> (y =_A x). $
+  $ (-)^(-1) : product_(x : A) product_(y : A) (x =_A y) -> (y =_A x). $
   That is to say, any element $p : x =_A y$ can be transformed into an element
-  $q : y =_A x$, so the identity type is symmetric.
+  $p^(-1) : y =_A x$, so the identity type is symmetric.
+
+  Furthermore, for all $x : A$, $refl_x^(-1) peq refl_x$.
 ]<lemma:identity-symmetry>
 #proof[
   - Put $C(x, y, \_) :peq y =_A x$
@@ -1390,14 +1392,18 @@ We now show that identity types form an equivalence relation.
       ind_(=_A)(C, c) : product_(x : A) product_(y : A) (x =_A y) -> (y =_A x)
     $
     as required.
+  - Use comp rule to derive "furthermore" case
 ]
 
 #lemma[For a type $A : UU_i$, there is a function
   $
-    f : product_(x : A) product_(y : A) product_(z : A) (x =_A y) -> (y =_A z) -> (x =_A z).
+    (- bullet -) : product_(x : A) product_(y : A) product_(z : A) (x =_A y) -> (y =_A z) -> (x =_A z).
   $
   That is to say, given elements $p : x =_A y$ and $q : y =_A z$, we may construct an
-  element $r : x =_A z$, so the identity type is transitive.]<lemma:identity-transitivity>
+  element $p bullet q : x =_A z$, so the identity type is transitive.
+
+  Furthermore, for all $x : A$, $refl_x bullet refl_x peq refl_x.$
+]<lemma:identity-transitivity>
 #proof[Let $A : UU_i$ and $z : A$ be in the context. Then
 
   - Put $C(x, y, \_) :peq (y =_A z) -> (x =_A z)$
@@ -1410,9 +1416,18 @@ We now show that identity types form an equivalence relation.
       f' : product_(z : A) product_(x : A) product_(y : A) (x =_A y) -> (y =_A z) -> (x =_A z)
     $
   - Reorder arguments of $f'$ to get required $f$.
+  - Apply computation rule to get case for $refl_x$.
 ]
 
-#proposition[The identity type forms an equivalence relation.]
+#proposition[The identity type over a type $A : UU_i$ forms an equivalence relation, in the
+  sense that:
+  - (Reflexivity) For all $x : A$, there is an element of (i.e. a witness to) the type
+    $x = x$;
+  - (Symmetry) For all $x : A$, $y : A$, there is an element of $x = y$ if and only if there
+    is an element of $y = x$;
+  - (Transitivity) For all $x : A$, $y : A$, $z : A$, if there are elements $p : x = y$ and
+    $q : y = z$, then there is an element of $x = z$.
+]<prop:identity-equiv>
 #proof[We have reflexivity axiomatically by the "$=$-Intr" rule. We have symmetry by
   @lemma:identity-symmetry and transitivity is by @lemma:identity-transitivity.]
 
@@ -1495,15 +1510,23 @@ $ (f bullet g) bullet h ~ f bullet (g bullet h) : W --> Z, $
 i.e. there is a (by definition, invertible) morphism
 $(f bullet g) bullet h -->^H f bullet (g bullet h)$ at level $n + 1$.
 
-This structure describes very well the structure of our identity types from the previous
-chapter. We may consider the type $x =_A y$ as representing the collection of paths (or
-morphisms) from $x$ to $y$. Given some witness (or path) $p : x =_A y$, we may wish to know
-if it is equal to some other witness $q : x =_A y$, which would be represented by the type
+Since witnesses for our identity types from the previous chapter can be composed and
+inverted (forming an equivalence relation by @prop:identity-equiv), we will show that their
+structure can be represented by an $infinity$-groupoid. It is in this sense which identity
+types and homotopies are related.
+
+We may consider the type $x =_A y$ as representing the collection of paths (or morphisms)
+from $x$ to $y$. Given some witness (or path) $p : x =_A y$, we may wish to know if it is
+equal to some other witness $q : x =_A y$, which would be represented by the type
 $ p =_((x =_A y)) q. $
 The type $p = q$ exists at the next level up from the type $x = y$, so this fits naturally
 into the $infinity$-groupoid structure.
 
+TODO Lemma 2.1.4 from HOTT book
+
+TODO remark that this is not enough -- we need to go "up to infinity" but we will not
+
 For the remainder of this chapter, we will forget the topological specifics of homotopies,
 and work structurally using $infinity$-groupoids.
 
-TODO: actually show reflexivity and associativity of identity types.
+
