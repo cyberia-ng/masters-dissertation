@@ -1529,4 +1529,60 @@ TODO remark that this is not enough -- we need to go "up to infinity" but we wil
 For the remainder of this chapter, we will forget the topological specifics of homotopies,
 and work structurally using $infinity$-groupoids.
 
+== Homotopies and equivalences
 
+- We move from identity of elements of types to identity of functions and of types
+- We use the term homotopy here to refer to such an identity, in a way which is at face
+  value different from our earlier use of homotopy. We will see they become the same (with
+  univalence?)
+
+#definition[For a type family $P : A -> UU_i$ and dependent functions
+  $f, g : product_(x : A) P(x)$, a *homotopy* from $f$ to $g$ is a dependent function of
+  type $f ~ g : UU_i$, where we define
+  $
+    f ~ g & :peq product_(x : A) f(x) =_(P(x)) g(x)
+  $
+]
+
+- Proofs which are left to the reader in HoTT:
+
+#lemma([HoTT book 2.4.2])[Homotopy is an equivalence relation on each dependent function
+  type $product_(x : A) P(x)$. Using the shorthand $F :peq product_(x : A) P(x)$, that is to
+  say that the following functions exist:
+  $
+    r & : product_(f : F) f ~ f \
+    s & : product_(f : F) product_(g : F) (f ~ g) -> (g ~ f) \
+    t & : product_(f : F) product_(g : F) product_(h : F) (f ~ g) -> (g ~ h) -> (f ~ h).
+  $
+]
+#proof[
+  Using the notation in @lemma:identity-symmetry and @lemma:identity-transitivity, we define
+  $
+             r(f) & :peq refl_f(x) \
+       s(f, g, p) & :peq p^(-1) \
+    t(f, g, p, q) & :peq p bullet q.
+  $
+]
+
+- TODO include Lemma 2.4.3? Requires talking about (at least) continuity of functions
+  (applying functions to paths/identities) and possible talking about fibrations
+
+#definition[For a function $f : A -> B$, a *quasi-inverse* of $f$ is a triple
+  $(g, alpha, beta)$, where
+  $
+    g : B -> A
+  $
+  is a function and $alpha$, $beta$ are homotopies such that
+  $
+    alpha : (f compose g) ~ id_B
+  $
+  and
+  $
+    beta : (g compose f) ~ id_A.
+  $
+
+  That is, quasi-inverses have the type
+  $
+    sum_(g : B -> A) (f compose g ~ id_B) times (g compose f ~ id_A).
+  $
+]
