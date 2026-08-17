@@ -205,10 +205,6 @@ presentation the basic terms may be _variables_, _primitive constants_ or _defin
 constants_. Terms are formed according to the rule
 
 $
-  t ::= x | lambda x sd t | t(t') | c | f.
-$
-TODO: or
-$
   t ::= x | lambda (x : t) sd t | t(t') | c | f.
 $
 
@@ -219,8 +215,6 @@ The distinction between primitive and defined constants is that primitive consta
 to encode new syntax, and will not be able to be reduced by some definition, while defined
 constants are taken to be equivalent to some term (by a judgmental equality, which we will
 introduce in the next subsection) and thus able to be eliminated or reduced.
-
-TODO: discuss how to write definitions in open form for defined constants.
 
 The third term-forming rule, $t(t')$, represents function application, and we take the
 convention that it associates to the left, i.e. $t_1(t_2)(t_3)$ means $(t_1(t_2))(t_3)$. We
