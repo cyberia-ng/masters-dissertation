@@ -156,6 +156,8 @@
 #let inr = $sans("inr")$
 #let succ = $sans("succ")$
 #let refl = $sans("refl")$
+#let qinv = $sans("qinv")$
+#let isequiv = $sans("isequiv")$
 #let bigrule = (..args) => {
   let judgments = args.pos()
   let kwargs = args.named()
@@ -1546,9 +1548,11 @@ and work structurally using $infinity$-groupoids.
 
 - Proofs which are left to the reader in HoTT:
 
-#lemma([HoTT book 2.4.2])[Homotopy is an equivalence relation on each dependent function
-  type $product_(x : A) P(x)$. Using the shorthand $F :peq product_(x : A) P(x)$, that is to
-  say that the following functions exist:
+#lemma([HoTT book 2.4.2])[For a type family $P : A -> UU_i$, homotopy is an equivalence
+  relation on each dependent function type $product_(x : A) P(x)$.
+
+  We state this formally using the shorthand $F :peq product_(x : A) P(x)$. We claim the
+  following functions exist:
   $
     r & : product_(f : F) f ~ f \
     s & : product_(f : F) product_(g : F) (f ~ g) -> (g ~ f) \
@@ -1581,8 +1585,33 @@ and work structurally using $infinity$-groupoids.
     beta : (g compose f) ~ id_A.
   $
 
-  That is, quasi-inverses have the type
+  We denote the type of quasi-inverses of $f$ as $qinv(f)$:
   $
-    sum_(g : B -> A) (f compose g ~ id_B) times (g compose f ~ id_A).
+       qinv & : (A -> B) -> UU_i \
+    qinv(f) & :peq sum_(g : B -> A) (f compose g ~ id_B) times (g compose f ~ id_A).
   $
+]
+
+- TODO some examples? Perhaps 2.4.8
+
+- Equivalence of types: use $isequiv : (A -> B) -> UU_i$
+- If $isequiv(f)$ is inhabited, $A$ and $B$ are equivalent, written $A tilde.eq B$.
+
+- Define
+  $
+    isequiv &: (A -> B) ->UU_i \
+    isequiv(f) &:peq (sum_(g : B -> A) (f compose g ~ id_B)) times (sum_(h : B -> A) h compose f ~ id_A)
+  $
+
+#proposition[For each $f : A -> B$,
+  + there is a function of type $qinv(f) -> isequiv(f)$; and
+  + there is a function of type $isequiv(f) -> qinv(f)$.
+
+  So the concepts of equivalence and having a quasi-inverse are equivalent.
+]
+#proof[
+  Statement (1) is satisfied by the function $(g, alpha, beta) |-> (g, alpha, g, beta)$.
+  (TODO express in terms of projections? or note that you can...)
+
+  TODO statement (2) relies on applying functions to identity paths
 ]
