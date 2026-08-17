@@ -1,0 +1,35 @@
+name: Build and publish
+
+on:
+  push:
+    branch: ["main"]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: typst-community/setup-typst@v5
+      - name: Compile typst and copy index
+        run: |
+          mkdir out
+          typst compile dissertation.typ out/dissertation.pdf
+          cp index.html out
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: out
+
+  deploy:
+    needs: build
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
