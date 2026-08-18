@@ -1677,8 +1677,7 @@ and work structurally using $infinity$-groupoids.
   + there is a function of type $qinv(f) -> isequiv(f)$; and
   + there is a function of type $isequiv(f) -> qinv(f)$.
 
-  So the concepts of equivalence and having a quasi-inverse are equivalent.
-]
+]<prop:qinv-is-equiv>
 #proof[
   Statement (1) is satisfied by the function $(g, alpha, beta) |-> (g, alpha, g, beta)$.
   (TODO express in terms of projections? or note that you can...)
@@ -1712,4 +1711,74 @@ and work structurally using $infinity$-groupoids.
     beta' : g compose f ~ id_A.
   $
 
+]
+
+@prop:qinv-is-equiv tells us that the concepts of equivalence and having a quasi-inverse are
+equivalent. We will use to show an interesting property of the singleton type $one$: not
+only does it have a single element, but indeed there is only a single witness to any
+equality between its elements.
+
+#theorem([HoTT 2.8.1])[For any $x, y : one$, we have $x = y tilde.eq one$.]
+#proof[
+  We construct a function $f : (x =_one y) -> one$ by setting $f(\_) :peq star$ and we aim
+  to show that it has a quasi-inverse. We need a function $g : one -> (x =_one y)$. By the
+  rule "$one$-Elim", it is sufficient to provide a value of $x =_one y$ to construct $g$.
+  However we know that we have $refl_star : x =_one star$ and $refl_star : y =_one star$ by
+  (TODO uniqueness of elements of $one$), so we can invert and compose as necessary to
+  obtain $refl_star : x =_one y$. Formally, we put
+  $
+    g :peq ind_one (lambda (\_ : ) sd (x =_one y), refl_star)
+  $
+  so that $g$ has the type
+  $
+    g : one -> (x =_one y).
+  $
+
+  We then wish to show that there are homotopies
+  $ alpha : f compose g ~ id_one wide "and" wide beta : g compose f ~ id_(x =_one y), $
+  i.e. we wish to construct functions
+  $
+    alpha : product_(a : one) f(g(a)) =_one a wide "and" wide beta : product_(p : x =_one y) g(f(p)) =_(x =_one y) p.
+  $
+
+  For $alpha$, we fix a variable $a : one$ and compute $f(g(a))$. Since $f$ sends every
+  argument to $star$, we have $f(g(a)) peq star$. Again by (TODO uniqueness of elements of
+  $one$) we have $refl_star : a =_one star$, so we have $refl_star : f(g(a)) =_one a$.
+  Abstracting over the variable $a$ (removing it from the context), we use the rule
+  "$Pi$-Intr" to construct
+  $
+    & alpha : f compose g ~ id_one \
+    & alpha(a) :peq refl_star.
+  $
+
+  For $beta$, we use the path induction principle (rules "$=$-Intr" and "$=$-Comp"). We set
+  $
+    & C : product_(x : one) product_(y : one) (x =_one y) -> UU_i \
+    & C(x, y, p) :peq g(f(p)) =_(x =_one y) p \
+  $
+  so that we need to provide a function
+  $
+                & c : product_(z : one) C(z, z, refl_z) \
+    "i.e." wide & c : product_(z : one) g(f(refl_z)) =_(z =_one z) refl_z.
+  $
+
+  For a variable $z : one$, we compute $g(f(refl_z))$. We have $f(refl_z) peq star$, and by
+  the rule "$one$-Comp" we have $g(star) peq refl_star$. We therefore wish to exhibit an
+  element
+  $
+    r : refl_star =_(z =_one z) refl_z.
+  $
+  Since we know $z =_one star$ is inhabited, we have $refl_(refl_star) : refl_z =_(z =_one z) refl_star$  (FEEDBACK is this correct?), so we put
+  $
+  c(z) :peq refl_refl_star.
+  $
+  Then we derive
+  $
+  & beta :peq ind(C, c, x, y) : product_(p : x =_one y) g(f(p)) =_(x =_one y) p \
+  "i.e." &beta : g compose f ~ id_(x =_one y).
+  $
+
+  Therefore we have exhibited a quasi-inverse to $f$ as required.
+
+  - TODO make a note somewhere about this proof being significantly more in-depth than in HoTT book
 ]
