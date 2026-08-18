@@ -260,7 +260,7 @@ $
 Sometimes the type annotation "$: A$" will be omitted when it is clear from context. This
 judgment is a metatheoretic equality, which is to be contrasted with "internal" equality
 which we will introduce later. It says that whenever we see the term $t$, we may rewrite it
-as $t'$ and vice versa. (TODO: does $t$ need to have no free variables?)
+as $t'$ and vice versa. (FEEDBACK: does $t$ need to have no free variables?)
 
 We write deductive rules in the "proof tree" style, where antecedents are written above a
 line and consequents below it:
@@ -326,7 +326,7 @@ even if we will not do much manipulation of it.
 
 == Structural rules
 
-TODO: which of these do we need?
+TODO(Jo): which of these do we need?
 
 TODO: comment on the fact we will be using these implicitly
 
@@ -657,7 +657,7 @@ $
   $
 ]
 #proof[
-  Omitted (TODO should prove?)
+  Omitted (FEEDBACK should prove?)
 ]
 
 
@@ -1321,7 +1321,8 @@ familiarity with their structure, so we take the principle as an axiom of the ty
 When working with identity types, we have to work the other way: we first see the axiom for
 the induction principle and have to build an intuition from it.
 
-// TODO do we? surely whoever came up with the principle had some intuition for it first
+- TODO/FEEDBACK do we? surely whoever came up with the principle had some intuition for it
+  first
 
 In the language of propositions and predicates, the induction principle says that if
 $C(z, z, refl_z)$ is true -- i.e. $C$ is a reflexive predicate -- then $C(a, b, p)$ is true
@@ -1437,7 +1438,6 @@ We now show that identity types form an equivalence relation.
 
 - $one$ has only one element
 - Construct finite sets
-- TODO move projections to pair type
 
 #block[
   #set text(luma(130))
@@ -1473,7 +1473,7 @@ we say that $H$ is *endpoint preserving*. By setting $X_1$ to the singleton set,
 consider paths themselves to be homotopies between points, and furthermore the notion of
 inverses and composition generalize to the case of homotopies.
 
-By considering the space of functions $[0, 1] -> X$ itself as a topological space (TODO
+By considering the space of functions $[0, 1] -> X$ itself as a topological space (FEEDBACK:
 verify we can do this), denoted $X'$, we get a notion of homotopies between homotopies. This
 concept can be iterated up to infinity, so we have a tower of homotopies at different
 "levels".
@@ -1572,7 +1572,10 @@ and work structurally using $infinity$-groupoids.
 - By the existence of $ap_f$, we say that all functions in type theory are "continuous" --
   they preserve paths.
 
-#lemma([HoTT Book 2.2.2])[TODO: Functoriality of $ap$]<lemma:ap-functoriality>
+#lemma([HoTT Book 2.2.2])[TODO: Functoriality of $ap$
+
+  FEEDBACK: not sure we need this but would be good to include for
+  completeness]<lemma:ap-functoriality>
 
 == Homotopies and equivalences
 
@@ -1636,7 +1639,7 @@ and work structurally using $infinity$-groupoids.
   as required.
 ]
 
-- TODO include Lemma 2.4.3? Possibly requires talking about fibrations
+- TODO/FEEDBACK include Lemma 2.4.3? Possibly requires talking about fibrations
 
 #definition[For a function $f : A -> B$, a *quasi-inverse* of $f$ is a triple
   $(g, alpha, beta)$, where
