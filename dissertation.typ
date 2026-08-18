@@ -158,6 +158,7 @@
 #let refl = $sans("refl")$
 #let qinv = $sans("qinv")$
 #let isequiv = $sans("isequiv")$
+#let ap = $sans("ap")$
 #let bigrule = (..args) => {
   let judgments = args.pos()
   let kwargs = args.named()
@@ -1531,6 +1532,48 @@ TODO remark that this is not enough -- we need to go "up to infinity" but we wil
 For the remainder of this chapter, we will forget the topological specifics of homotopies,
 and work structurally using $infinity$-groupoids.
 
+== Functions and functors
+
+#lemma([HoTT book Lemma 2.2.1])[For $f : A -> B$ a (non-dependent) function and $x : A$,
+  $y : A$ elements, there is a function
+  $
+    ap_f : (x =_A y) -> (f(x) =_B f(y)).
+  $
+
+  Moreover, we have
+  $ ap_f (refl_z) peq refl_f(z) $
+  for all $z : A$.
+]
+#proof[
+  Put
+  $
+    C : product_(x : A) product_(y : A) (x =_A y) -> UU_i \
+    C(x, y, \_) :peq f(x) =_B f(y)
+  $
+  and
+  $
+                   & c : product_(z : A) C(z, z, refl_z) \
+    \( "i.e." quad & c : product_(z : A) f(z) =_B f(z) \) \
+                   & c(z) :peq refl_f(z).
+  $
+  Then, applying the rule "$=$-Elim" we have
+  $
+    ap_f :peq ind_(=_A) (C, c, x, y)
+  $
+  which has the required type.
+
+  Furthermore, by assuming a variable $z : A$ and applying the rule "$=$-Comp", we get
+  $
+    ap_f (refl_z) peq refl_f(z)
+  $
+  as required.
+]
+
+- By the existence of $ap_f$, we say that all functions in type theory are "continuous" --
+  they preserve paths.
+
+#lemma([HoTT Book 2.2.2])[TODO: Functoriality of $ap$]<lemma:ap-functoriality>
+
 == Homotopies and equivalences
 
 - We move from identity of elements of types to identity of functions and of types
@@ -1558,7 +1601,7 @@ and work structurally using $infinity$-groupoids.
     s & : product_(f : F) product_(g : F) (f ~ g) -> (g ~ f) \
     t & : product_(f : F) product_(g : F) product_(h : F) (f ~ g) -> (g ~ h) -> (f ~ h).
   $
-]
+]<lemma:homotopy-equivalence>
 #proof[
   Using the notation in @lemma:identity-symmetry and @lemma:identity-transitivity, we define
   $
@@ -1568,8 +1611,32 @@ and work structurally using $infinity$-groupoids.
   $
 ]
 
-- TODO include Lemma 2.4.3? Requires talking about (at least) continuity of functions
-  (applying functions to paths/identities) and possible talking about fibrations
+
+#lemma[For (non-dependent) functions $e : A -> B$, $f, g : B -> C$ and $h : C -> D$, such
+  that there is a homotopy $alpha : f ~ g$, there is a homotopy
+  $
+    beta : (h compose f compose e) ~ (h compose g compose e).
+  $
+
+  That is to say, homotopies are preserved under function
+  composition.]<lemma:homotopy-function-composition>
+#proof[Let $x : A$ be a variable in the context. Then we have $e(x) : B$ and hence
+  $
+    alpha(e(x)) : (f compose e)(x) =_C (g compose e)(x).
+  $
+  Applying $h$ to this path using $ap_h$, we get
+  $
+    ap_h (alpha(e(x)) : (h compose f compose e)(x) =_D (h compose g compose e)(x).
+  $
+  Abstracting over $x$ using the "$Pi$-Intr" rule, we get a function
+  $
+    &beta : product_(x : A) (h compose f compose e)(x) =_D (h compose g compose e)(x) \
+    "i.e." wide &beta : (h compose f compose e) ~ (h compose g compose e)
+  $
+  as required.
+]
+
+- TODO include Lemma 2.4.3? Possibly requires talking about fibrations
 
 #definition[For a function $f : A -> B$, a *quasi-inverse* of $f$ is a triple
   $(g, alpha, beta)$, where
@@ -1613,5 +1680,33 @@ and work structurally using $infinity$-groupoids.
   Statement (1) is satisfied by the function $(g, alpha, beta) |-> (g, alpha, g, beta)$.
   (TODO express in terms of projections? or note that you can...)
 
-  TODO statement (2) relies on applying functions to identity paths
+  For statement (2), we use the fact that homotopies are equivalence relations
+  (@lemma:homotopy-equivalence) and the fact that they are well-behaved under composition
+  (@lemma:homotopy-function-composition). Suppose we are given an equivalence
+  $(g, alpha, h, beta)$, i.e. functions $g : B -> A$, $h : B -> A$ and homotopies
+  $alpha : f compose g ~ id_B$, $beta : h compose f ~ id_A$.
+
+  To give a quasi-inverse, we will construct a homotopy $beta' : g compose f ~ id_A$, so
+  that our quasi-inverse will be given by $(g, alpha, beta')$.
+
+  First, we consider the homotopy $beta$ inverted and pre-composed with $g$ to get a
+  homotopy
+  $
+    g ~ h compose f compose g.
+  $
+  Similarly, consider the homotopy $alpha$ post-composed with $h$ to get
+  $
+    h compose f compose h ~ h.
+  $
+
+  We therefore have a homotopy
+  $ gamma : g ~ h. $
+
+  Pre-composing $f$ with $gamma$, we get
+  $ gamma' : g compose f ~ h compose f $
+  and since we have $beta : h compose f ~ id_A$, we have a homotopy
+  $
+    beta' : g compose f ~ id_A.
+  $
+
 ]
