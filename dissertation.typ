@@ -1768,17 +1768,19 @@ equality between its elements.
   $
     r : refl_star =_(z =_one z) refl_z.
   $
-  Since we know $z =_one star$ is inhabited, we have $refl_(refl_star) : refl_z =_(z =_one z) refl_star$  (FEEDBACK is this correct?), so we put
+  Since we know $z =_one star$ is inhabited, we have
+  $refl_(refl_star) : refl_z =_(z =_one z) refl_star$ (FEEDBACK is this correct?), so we put
   $
-  c(z) :peq refl_refl_star.
+    c(z) :peq refl_refl_star.
   $
   Then we derive
   $
-  & beta :peq ind(C, c, x, y) : product_(p : x =_one y) g(f(p)) =_(x =_one y) p \
-  "i.e." &beta : g compose f ~ id_(x =_one y).
+           & beta :peq ind(C, c, x, y) : product_(p : x =_one y) g(f(p)) =_(x =_one y) p \
+    "i.e." & beta : g compose f ~ id_(x =_one y).
   $
 
   Therefore we have exhibited a quasi-inverse to $f$ as required.
 
-  - TODO make a note somewhere about this proof being significantly more in-depth than in HoTT book
+  - TODO make a note somewhere about this proof being significantly more in-depth than in
+    HoTT book
 ]
