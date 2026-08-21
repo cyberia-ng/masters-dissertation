@@ -161,6 +161,7 @@
 #let isequiv = $sans("isequiv")$
 #let ap = $sans("ap")$
 #let transport = $sans("transport")$
+#let code = $sans("code")$
 #let bigrule = (..args) => {
   let judgments = args.pos()
   let kwargs = args.named()
@@ -1791,3 +1792,10 @@ equality between its elements.
   - TODO make a note somewhere about this proof being significantly more in-depth than in
     HoTT book
 ]
+
+We wish to show a similar property for the natural numbers, i.e. that for natural numbers
+$n : NN$ and $m : NN$, we have $n = m equiv one$ if $n = m$ is inhabited, and
+$n = m equiv zero$ otherwise. In order to do this, we introduce a type family
+$code : NN -> NN -> UU_i$, which is defined using the induction rules for $NN$. We
+
+#theorem([HoTT 2.13.1])[]
