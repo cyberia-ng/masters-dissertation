@@ -146,6 +146,7 @@
 #let sd = $thin . thin$
 #let UU = $cal(U)$
 #let peq = $equiv$
+#let equiv = $tilde.eq$
 #let rec = $sans("rec")$
 #let ind = $sans("ind")$
 #let one = $bold(1)$
@@ -1718,7 +1719,7 @@ equivalent. We will use to show an interesting property of the singleton type $o
 only does it have a single element, but indeed there is only a single witness to any
 equality between its elements.
 
-#theorem([HoTT 2.8.1])[For any $x, y : one$, we have $x = y tilde.eq one$.]
+#theorem([HoTT 2.8.1])[For any $x, y : one$, we have $x = y equiv one$.]
 #proof[
   We construct a function $f : (x =_one y) -> one$ by setting $f(\_) :peq star$ and we aim
   to show that it has a quasi-inverse. We need a function $g : one -> (x =_one y)$. By the
