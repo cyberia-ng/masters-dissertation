@@ -160,6 +160,7 @@
 #let qinv = $sans("qinv")$
 #let isequiv = $sans("isequiv")$
 #let ap = $sans("ap")$
+#let transport = $sans("transport")$
 #let bigrule = (..args) => {
   let judgments = args.pos()
   let kwargs = args.named()
@@ -1258,14 +1259,14 @@ there is a witness to the equality of $x$ and $y$. Translated to the language of
 families as predicates, it means that predicates which are satisfied by some element remain
 satisfied by any equal element, i.e. that equal terms may be substituted for each other.
 
-#proposition([Indiscernibility of identicals])[For every type family $D : A -> UU_i$ there
-  is a function
+#theorem([Indiscernibility of identicals])[For every type family $D : A -> UU_i$ there is a
+  function
   $
-    f : product_(x : A) product_(y : A) (x =_A y) -> D(x) -> D(y)
+    transport^D : product_(x : A) product_(y : A) (x =_A y) -> D(x) -> D(y)
   $
   such that for all $z : A$
   $
-    f(z, z, refl_z) peq id_D(z).
+    transport^D (z, z, refl_z) peq id_D(z).
   $
 ]
 
@@ -1299,6 +1300,11 @@ satisfied by any equal element, i.e. that equal terms may be substituted for eac
   $
   as required.
 ]
+
+#remark[We borrow the name $transport$ from (TODO HoTT book Lemma 2.3.1), but in our usage
+  the parameters $x$ and $y$ are explicit. Therefore, when we use $transport^D$, it will
+  have two extra parameters at the beginning, which determine the origin and destination
+  types.]
 
 This principle says that, given $x : A$ and $y : A$, and a witness to their equality, we can
 transform any witness to the predicate $D(x)$ into a witness to $D(y)$, and that when we
