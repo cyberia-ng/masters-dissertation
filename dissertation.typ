@@ -162,6 +162,8 @@
 #let ap = $sans("ap")$
 #let transport = $sans("transport")$
 #let code = $sans("code")$
+#let encode = $sans("encode")$
+#let decode = $sans("decode")$
 #let bigrule = (..args) => {
   let judgments = args.pos()
   let kwargs = args.named()
@@ -1796,6 +1798,97 @@ equality between its elements.
 We wish to show a similar property for the natural numbers, i.e. that for natural numbers
 $n : NN$ and $m : NN$, we have $n = m equiv one$ if $n = m$ is inhabited, and
 $n = m equiv zero$ otherwise. In order to do this, we introduce a type family
-$code : NN -> NN -> UU_i$, which is defined using the induction rules for $NN$. We
+$code : NN -> NN -> UU_i$, which is defined using the induction rules for $NN$ (TODO).
 
-#theorem([HoTT 2.13.1])[]
+$
+              code(0, 0) & :peq one \
+        code(0, succ(n)) & :peq zero \
+        code(succ(m), 0) & :peq zero \
+  code(succ(m), succ(n)) & :peq code(m, n)
+$
+- TODO work out how to define this without pattern matching, or talk about pattern matching
+
+We also define a function $r : product_(n : NN) code(n, n)$ by
+$
+        r(0) & :peq star \
+  r(succ(n)) & :peq r(n)
+$
+- TODO can't we just say $r(\_) :peq star$?
+
+
+#theorem([HoTT 2.13.1])[For all $m, n : NN$, we have
+  $ (m = n) equiv code(m, n). $
+
+  That is to say, there is at most one witness to $m = n$.
+]
+#proof[
+  We define
+  $
+    encode : product_(m : NN) product_(n : NN) (m = n) -> code(m, n)
+  $
+  using induction. Put $C(m, n, \_) :peq code(m, n)$, $c(n) :peq star$, then we get
+  $
+    encode :peq ind_(=_NN) (C, c) : product_(m : NN) product_(n : NN) (m = n) -> code(m, n)
+  $
+  and
+  $
+    encode(n, n, refl_n) peq star.
+  $
+
+  We then define
+  $
+    decode : product_(m : NN) product_(n : NN) code(m, n) -> (m = n)
+  $
+  by
+  $
+                decode(0, 0) & :peq lambda (\_ : one) sd refl_0 \
+          decode(0, succ(n)) & :peq ind_zero (lambda (\_ : zero) sd (0 = succ(n))) \
+          decode(succ(m), 0) & :peq ind_zero (lambda (\_ : zero) sd (succ(m) = 0)) \
+    decode(succ(m), succ(n)) & :peq lambda (\_ : code(m, n)) sd ap_succ (decode(m, n)).
+  $
+  - TODO again, pattern matching
+
+  We aim to show, for all $m, n : NN$, that $encode(m, n)$ and $decode(m, n)$ are
+  quasi-inverses, i.e. to exhibit homotopies
+  $
+    alpha & : encode(m, n) compose decode(m, n) ~ id_(code(m, n)) \
+     beta & : decode(m, n) compose encode(m, n) ~ id_(m = n).
+  $
+
+  For $beta$, we wish to construct
+  $
+    beta : product_(p : m = n) decode(m, n, encode(m, n, p)) =_(n = m) p,
+  $
+  which we do by induction on $m = n$. Put
+  $ C(m, n, p) :peq decode(m, n, encode(m, n, p)) =_(n = m) p. $
+  We wish to define $c : product_(n : NN) C(n, n, refl_n)$, so we compute
+  $
+    C(n, n, refl_n) & peq decode(n, n, encode(n, n, refl_n)) =_(n = n) refl_n \
+                    & peq decode(n, n, star) =_(n = n) refl_n.
+  $
+  By $NN$-induction, we put
+  $
+    & c_0 :peq refl_(refl_0) : C(0, 0, refl_0) \
+    & c_s : product_(k : NN) C(k, k, refl_k) -> C(succ(k), succ(k), refl_succ(k)) \
+    & c_s (\_, p) :peq ap_succ (p)
+  $
+  and therefore obtain the desired $c$ for induction on $m = n$:
+  $
+    c :peq ind_NN (lambda (n : NN) sd C(n, n, refl_n), c_0, c_s) : product_(n : NN) C(n, n, refl_n).
+  $
+  Using induction on $m = n$, we then obtain
+  $
+    ind_(=_NN) (C, c) : product_(m : NN) product_(n : NN) product_(p : m = n) C(m, n, p).
+  $
+  We then put
+  $
+    beta :peq ind_(=_NN) (C, c, m, n)
+  $
+  as required.
+
+  For $alpha$, we wish to construct
+  $
+    alpha : product_(a : code(m, n)) encode(m, n, decode(m, n, a)) =_code(m, n) a
+  $
+  TODO
+]
