@@ -2055,9 +2055,33 @@ $
   $
   as required.
 
+  TODO: case for $alpha$ is too discursive, make precise.
+
   For $alpha$, we wish to construct
   $
-    alpha : product_(a : code(m, n)) encode(m, n, decode(m, n, a)) =_code(m, n) a
+    alpha : product_(a : code(m, n)) encode(m, n, decode(m, n, a)) =_code(m, n) a.
   $
-  TODO
+
+  We use the shorthand
+  $ C(m, n, a) :peq encode(m, n, decode(m, n, a)) =_code(m, n) a. $
+
+
+  If $n peq m peq 0$, we have $code(m, n) peq code(0, 0) peq one$ and
+  $
+    C(m, n, a) & peq encode(0, 0, refl_0) \
+               & peq star.
+  $
+  Recalling that we have $refl_star : a =_one star$ for all $a : one$ (by TODO), we put
+  $alpha(\_) :peq refl_star$.
+
+  If $m peq succ(m')$ for some $m' : NN$ and $n peq 0$, then we have $code(m, n) peq zero$,
+  so we put
+  $
+    alpha :peq ind_zero (lambda (z : zero) sd C(succ(m'), 0, z).
+  $
+  The case for $n peq succ(n')$ with $m peq 0$ is analogous.
+
+  If we have $m peq succ(m')$ and $n peq succ(n')$, we proceed by double induction. The
+  inductive hypothesis is ... TODO
+
 ]
