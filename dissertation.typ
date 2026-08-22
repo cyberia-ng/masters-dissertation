@@ -1167,6 +1167,77 @@ number $n$, given $n$ itself and the value at $n$.
 
 - TODO expand on what is _primitive_ recursion
 
+// === Double induction
+// TODO fix this nonsense
+
+// Let $C : NN -> NN -> UU_i$. Then
+
+// #pt(
+//   prooftree(bigrule(
+//     $Gamma tack c_(0, 0) : C(0, 0)$,
+//     $Gamma tack c_(0, s) : product_(n : NN) C(0, n) -> C(0, succ(n))$,
+//     $Gamma tack ind_NN (c_(0, 0), c_(0, s)) : product_(n : NN) C(0, n)$,
+//   )),
+// )
+
+// #pt(
+//   prooftree(
+//     bigrule(
+//       $Gamma, m : NN tack c_(s, 0) : C(m, 0)$,
+//       $Gamma, m : NN tack c_(s, s) : product_(n : NN) C(m, n) -> C(m, succ(n))$,
+//       $Gamma, m : NN tack ind_NN (c_(s, 0), c_(s, s)) : product_(n : NN) C(m, n)$,
+//       name: [?],
+//     ),
+//   ),
+// )
+
+// Put $D : NN -> UU_i$, $D(m) :peq product_(n : NN) C(m, n)$. Then we have
+// $ind_NN (c_(0, 0), c_(0, s)) : D(0)$.
+
+// We want something of type
+// $
+//   &product_(m : NN) D(m) -> D(succ(m)) \
+//   "i.e." wide &product_(m: NN) (product_(n : NN) C(m, n)) -> (product_(n : NN) C(succ(m), n))
+// $
+
+// What if we put
+// $ c(m, f, n) :peq c' (m, n, f(n)) $
+// where we are given
+// $ c' : product_(m :NN) product_(n : NN) C(m, n) -> C(succ(m), n)? $
+
+// Which we construct by recursion on $n$. Let $B : NN -> UU_i$,
+// $ B(n) :peq product_(m : NN) C(m, n) -> C(succ(m), n) $
+
+// #pt(
+//   prooftree(bigrule(
+//     $Gamma tack c_(s, 0) : B(0) (peq product_(m : NN) C(m, 0) -> C(succ(m), 0))$,
+//     $Gamma tack c_(s, s) : product_(n : NN) B(n) -> B(succ(n))$,
+//     $ind_NN (c_(s, 0), c_(s, s)) : product_(n : NN) B(n) (peq product_(n : NN) product_(m : NN) C(m, n) -> C(succ(m), n))$,
+//   )),
+// )
+
+// So we need
+// $
+//   c_(s, s) : product_(n : NN) (product_(m : NN) C(m, n) -> C(succ(m), n)) -> product_(m : NN) C(m, succ(n)) -> C(succ(m), succ(n))
+// $
+// equiv
+// $
+//   c_(s, s) : product_(m : NN) product_(n : NN) (product_(m' : NN) C(m', n) -> C(succ(m'), n)) -> C(m, succ(n)) -> C(succ(m), succ(n))
+// $
+
+// idfk
+
+// // So let $
+// #pt(
+//   prooftree(
+//     bigrule(
+//       $Gamma tack c_(0, 0) : C(0, 0)$,
+//       $Gamma tack c_(s) : product_(m : NN) (product_(n : NN) C(m, n)) -> (product_(n : NN) C(succ(m), n))$,
+//       $Gamma tack ind_NN (ind_NN (c_(0, 0), c_(0, s)), c_s) : product_(m : NN) product_(n : NN) C(m, n)$,
+//     ),
+//   ),
+// )
+
 == Propositions as types
 
 An interesting property of type theory is that it corresponds with the principles of
