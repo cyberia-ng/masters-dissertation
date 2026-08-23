@@ -272,7 +272,7 @@ $cal(J)_3$.
 
 == Universes and contexts
 
-In order to avoid a situation similar to Russell's paradox (TODO cite and/or clarify), we
+In order to avoid a situation similar to Russell's paradox #cite(<coquand1992paradox>), we
 define a hierarchy of *universes*, denoted
 
 $ UU_0 quad UU_1 quad UU_2 quad ... quad UU_i quad ... $
@@ -296,7 +296,7 @@ $
   Gamma tack cal(J).
 $
 This is to be read as "in the context $Gamma$, $cal(J)$ holds", and means that the judgment
-$cal(J)$ contains variables (TODO and types?) declared in the context $Gamma$.
+$cal(J)$ contains variables and types declared in the context $Gamma$.
 
 We have the following rules for universes and contexts.
 
@@ -310,13 +310,12 @@ We have the following rules for universes and contexts.
   prooftree(rule($Gamma tack A : UU_i$, $Gamma tack A : UU_(i+1)$)),
 ))
 
-TODO: note about assuming that types appearing in contexts exist
-
 When working with formal constructions of type theory, there are (at least) two schools of
-thought regarding contexts. One formulation (TODO cite appendix) makes heavy use of explicit
-contexts and variable substitution, which change frequently from deduction to deduction; the
-other formulation keeps contexts fixed at the beginning of the proof, prefering the
-mechanics of function application instead of variable substitution.
+thought regarding contexts. One formulation #cite(<hottbook>, supplement: [Appendix A.2])
+makes heavy use of explicit contexts and variable substitution, which change frequently from
+deduction to deduction; the other formulation #cite(<hottbook>, supplement: [Appendix A.1])
+keeps contexts fixed at the beginning of the proof, prefering the mechanics of function
+application instead of variable substitution.
 
 We proceed with the latter, since it is more familiar to dependently-typed programming
 language theory. As a result, we will often leave contexts fairly implicit, using language
@@ -328,13 +327,112 @@ even if we will not do much manipulation of it.
 
 == Structural rules
 
-TODO(Jo): which of these do we need?
+To begin with, we state some essential rules for working in type theory. These rules allow
+us to manipulate terms and make judgments in a way which is natural for mathematicians.
 
-TODO: comment on the fact we will be using these implicitly
+The first rule says that the judgment $x : A$ may be derived from any context which contains
+a variable $x$ of type $A$:
+#pt(prooftree(rule(
+  $(x_1 : A_1, ..., x_n : A_n) ctx$,
+  $(x_1 : A_1, ..., x_n : A_n) tack x_i : A_i$,
+  name: [Vble],
+)))
+
+We declare the following rules, *substitution* and *weakening* for typing judgments. The
+first says that we may substitute terms for variables freely, and the second says that we
+may introduce new variables while not affecting previous typing judgments.
+
+#pt(rule-set(
+  prooftree(
+    rule(
+      $Gamma tack t : A$,
+      $Gamma, x : A, Delta tack s : B$,
+      $Gamma, Delta[t slash x] tack s[t slash x] : B[t slash x]$,
+      name: $"Subst"_1$,
+    ),
+  ),
+  prooftree(rule(
+    $Gamma tack A : UU_i$,
+    $Gamma, Delta tack t : B$,
+    $Gamma, x : A, Delta tack t : B$,
+    name: $"Wkg"_1$,
+  )),
+))
+
+#note[In the rule $"Wkg"_1$, it may first seem as though there is a danger that the variable
+  $x$ aliases with a variable present in $t$ or $B$, which may affect its truth. However,
+  this is not a problem, since we require variables in contexts to be unique, meaning that
+  $x : A$ cannot occur in $Gamma$ or $Delta$, and therefore not in $t$ or $B$.
+]
+
+The substitution and weakening rules have counterparts for judgmental equalities:
+
+#pt(rule-set(
+  prooftree(rule(
+    $Gamma tack t : A$,
+    $Gamma, x : A, Delta tack u peq v : B$,
+    $Gamma, Delta[t slash x] tack u[t slash x] peq v[t slash x] : B[t slash x]$,
+    name: $"Subst"_2$,
+  )),
+  prooftree(rule(
+    $Gamma tack t peq s : A$,
+    $Gamma, x : A, Delta tack u : B$,
+    $Gamma, Delta tack u[t slash x] peq u[s slash x] : B[t slash x]$,
+    name: $"Subst"_3$,
+  )),
+  prooftree(rule(
+    $Gamma tack A : UU_i$,
+    $Gamma, Delta tack t peq s : B$,
+    $Gamma, x : A, Delta tack t peq s : B$,
+    name: $"Wkg"_2$,
+  )),
+))
+
+The rule $"Subst"_2$ says that we may make substitutions on the "outside" of equalities, for
+example we can go from $f(x) peq g(x)$ to $f(t) peq g(t)$; the rule $"Subst"_3$ says that we
+may make substitutions on the "inside" of equalities, for example we can go from $x peq y$
+to $f(x) peq f(y)$. The weakening rule is analogous to the weakening rule for typing
+judgments.
+
+We also assume that judgmental equality is an equivalence relation,
+#pt(
+  rule-set(
+    prooftree(rule($Gamma tack t : A$, $Gamma tack t peq t : A$)),
+    prooftree(rule(
+      $Gamma tack t peq s : A$,
+      $Gamma tack s peq t : A$,
+    )),
+    prooftree(rule(
+      $Gamma tack t peq s : A$,
+      $Gamma tack s peq u : A$,
+      $Gamma tack t peq u : A$,
+    )),
+  ),
+)
+and that judgmental equality of types allows us to replace equal types for each other in
+typing judgments and in judgmental equalities
+#pt(
+  rule-set(
+    prooftree(rule($Gamma tack t : A$, $Gamma tack A peq B : UU_i$, $Gamma tack t : B$)),
+    prooftree(rule(
+      $Gamma tack t peq s : A$,
+      $Gamma tack A peq B : UU_i$,
+      $Gamma tack t peq s : B$,
+    )),
+  ),
+)
+
+Although these rules must be stated at least once, the process of reading (and writing)
+proofs using them explicitly is rather tedious, and therefore we will use them implicitly
+going forward. A demonstration of a proof using the structural rules for simply-typed lambda
+calculus may be found in #cite(<mainproject>, form: "prose", supplement: [Proposition
+  3.4.2]).
 
 == Data for types
 
-For each new type we introduce, we give the following data
+The first part of this chapter will deal with introducing some useful types, which we will
+use for the remainder of the thesis. These definitions follow a similar pattern. For each
+new type we introduce, we give the following data:
 
 - *Formation rules* which specify how to make the type out of existing types.
 - *Introduction rules* which specify how to construct terms of the new type.
