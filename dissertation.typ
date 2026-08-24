@@ -262,7 +262,7 @@ $
 Sometimes the type annotation "$: A$" will be omitted when it is clear from context. This
 judgment is a metatheoretic equality, which is to be contrasted with "internal" equality
 which we will introduce later. It says that whenever we see the term $t$, we may rewrite it
-as $t'$ and vice versa. (FEEDBACK: does $t$ need to have no free variables?)
+as $t'$ and vice versa.
 
 We write deductive rules in the "proof tree" style, where antecedents are written above a
 line and consequents below it:
@@ -270,7 +270,7 @@ line and consequents below it:
 This deduction says that from the judgments $cal(J)_1$ and $cal(J)_2$ we may conclude
 $cal(J)_3$.
 
-== Universes and contexts
+== Universes and contexts<sec:universes-and-contexts>
 
 In order to avoid a situation similar to Russell's paradox #cite(<coquand1992paradox>), we
 define a hierarchy of *universes*, denoted
@@ -442,7 +442,7 @@ new type we introduce, we give the following data:
 - *Uniqueness principle* (optional) which may impose constraints on the elements of a type
   by declaring certain elements to be equivalent under given conditions.
 
-== Function types
+== Function types<sec:function-types>
 
 The first type we will introduce is the (non-dependent) *function type*. We introduce a
 primitive constant $c_(->)$, and we will write $c_(->)(A, B)$ using the syntactic sugar
@@ -469,7 +469,6 @@ The data for function types and terms are given by the following rules:
     name: [$->$-Form],
   )),
   prooftree(rule(
-    $Gamma tack B : UU_i$,
     $Gamma, x : A tack t : B$,
     $Gamma tack lambda(x : A) sd t : A -> B$,
     name: [$->$-Intr],
@@ -515,7 +514,7 @@ family defined by
 $ lambda (T : UU_i) sd (T -> T) : UU_i -> UU_i $
 represents generically the type of an automorphism on $T$.
 
-TODO talk about type families vs just using contexts
+
 
 == Dependent function types
 
@@ -563,6 +562,37 @@ function types correspond closely with their counterparts for non-dependent func
     name: [$Pi$-Uniq],
   )),
 ))
+
+#note[
+  As mentioned in @sec:universes-and-contexts, there is an alternative presentation of type
+  theory which relies more heavily on contexts. That presentation does not use type families
+  such as $Gamma tack B : A -> UU_i$, instead relying on judgments like
+  $Gamma, x : A tack B' : UU_i$, which means that $B'$ is a type which may reference a
+  variable $x$.
+
+  There, the rules $Pi$-Intr and $Pi$-Elim, for example, would be expressed as
+  #pt(
+    rule-set(
+      prooftree(bigrule(
+        $Gamma, x : A tack b : B$,
+        $Gamma tack lambda (x : A) sd b : product_(x : A) B$,
+        name: [$Pi$-Intr\*],
+      )),
+      prooftree(bigrule(
+        $Gamma tack f : product_(x : A) B$,
+        $Gamma tack a : A$,
+        $Gamma tack f(a) : B[a slash x]$,
+        name: [$Pi$-Elim\*],
+      )),
+    ),
+  )
+  In $Pi$-Intr\*, we see that $B$ is not a function which yields a type, but rather a type
+  with (potentially) a free variable $x$; similarly in $Pi$-Elim\*, the resulting type of
+  $f(a)$ is computed by variable substitution, $B[a slash x]$, rather than the function
+  application $B(a)$.
+
+]
+
 
 === Functions in "open form" vs "closed form"
 
@@ -614,20 +644,81 @@ non-dependent.
 
 === Equivalence of non-dependent $Pi$-types with function types
 
-TODO
 
-- In the case where $x$ is not free in $B$, $Pi$-types are equivalent to function types
-- Therefore, we may write a non-dependent $Pi$ type using the function syntax $->$
-- This is also the reason there is no ambiguity in the introduction rules for both, which
-  use $lambda$ syntax
+If we suppose, in the rules for $Pi$-types, that we have
+$B peq lambda (x : A) sd B' : UU_i$, and that $x$ does not occur freely in $B'$, then we
+derive (via the $->$-Comp rule) that
+$ Gamma, x : A tack B(x) peq B'. $
+In that case, the $Pi$-Intr rule becomes
+
+#pt(
+  prooftree(bigrule(
+    $Gamma, x : A tack b : B'$,
+    $Gamma tack lambda (x : A) sd b : product_(x : A) B'$,
+    name: [$Pi$-Intr],
+  )),
+)
+
+Comparing with the $->$-Intr rule,
+#pt(
+  prooftree(rule(
+    $Gamma, x : A tack t : B$,
+    $Gamma tack lambda(x : A) sd t : A -> B$,
+    name: [$->$-Intr],
+  )),
+)
+we see that this is just a rewriting of $product_(x : A) B'$ as $A -> B$. The application to
+the other rules is similar, and in this way we see that a $Pi$-type over $x : A$ which has
+no free occurences of $x$ is equivalent to a plain function type. By this equivalence, we
+refer to the function types from @sec:function-types as *non-dependent* function types. This
+is also the reason that there is no ambiguity in using the $lambda$-syntax for function
+notation for both dependent functions.
+
+One advantage of the context-driven approach mentioned in @sec:universes-and-contexts is
+that it would allow us to define dependent functions first, and then consider non-dependent
+functions as a special case. However, since we choose the more functional approach for its
+other merits, we must state this equivalence explicitly.
 
 === Reordering of arguments
 
-TODO
+Supposing that we have a function $f : A -> B -> C$, we may wish to transform it into a
+function $f' : B -> A -> C$, with its arguments swapped. Fortunately, this is easy to do for
+non-dependent functions:
 
-- Can reorder arguments to functions
-- HOTT book uses syntax like $product_(x : A, y : B) t$ for this, but we will not
-- Prove it?
+#pt(
+  prooftree(rule(
+    $Gamma tack a : A$,
+    $Gamma tack b : B$,
+    $Gamma tack f : A -> B -> C$,
+    $Gamma tack f' peq lambda (y : B) sd lambda (x : A) sd f(x, y)$,
+    $Gamma tack f'(b, a) peq f(a, b)$,
+  )),
+)
+
+For the case of dependent functions, we may do almost the same thing, but we must be careful
+that the type of the latter parameter does not depend on the value of the former:
+
+#pt(
+  prooftree(rule(
+    $Gamma tack a : A$,
+    $Gamma tack b : B$,
+    $Gamma tack f : product_(x : A) product_(y : B) C(x, y)$,
+    $Gamma tack f' peq lambda (y : B) sd lambda (x : A) sd f(x, y)$,
+    $Gamma tack f'(b, a) peq f(a, b)$,
+  )),
+)
+
+Note the specific signature of $f$. If we allowed $y$ to have type $B(x)$ rather than $B$,
+as in $f : product_(x : A) product_(y : B(x)) C(x, y)$, then we could not construct $f'$
+using the given $lambda$ syntax, since in the term
+$lambda (y : B(x)) sd lambda (x : A) sd f(x, y)$ we have a free occurrence of $x$.
+
+#note[In #cite(<hottbook>, form: "prose"), the authors frequently make use this equivalence
+  of parameter ordering, using syntax such as
+  $
+    product_(x : A, y : B) C(x, y),
+  $
+  however we prefer to avoid it, making explicit reorderings where necessary.]
 
 == Dependent pair types
 
