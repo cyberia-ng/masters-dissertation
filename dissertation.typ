@@ -786,16 +786,13 @@ $
 The formal elimination and computation rules are as follows:
 #pt(rule-set(
   prooftree(bigrule(
-    $Gamma tack sum_(x: A) B(x) : UU_i$,
     $Gamma tack C : (sum_(x : A) B(x)) -> UU_i$,
     $Gamma tack g : product_(x : A) product_(y : B(x)) C((x, y))$,
-    // $Gamma tack p : sum_(x : A) B(x)$,
     $Gamma tack ind_(sum_(x : A) B(x)) (C, g) : product_(p : sum_(x : A) B(x)) C(p)$,
     name: [$Sigma$-Elim],
   )),
   prooftree(bigrule(
-    $Gamma tack sum_(x: A) B(x) : UU_i$, // TODO necessary?
-    $Gamma tack C : sum_(x : A) B(x) -> UU_i$,
+    $Gamma tack C : (sum_(x : A) B(x)) -> UU_i$,
     $Gamma tack g : product_(x : A) product_(y : B(x)) C((x, y))$,
     $Gamma tack a : A$,
     $Gamma tack b : B(a)$,
@@ -809,20 +806,20 @@ The formal elimination and computation rules are as follows:
 It will be useful later to work with the *projection functions* on a pair type. These will
 be functions $pi_0$ and $pi_1$, which intuitively will pick the left and right elements
 (respectively) out of the pair elements of the pair type. In the case of a non-dependent
-pair, these functions have signature
+pair, we desire these functions to have signatures
 $
   pi_0 & : A times B -> A \
   pi_1 & : A times B -> B.
 $
 
-In the case of a dependent pair type, the signature of $pi_0$ translates by an equivalence
-of notation to
-$ pi_0 : sum_(x : A) B(x) -> A, $
+In the case of a dependent pair type, the desired signature of $pi_0$ translates by an
+equivalence of notation to
+$ pi_0 : (sum_(x : A) B(x)) -> A, $
 however the case of $pi_1$ on a dependent pair type is not so easy. Recall that the type of
 the right element of the pair depends on the value of the left element, so we require a
 dependent function, whose type contains a reference to $pi_0$:
 $
-  pi_1 : product_(p : sum_(x : A) B(x)) B(pi_0(p))
+  pi_1 : product_(p : sum_(x : A) B(x)) B(pi_0(p)).
 $
 
 To construct these functions, we use the inductor on the following multi-parameter "helper"
@@ -843,17 +840,57 @@ $
 #proposition[
   The functions $pi_0$ and $pi_1$ have the desired types
   $
-    pi_0 & : sum_(x : A) B(x) -> A \
+    pi_0 & : (sum_(x : A) B(x)) -> A \
     pi_1 & : product_(p : sum_(x : A) B(x)) B(pi_0(p))
   $
 ]
 #proof[
-  Omitted (FEEDBACK should prove?)
+  We apply the $Sigma$-Elim rule in both cases to derive the types. Let $A : UU_i$ be a type
+  and $B : A -> UU_i$ be a type family. Recall that this means that we will work in the
+  context $A : UU_i, B : A -> UU_i$, which we term $Gamma$ where necessary.
+
+  By $Sigma$-Form, we have $sum_(x : A) B(x) : UU_i$, and we put $C(\_) :peq A$ in open
+  form, or equivalently in closed form
+  $
+    C :peq lambda(\_ : sum_(x : A) B(x)) sd A
+  $
+  and therefore by $->$-Intr we have $C : (sum_(x : A) B(x)) -> UU_i$. Then, we can rewrite
+  the type of $pi'_0$ -- using the $beta$-rule on the expression $C((x, y))$ -- as
+  $
+    pi'_0 : product_(x : A) product_(y : B(x)) C((x, y)).
+  $
+  We have all the antecedents for the $Sigma$-Elim rule, so we may conclude
+  $
+    ind_(sum_(x : A) B(x)) (C, pi'_0) : product_(p : sum_(x : A) B(x)) C(p) \
+    "i.e." quad pi_0 : (sum_(x : A) B(x)) -> A.
+  $
+
+  By a similar process for $pi_1$, we put
+  $
+    C(p) :peq B(pi_0 (p))
+  $
+  so that
+  $
+    ind_(sum_(x : A) B(x))(C, pi'_1) : product_(p : sum_(x : A) B(x)) C(p) \
+    "i.e." quad pi_1 : product_(p : sum_(x : A) B(x)) B(pi_0(p))
+  $
+  as required.
 ]
 
+#remark[In this proof, we gave a discursive version of a formal process for deriving the
+  proposition from the assumptions. We note that this discursive version can be translated
+  into a truly formal proof in type theory, and that this will be the case for all the
+  proofs we write. /*(TODO mention Agda)*/ For the sake of introducing the style of proof,
+  we were relatively explicit in showing the necessary antecedents for the $Sigma$-Elim
+  rule, and in pointing out an elided use of the $beta$-rule, but we will not always be so.
+  As we progress through the text and become more comfortable with the rules, we will
+  naturally begin to use them implicitly in some cases. We hope that this achieves a balance
+  of clarity and brevity.]
 
-The following proposition will be useful later, as part of the proof that all elements of
-pair types are indeed pairs.
+We have proved a statement about the types of the projection functions $pi_0$ and $pi_1$
+using the $Sigma$-Elim rule. What can we achieve with the $Sigma$-Comp rule? The following
+proposition will be useful later, as part of the proof that all elements of pair types are
+indeed pairs.
 
 #proposition[For a type $A : UU_i$ and a type family $B : A -> UU_i$ and elements $x : A$,
   $y : B(x)$, we have
@@ -864,9 +901,6 @@ pair types are indeed pairs.
   $
 ]<prop:projection_equality>
 #proof[
-  (TODO note this is the first real proof and comment on style, using transitivity of
-  equality and substition implicitly?)
-
   By definition of $pi_0$, we have
   $
     pi_0((x, y)) peq ind_(sum_(x : A) B(x)) (lambda (\_ : sum_(x : A) B(x)) sd A, pi'_0, (x, y)).
@@ -943,7 +977,6 @@ inductor:
 #pt(
   rule-set(
     prooftree(bigrule(
-      $Gamma tack A + B : UU_i$, // TODO: necessary?
       $Gamma tack C : A + B -> UU_i$,
       $Gamma tack f : product_(x : A) C(inl(x))$,
       $Gamma tack g : product_(x : B) C(inr(x))$,
@@ -951,7 +984,6 @@ inductor:
       name: [$+$-Elim],
     )),
     prooftree(bigrule(
-      $Gamma tack A + B : UU_i$, // TODO: necessary?
       $Gamma tack C : A + B -> UU_i$,
       $Gamma tack f : product_(x : A) C(inl(x))$,
       $Gamma tack g : product_(x : B) C(inr(x))$,
@@ -960,7 +992,6 @@ inductor:
       name: [$+$-Comp-L],
     )),
     prooftree(bigrule(
-      $Gamma tack A + B : UU_i$, // TODO: necessary?
       $Gamma tack C : A + B -> UU_i$,
       $Gamma tack f : product_(x : A) C(inl(x))$,
       $Gamma tack g : product_(x : B) C(inr(x))$,
