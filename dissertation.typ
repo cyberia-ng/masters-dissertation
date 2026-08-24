@@ -1491,7 +1491,7 @@ satisfied by any equal element, i.e. that equal terms may be substituted for eac
   $
     transport^D (z, z, refl_z) peq id_D(z).
   $
-]
+]<thm:indiscernibility-of-identicals>
 
 #proof[
   Fix a type family $D : A -> UU_i$.
@@ -2111,4 +2111,49 @@ $
     alpha : product_(a : code(m, n)) encode(m, n, decode(m, n, a)) =_code(m, n) a
   $
   TODO
+]
+
+== Sets
+
+- Sets are types where witnesses are unique
+- These correspond to groupoids where homotopies between paths consist only of identity
+  - (TODO/FEEDBACK: we can show that higher paths being identities $=>$ witnesses are unique, but can
+    we show converse?)
+- We saw that $one$ and $NN$ are sets
+- $zero$ is a set because we can construct
+  $product_(x : zero) product_(y : zero) product_(p : x = y) product_(q : x = y) p = q$
+  freely by the $zero$-Intr rule
+- If witnesses in a type form a set, call that set a 1-type. Similarly if witnesses to
+  witnesses form a set, that's a 2-type, and so on.
+- All sets are 1-types, all 1-types are 2-types, etc. They are upward-closed
+- Proof of upward-closedness requires a lemma about transport
+
+#lemma[For $A : UU_i$, $a, x, y : A$ and $p : x =_A y$, we have
+  $
+    &transport^(x |-> a = x) (x, y, p, q) &&=_(a = y) q bullet p quad &&"for" q : a = x \
+    &transport^(x |-> x = a) (x, y, p, q) &&=_(y = a) p^(-1) bullet q quad &&"for" q : x = a \
+    &transport^(x |-> x = x) (x, y, p, q) &&=_(y = y) p^(-1) bullet q bullet p quad &&"for" q : x = x
+  $
+]
+#proof[
+  /* TODO write more words */
+  For the first claim, let $q : a =_A x_1$. Then put
+  $
+    C(x, y, p) :peq product_(q : a = x) transport^(x |-> a = x) (x, y, p, q) = q bullet p \
+  $
+  We wish to exhibit, for all $z : A$, an element of type
+  $ product_(q : a = z) transport^(x |-> a = x) (z, z, refl_z, q) = q bullet refl_z $
+  but we have
+  $ transport^(x |-> a = x)(z, z, refl_z, q) peq q $
+  by @thm:indiscernibility-of-identicals, and $q bullet refl_z peq q$ by (TODO HoTT 2.1.4),
+  so we put
+  $
+    c(z) :peq refl_q : C(z, z, refl_z).
+  $
+  By induction we get
+  $
+    ind(C, c) : product_(x : A) product_(y : A) product_(p : x = y) product_(q : a = x) transport^(x |-> a = x)(x, y, p, q) =_(a = x_2) q bullet p
+  $
+
+  The second and third claims are analogous, by altering the type of $q$.
 ]
