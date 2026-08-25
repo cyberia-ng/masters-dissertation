@@ -2186,6 +2186,34 @@ $
   $ g : isSet(A) -> is1Type(A). $
 ]
 #proof[
+  #figure(
+    diagram({
+      let A = (0, 0)
+      let gm = (0, 1)
+      let dlt = (0, 2)
+      let gmp = (-1, 3)
+      let dltp = (1, 3)
+      node(A, $A : UU_i$)
+      node(gm, $Gamma$)
+      node(dlt, $Delta$)
+      node(dltp, $Delta'$)
+      node(gmp, $Gamma'$)
+      edge(gm, A, "->")
+      edge(dlt, gm, "->")
+      edge(gmp, dlt, "->")
+      edge(dltp, dlt, "->")
+
+      edge(dlt, dltp, "->", stroke: blue, bend: -30deg, label: text(blue)[$1$])
+      edge(dltp, dlt, "->", stroke: blue, bend: -30deg, label: text(blue)[$2^*$])
+      edge(dlt, gmp, "->", stroke: blue, bend: 30deg, label: text(blue)[$3$])
+      edge(gmp, gm, "->", stroke: blue, bend: 30deg, label: text(blue)[$4^*$])
+      edge(gm, A, "->", stroke: blue, bend: 30deg, label: text(blue)[$5^*$])
+    }),
+    caption: [A visualization of contexts used in this proof. Black arrows represent context
+      inclusion (e.g. $Delta$ includes $Gamma$) and blue arrows denote the movement as we go
+      through the proof. Blue arrows marked with an asterisk denote that the move involves a
+      $beta$-reduction.],
+  )
   Let the context $Gamma$ consist of $A : UU_i, f : isSet(A)$. We aim to exhibit an element
   $g' : is1Type(A)$, and hence by $beta$-reduction an element $g$ such that
   $ A : UU_i tack g : isSet(A) -> is1Type(A). $
