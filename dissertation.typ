@@ -2141,12 +2141,12 @@ $
   witnesses form a set, that's a 2-type, and so on.
 - All sets are 1-types, all 1-types are 2-types, etc. They are upward-closed
 #definition[
+  TODO words
   $
     is1Type : A -> UU_i \
-    is1Type(A) :peq product_(x : A) product_(y : A) product_(p : x = y) product_(q : x = y) product_(r : p = q) product_(s : p = q) r = s
+    // is1Type(A) :peq product_(x : A) product_(y : A) product_(p : x = y) product_(q : x = y) product_(r : p = q) product_(s : p = q) r = s\
+    is1Type(A) :peq product_(x : A) product_(y : A) isSet(x =_A y)
   $
-
-  TODO is this really necessary? We could just do it discursively
 ]
 - Proof of upward-closedness requires a lemma about transport
 
