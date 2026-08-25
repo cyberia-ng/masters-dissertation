@@ -160,10 +160,13 @@
 #let qinv = $sans("qinv")$
 #let isequiv = $sans("isequiv")$
 #let ap = $sans("ap")$
+#let apd = $sans("apd")$
 #let transport = $sans("transport")$
 #let code = $sans("code")$
 #let encode = $sans("encode")$
 #let decode = $sans("decode")$
+#let isSet = $sans("isSet")$
+#let is1Type = $sans("is1Type")$
 #let bigrule = (..args) => {
   let judgments = args.pos()
   let kwargs = args.named()
@@ -2116,9 +2119,20 @@ $
 == Sets
 
 - Sets are types where witnesses are unique
+
+#definition[We say that a type $A$ is a *set* if for all $x, y : A$ and all paths
+  $p, q : x =_A y$, we have a path $r : p =_(x =_A y) q$.
+
+  Formally, we define a type family $isSet$ by
+  $
+    isSet : A -> UU_i \
+    isSet(A) :peq product_(x : A) product_(y : A) product_(p : x = y) product_(q : x = y) p = q.
+  $
+]
+
 - These correspond to groupoids where homotopies between paths consist only of identity
-  - (TODO/FEEDBACK: we can show that higher paths being identities $=>$ witnesses are unique, but can
-    we show converse?)
+  - (TODO/FEEDBACK: we can show that higher paths being identities $=>$ witnesses are
+    unique, but can we show converse?)
 - We saw that $one$ and $NN$ are sets
 - $zero$ is a set because we can construct
   $product_(x : zero) product_(y : zero) product_(p : x = y) product_(q : x = y) p = q$
@@ -2126,6 +2140,14 @@ $
 - If witnesses in a type form a set, call that set a 1-type. Similarly if witnesses to
   witnesses form a set, that's a 2-type, and so on.
 - All sets are 1-types, all 1-types are 2-types, etc. They are upward-closed
+#definition[
+  $
+    is1Type : A -> UU_i \
+    is1Type(A) :peq product_(x : A) product_(y : A) product_(p : x = y) product_(q : x = y) product_(r : p = q) product_(s : p = q) r = s
+  $
+
+  TODO is this really necessary? We could just do it discursively
+]
 - Proof of upward-closedness requires a lemma about transport
 
 #lemma[For $A : UU_i$, $a, x, y : A$ and $p : x =_A y$, we have
@@ -2134,7 +2156,7 @@ $
     &transport^(x |-> x = a) (x, y, p, q) &&=_(y = a) p^(-1) bullet q quad &&"for" q : x = a \
     &transport^(x |-> x = x) (x, y, p, q) &&=_(y = y) p^(-1) bullet q bullet p quad &&"for" q : x = x
   $
-]
+]<lem:transport-path-composition>
 #proof[
   /* TODO write more words */
   For the first claim, let $q : a =_A x_1$. Then put
@@ -2156,4 +2178,70 @@ $
   $
 
   The second and third claims are analogous, by altering the type of $q$.
+]
+
+#lemma[If $A$ is a set, then $A$ is a 1-type, i.e. there is a function
+  $ g : isSet(A) -> is1Type(A). $
+]
+#proof[
+  Let the context $Gamma$ consist of $A : UU_i, f : isSet(A)$. We aim to exhibit an element
+  $g : is1Type(A)$.
+
+  In the context $Delta :peq (Gamma, x : A, y : A, p : x = y)$, we define a function $g$ by
+  $
+    g : product_(q : x = y) p = q \
+    g :peq f(x, y, p).
+  $
+
+  Then, in the context
+  $ Delta' :peq Delta, q : x = y, q' : x = y, r : q = q', $
+  we compute $apd_g (r)$. Recall that ... TODO facts about $apd$ ..., so we have
+  $
+    transport^(x |-> p = x) (q, q', r, g(q)) : p = q'.
+  $
+  and
+  $
+    apd_g (r) : transport^(x |-> p = x) (q, q', r, g(q)) = g(q').
+  $
+  By @lem:transport-path-composition, we have a path
+  $
+    p : transport^(x |-> p = x) (q, q', r, g(q)) = g(q) bullet r
+  $
+  so by path composition we get
+  $
+    p^(-1) bullet apd_g(r) : g(q) bullet r = g(q').
+  $
+  Applying $beta$-reduction over the variables introduced in context $Delta'$, we get a
+  function $h$ in context $Delta$ such that
+  $
+    Delta tack h : product_(q : x=y) product_(q' : x = y) product_(r : q = q') g(q) bullet r = g(q').
+  $
+
+  Now, in the context
+  $
+    Gamma' :peq Gamma, q : x = y, r : p = q, s : p = q,
+  $
+  we apply $h(p, q, r)$ and $h(p, q, s)$ to get
+  $
+    h(p, q, r) : g(p) bullet r = g(q) quad "and" quad h(p, q, s) : g(p) bullet s = g(q)
+  $
+  hence
+  $
+    && h(p, q, r) bullet h(p, q, s)^(-1) &: g(p) bullet r = g(p) bullet s \
+    => quad && ap_(g(p)^(-1) bullet -)(h(p, q, r) bullet h(p, q, s)^(-1) ) &: r = s.
+  $
+
+  Then applying $beta$-reduction over the variables in $Gamma'$, we get a function
+  $
+    &f' : product_(x : A) product_(y : A) product_(p : x = y) product_(q : x = y) product_(r : p = q) product_(s : p = q) r = s \
+    "i.e." quad &f' : is1Type(A).
+  $
+  Finally, applying a further $beta$-reduction over $f : isSet(A)$ in $Gamma$, we get
+  $
+    g : isSet(A) -> is1Type(A)
+  $
+  as required.
+
+  - TODO define $apd$
+  - TODO remark about contexts not being explicit in HoTT book
 ]
