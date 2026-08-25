@@ -283,6 +283,8 @@ define a hierarchy of *universes*, denoted
 
 $ UU_0 quad UU_1 quad UU_2 quad ... quad UU_i quad ... $
 
+/* TODO state that these are indexed by (metatheoretic) natural numbers, not all ordinals */
+
 Each $UU_i$ is an element of $UU_(i + 1)$, and furthermore every universe contains all the
 types contained in previous universes. I.e. if $x : UU_i$ then $x : UU_j$ for all $j >= i$.
 This is known as the *cumulative* property. When we say $A$ is a type, what we mean is that
@@ -2185,7 +2187,8 @@ $
 ]
 #proof[
   Let the context $Gamma$ consist of $A : UU_i, f : isSet(A)$. We aim to exhibit an element
-  $g : is1Type(A)$.
+  $g' : is1Type(A)$, and hence by $beta$-reduction an element $g$ such that
+  $ A : UU_i tack g : isSet(A) -> is1Type(A). $
 
   In the context $Delta :peq (Gamma, x : A, y : A, p : x = y)$, we define a function $g$ by
   $
@@ -2205,11 +2208,11 @@ $
   $
   By @lem:transport-path-composition, we have a path
   $
-    p : transport^(x |-> p = x) (q, q', r, g(q)) = g(q) bullet r
+    t : transport^(x |-> p = x) (q, q', r, g(q)) = g(q) bullet r
   $
   so by path composition we get
   $
-    p^(-1) bullet apd_g(r) : g(q) bullet r = g(q').
+    t^(-1) bullet apd_g(r) : g(q) bullet r = g(q').
   $
   Applying $beta$-reduction over the variables introduced in context $Delta'$, we get a
   function $h$ in context $Delta$ such that
@@ -2219,7 +2222,7 @@ $
 
   Now, in the context
   $
-    Gamma' :peq Gamma, q : x = y, r : p = q, s : p = q,
+    Gamma' :peq Delta, q : x = y, r : p = q, s : p = q,
   $
   we apply $h(p, q, r)$ and $h(p, q, s)$ to get
   $
@@ -2231,14 +2234,15 @@ $
     => quad && ap_(g(p)^(-1) bullet -)(h(p, q, r) bullet h(p, q, s)^(-1) ) &: r = s.
   $
 
-  Then applying $beta$-reduction over the variables in $Gamma'$, we get a function
+  Then applying $beta$-reduction over the variables in $Gamma'$, we get a function in
+  $Gamma$,
   $
-    &f' : product_(x : A) product_(y : A) product_(p : x = y) product_(q : x = y) product_(r : p = q) product_(s : p = q) r = s \
-    "i.e." quad &f' : is1Type(A).
+    &Gamma tack g' : product_(x : A) product_(y : A) product_(p : x = y) product_(q : x = y) product_(r : p = q) product_(s : p = q) r = s \
+    "i.e." quad &Gamma tack g' : is1Type(A).
   $
   Finally, applying a further $beta$-reduction over $f : isSet(A)$ in $Gamma$, we get
   $
-    g : isSet(A) -> is1Type(A)
+    A : UU_i tack g : isSet(A) -> is1Type(A)
   $
   as required.
 
