@@ -1804,13 +1804,45 @@ and work structurally using $infinity$-groupoids.
   as required.
 ]
 
-- By the existence of $ap_f$, we say that all functions in type theory are "continuous" --
-  they preserve paths.
 
 #lemma([HoTT Book 2.2.2])[TODO: Functoriality of $ap$
 
   FEEDBACK: not sure we need this but would be good to include for
   completeness]<lemma:ap-functoriality>
+
+#lemma([HoTT Book 2.3.4])[
+  For a type family $B : A -> UU_i$, a dependent function $f : product_(x : A) -> B(x)$ and
+  elements $a, b : A$, there is a function
+  $
+    apd_f : product_(p : a = b) transport^B (a, b, p, f(a)) =_(B(b)) f(b)
+  $
+]
+#proof[
+  We proceed by path induction on $p$. We put
+  $
+    C : product_(x : A) product_(y : A) (x = y) -> UU_i \
+    C(x, y, p) :peq transport^B (x, y, p, f(x)) =_B(y) f(y).
+  $
+  We need to exhibit for all $z : A$ an element
+  $
+                & c(z) : C(z, z, refl_z) \
+    "i.e." wide & c(z) : transport^B (z, z, refl_z, f(z)) =_B(z) f(z).
+  $
+  Recalling that $transport^B (z, z, refl_z) peq id_B(z)$, we have
+  $ transport^B (z, z, refl_z, f(z)) peq f(z) $
+  so we put
+  $ c(z) :peq refl_f(z). $
+
+  Then, by induction, we get
+  $
+    ind_= (C, c) : product_(x : A) product_(y : A) product_(p : x = y) C(x, y, p).
+  $
+
+  We then define $apd_f :peq ind_= (C, c, a, b)$ as required.
+]
+
+- By the existence of $ap_f$ and $apd_f$, we say that all functions in type theory are
+  "continuous" -- they preserve paths.
 
 == Homotopies and equivalences
 
