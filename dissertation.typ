@@ -1760,12 +1760,149 @@ $ p =_((x =_A y)) q. $
 The type $p = q$ exists at the next level up from the type $x = y$, so this fits naturally
 into the $infinity$-groupoid structure.
 
-TODO Lemma 2.1.4 from HOTT book
+// In later proofs, we will require that such paths (or witnesses) are "well-behaved" with respect to the reflexive path at a point $x$, $refl_x$.
 
-TODO remark that this is not enough -- we need to go "up to infinity" but we will not
+We need, however, to show that the laws of inverses and associativity hold when we consider
+witnesses to equalities as paths.
 
-For the remainder of this chapter, we will forget the topological specifics of homotopies,
-and work structurally using $infinity$-groupoids.
+#lemma([HoTT 2.1.4])[
+  For a type $A : UU_i$, elements $x, y, z, w : A$ and witnesses $p : x =_A y$,
+  $q : y =_A z$ and $r : z =_A w$, the following statements hold:
+
+  + $p = p bullet refl_y$ and $p = refl_x bullet p$
+  + $p bullet p^(-1) = refl_x$ and $p^(-1) bullet p = refl_y$
+  + $(p^(-1))^(-1) = p$
+  + $p bullet (q bullet r) = (p bullet q) bullet r$
+
+  where these identities are second-level identities.
+]<lem:paths-inv-assoc>
+#proof[
+  All proofs use the induction principle (the $=$-Elim rule), and we work in an ambient
+  context containing $x, y, z, w, p, q, r$ as in the statement of the lemma.
+
+  + We consider the first case and put
+    $
+      C : product_(x : A) product_(y : A) (x = y) -> UU_i \
+      C(x, y, p) :peq (p = p bullet refl_y)
+    $
+
+    We want to construct a function
+    $ c : product_(z : A) C(z, z, refl_z) $
+    and we compute $C(z, z, refl_z) peq (refl_z = refl_z bullet refl_z)$. By
+    @lemma:identity-symmetry, we know $refl_z bullet refl_z peq refl_z$, so we have
+    $C(z, z, refl_z) peq (refl_z = refl_z)$. Thus, we can put
+    $
+      c(z) :peq refl_(refl_z)
+    $
+    and by induction we get
+    $
+      ind_=(C, c, x, y, p) : p = p bullet refl_y
+    $
+    as required. The proof for the second case is similar.
+
+  + We again consider only the first case, with the second case being completely analogous.
+    This time, we put
+    $
+      C(x, y, p) :peq (p bullet p^(-1) = refl_x)
+    $
+    and compute, for a variable $z : A$,
+    $
+      C(z, z, refl_z) &peq (refl_z bullet refl_z^(-1) = refl_z) \
+      & peq (refl_z = refl_z) wide "by" #ref(<lemma:identity-symmetry>) "and" #ref(<lemma:identity-transitivity>).
+    $
+    Then, we again may put $c(z) :peq refl_refl_z$ to obtain
+    $
+      ind_=(C, c, x, y, p) : (p bullet p^(-1) = refl_x).
+    $
+  + For this case, we put $C(\_, \_, p) :peq (p^(-1))^(-1) = p$, and compute
+    $
+      C(z, z, refl_z) & peq (refl_z^(-1))^(-1) = refl_z \
+                      & peq refl_z = refl_z wide "by" #ref(<lemma:identity-symmetry>)
+    $
+    By again putting $c(z) :peq refl_refl_z$ we obtain
+    $
+      ind_=(C, c, x, y, p) : (p^(-1))^(-1) = p.
+    $
+  + For this case, we have two things to consider. Firstly, our usual variable name $z$ in
+    the $=$-Elim rule conflicts with the $z$ that we have in the context, and secondly we
+    are going to need use induction three times. We are running out of letters in the
+    alphabet! We therefore replace the $z$ in the $=$-Elim rule with $v_1, v_2, v_3$ for
+    each induction.
+
+    For the first induction, put
+    $
+      C_1 (x, y, p) :peq product_(z : A) product_(q : y = z) product_(w : A) product_(r : z = w) p bullet (q bullet r) = (p bullet q) bullet r
+    $
+    so that, for $v_1 : A$, we have
+    $
+      C_1(v_1, v_1, refl_v_1) peq product_(z : A) product_(w : A) product_(q : v_1 = z) product_(r : z = w) refl_v_1 bullet (q bullet r) = (refl_v_1 bullet q) bullet r.
+    $
+    We want to construct an element of $C_1(v_1, v_1, refl_v_1)$, which leads us into the
+    second induction. Put
+    $
+      C_2 (x, z, q) :peq product_(w : A) product_(r : z = w) refl_x bullet (q bullet r) = (refl_x bullet q) bullet r \
+    $
+    so that for $v_2 : A$, we have
+    $
+      C_2(v_2, v_2, refl_v_2) peq product_(w : A) product_(r : v_2 = w) refl_v_2 bullet (refl_v_2 bullet r) = (refl_v_2 bullet refl_v_2) bullet r.
+    $
+    We want to construct an element of $C_2(v_2, v_2, refl_v_2)$, which leads us into the
+    third induction. Put
+    $
+      C_3 (x, w, r) :peq refl_x bullet (refl_x bullet r) = (refl_x bullet refl_x) bullet r
+    $
+    so that for $v_3 : A$, we have
+    $
+      C_3(v_3, v_3, refl_v_3) peq refl_v_3 bullet (refl_v_3 bullet refl_v_3) = (refl_v_3 bullet refl_v_3) bullet refl_v_3.
+    $
+    Applying @lemma:identity-transitivity, this reduces to
+    $
+      C_3(v_3, v_3, refl_v_3) peq refl_v_3 = refl_v_3
+    $
+    which is inhabited by
+    $
+      c_3(v_3) :peq refl_refl_v_3.
+    $
+    Going back up the chain of inductions, we put $c_2 (v_2) :peq ind_=(C_3, c_3, v_2)$ to
+    get
+    $
+      c_2(v_2) : product_(w : A) product_(r : v_2 = w) refl_v_2 bullet (refl_v_2 bullet r) = (refl_v_2 bullet refl_v_2) bullet r
+    $
+    and we put $c_1(v_1) :peq ind_=(C_2, c_2, v_1)$ to get
+    $
+      c_1(v_1) : product_(z : A) product_(q : v_1 = z) product_(w : A) product_(r : z = w) refl_v_1 bullet (q bullet r) = (refl_v_1 bullet q) bullet r.
+    $
+    Finally, we find
+    $
+      ind_=(C_1, c_1, x, y, p, z, q, w, r) : p bullet (q bullet r) = (p bullet q) bullet r
+    $
+    as required.#footnote([Phew!])
+]
+
+#remark[
+  The proofs in @lem:paths-inv-assoc were very explicit, noting each application of the
+  $=$-Elim rule with its associated named terms. In #cite(<hottbook>, form: "prose"), the
+  authors adopt the convention of writing such proofs much more tersely, using the
+  formulation "by induction it is sufficient to assume $p peq refl_x$," and then computing
+  the desired result. We, however, will adopt the more explicit form in all our proofs, for
+  the sake of clarity and demonstration of understanding. In any case, we will not require
+  such complex proofs involving multiple levels of induction for the remainder of this work.
+  /*TODO talk about Agda? */
+]
+
+#remark[
+  The proof of @lem:paths-inv-assoc establishes witnesses to the necessary laws (identity,
+  associativity) for the first level of a higher groupoid. To truly show that a type forms
+  an $infinity$-groupoid, it would be necessary to prove these laws at every level "up to
+  infinity". In #cite(<hottbook>, form: "prose"), the authors note that this can be achieved
+  "using the notion of a globular operad". However, for the remainder of this work, we only
+  require these coherence laws up to a finite level. By considering the type $A$ in
+  @lem:paths-inv-assoc itself as an identity type (and then as an identity between
+  identities, etc.), we can rely on these laws up to any finite level we desire.
+]
+
+By this equivalence between witnesses to identities and paths in a homotopy space, we will
+use the terms "path" and "witness" interchangably from now on.
 
 == Functions and functors
 
@@ -1906,7 +2043,7 @@ and work structurally using $infinity$-groupoids.
   as required.
 ]
 
-- TODO/FEEDBACK include Lemma 2.4.3? Possibly requires talking about fibrations
+// - TODO include Lemma 2.4.3? Possibly requires talking about fibrations
 
 #definition[For a function $f : A -> B$, a *quasi-inverse* of $f$ is a triple
   $(g, alpha, beta)$, where
@@ -2305,7 +2442,5 @@ $
     A : UU_i tack g : isSet(A) -> is1Type(A)
   $
   as required.
-
-  - TODO define $apd$
   - TODO remark about contexts not being explicit in HoTT book
 ]
