@@ -1088,7 +1088,7 @@ which diverge (i.e. either do not terminate or crash the program).
     prooftree(rule(
       $Gamma tack C : zero -> UU_i$,
       $Gamma tack ind_zero (C) : product_(a : zero) C(a)$,
-      name: [$one$-Elim],
+      name: [$zero$-Elim],
     )),
   ),
 )
@@ -1571,33 +1571,54 @@ judgmentally equal.
 Now that we have defined identity types, we can make some statements about identities within
 our previously-defined types.
 
-#proposition[Every element of a pair type $A times B$ is equal to $(x, y)$, for some
-  $x : A$, $y : B$.]
+#proposition[The type $one$ has only one element.]<prop:one-is-a-singleton>
 #proof[
-  Recall that by @prop:projection_equality, we have
-  $ pi_0((x, y)) peq x wide "and" wide pi_1((x, y)) peq y $
-  for all pairs $(x, y) : A times B$.
+  We have defined, in the $one$-Intr rule, how to specify a particular element of $one$,
+  namely $star : one$. The method we will use to prove this proposition is to show that
+  given an element $a : one$, there is a witness to the equality $a =_one star$. That is,
+  that there is a function $f : product_(a : one) a =_one star$.
 
-  Now we define a type family $C$ as
+  The $one$-Elim rule says that in order to construct such a function out of $one$, it is
+  sufficient to give its value at $star$. (To most mathematicians, this statement alone
+  should give us the necessary intuition that $one$ only has one element.) Working formally,
+  we define a type family $C$ as
+  $
+    C : one -> UU_i \
+    C(a) :peq a =_one star.
+  $
+  Recall that the $one$-Elim rule says that we must provide an element $c : C(star)$, i.e.
+  $c : star =_one star$. Of course, $refl_star$ is such an element, so we then conclude
+  $
+    ind_one (C, refl_star) : product_(a : one) a =_one star
+  $
+  as required.
+]
+
+#proposition[Every element of a pair type $A times B$ is equal to $(x, y)$, for some
+  $x : A$, $y : B$.]<prop:pair-types-consist-of-pairs>
+#proof[
+  This proof uses exactly the same principle as @prop:one-is-a-singleton: the rule
+  $Sigma$-Elim tells us that in order to define a function out of a pair type $A times B$,
+  it is sufficient to give a multi-parameter function on $A$ and $B$. We define the type
+  family $C$ as
   $
     C : A times B -> UU_i \
-    C(z) :peq (pi_0(z), pi_1(z)) =_(A times B) z.
+    C(p) :peq (pi_0(p), pi_1(p)) =_(A times B) p.
   $
-  That is to say, $C(z)$ represents the proposition that $z$ is equal to the pair of its
-  projections. Our aim, then, is to show that $C(z)$ is inhabited for all $z : A times B$.
+  That is to say, $C(p)$ represents the proposition that an element $p : A times B$ is equal
+  to the pair of its projections, and in particular that $p$ is a pair. Our aim, then, is to
+  show that $C(p)$ is inhabited for all $p : A times B$, i.e. to construct a function of
+  type $product_(p : A times B) C(p)$.
 
-  To construct a function out of a pair type $A times B$, we know by the elimination rule
-  that it is sufficient to give a multi-parameter function on $A$ and $B$. So to construct a
-  function $f : product_(z : A times B) C(z)$, it is sufficient to show a function
-  $g : product_(x : A) product_(y : B) C((x, y))$.
+  Applying the $Sigma$-Elim rule with our $C$, we see that we need to show a function
+  $g : product_(x : A) product_(y : B) C((x, y))$, i.e.
+  $ g : product_(x : A) product_(y : B) (pi_0((x, y)), pi_1((x, y))) =_(A times B) (x, y). $
 
-  Since we know that $pi_0((x, y)) peq x$ and $pi_1((x, y)) peq y$, we see that we can
-  rewrite the type of $refl_((x, y))$ as
-  $ refl_((x, y)) : (pi_0((x, y)), pi_1((x, y))) =_(A times B) (x, y) $
-  i.e.
-  $
-    refl_((x, y)) : C((x, y)).
-  $
+  This function can be defined using $refl_((x, y))$ as follows. Recall
+  @prop:projection_equality: for all $x : A$ and $y : B$, we have
+  $ pi_0((x, y)) peq x wide "and" wide pi_1((x, y)) peq y. $
+  We can therefore rewrite the type of $refl_((x, y))$ as
+  $ refl_((x, y)) : (pi_0((x, y)), pi_1((x, y))) =_(A times B) (x, y). $
 
   Therefore for our function $g : product_(x : A) product_(y : B) C((x, y))$, we put
   $
@@ -1605,10 +1626,35 @@ our previously-defined types.
   $
   Applying the inductor, we get
   $
-    ind_(A times B) (C, g) : product_(z : A times B) C(z)
+    ind_(A times B) (C, g) : product_(p : A times B) C(p)
   $
   as required.
 ]
+
+We now return to the example mentioned (TODO) earlier, finite sets.
+
+TODO
+
+- Something like, $Fin(0) :peq zero$ and $Fin(succ(n)) :peq one + Fin(n)$.
+- Want to show $Fin(n)$ has $n$ elements. Can we do this in a generic way over $n$?
+- Say for $Fin(2) peq one + (one + zero)$, given 3 elements of it, wts there is at least one
+  equality between them.
+- To give a fn out of $A + B$, sufficient to give a fn out of $A$ and a fn out of $B$
+  - so to give a fn out of $one + (one + zero)$, sufficient to give a fn out of $one$ and a
+    fn out of $one + zero$, i.e. another fn out of $one$ and a fn out of $zero$.
+  - But we need a fn out of $Fin(2) times Fin(2) times Fin(2)$, so need to do this all 3
+    times.
+  - Need to give
+    $
+      f : product_(a : Fin(2)) product_(b : Fin(2)) product_(c : Fin(2)) (a = b) + (b = c) + (a = c)
+    $
+  - Can we involve $NN$-recursion somehow?
+  - Show that all maps $Fin(1) -> Fin(2)$ leave an element left over?
+  - This would tell us that $Fin(2)$ has _at least_ 2 elements, but not that it has
+    _only_ 2.
+  - Similar problem: how do we really know there isn't a "secret" element of $zero$?
+
+=== Properties of identity types
 
 We now show that identity types form an equivalence relation.
 
@@ -1759,8 +1805,6 @@ equal to some other witness $q : x =_A y$, which would be represented by the typ
 $ p =_((x =_A y)) q. $
 The type $p = q$ exists at the next level up from the type $x = y$, so this fits naturally
 into the $infinity$-groupoid structure.
-
-// In later proofs, we will require that such paths (or witnesses) are "well-behaved" with respect to the reflexive path at a point $x$, $refl_x$.
 
 We need, however, to show that the laws of inverses and associativity hold when we consider
 witnesses to equalities as paths.
@@ -2330,7 +2374,7 @@ $
 ]<lem:transport-path-composition>
 #proof[
   /* TODO write more words */
-  For the first claim, let $q : a =_A x_1$. Then put
+  For the first claim, we consider the case of $q : a =_A x$. We put
   $
     C(x, y, p) :peq product_(q : a = x) transport^(x |-> a = x) (x, y, p, q) = q bullet p \
   $
@@ -2338,10 +2382,10 @@ $
   $ product_(q : a = z) transport^(x |-> a = x) (z, z, refl_z, q) = q bullet refl_z $
   but we have
   $ transport^(x |-> a = x)(z, z, refl_z, q) peq q $
-  by @thm:indiscernibility-of-identicals, and $q bullet refl_z peq q$ by (TODO HoTT 2.1.4),
-  so we put
+  by @thm:indiscernibility-of-identicals, and we have a path $r : q = q bullet refl_z$ by
+  @lem:paths-inv-assoc, so we put
   $
-    c(z) :peq refl_q : C(z, z, refl_z).
+    c(z) :peq refl_q bullet r : C(z, z, refl_z).
   $
   By induction we get
   $
