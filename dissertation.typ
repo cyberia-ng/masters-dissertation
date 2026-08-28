@@ -2145,22 +2145,22 @@ use the terms "path" and "witness" interchangably from now on.
   For a type family $B : A -> UU_i$, a dependent function $f : product_(x : A) -> B(x)$ and
   elements $a, b : A$, there is a function
   $
-    apd_f : product_(p : a = b) transport^B (a, b, p, f(a)) =_(B(b)) f(b)
+    apd_f : product_(p : a = b) transport^B (p, f(a)) =_(B(b)) f(b)
   $
 ]
 #proof[
   We proceed by path induction on $p$. We put
   $
     C : product_(x : A) product_(y : A) (x = y) -> UU_i \
-    C(x, y, p) :peq transport^B (x, y, p, f(x)) =_B(y) f(y).
+    C(x, y, p) :peq transport^B (p, f(x)) =_B(y) f(y).
   $
   We need to exhibit for all $z : A$ an element
   $
                 & c(z) : C(z, z, refl_z) \
-    "i.e." wide & c(z) : transport^B (z, z, refl_z, f(z)) =_B(z) f(z).
+    "i.e." wide & c(z) : transport^B (refl_z, f(z)) =_B(z) f(z).
   $
-  Recalling that $transport^B (z, z, refl_z) peq id_B(z)$, we have
-  $ transport^B (z, z, refl_z, f(z)) peq f(z) $
+  Recalling that $transport^B (refl_z) peq id_B(z)$, we have
+  $ transport^B (refl_z, f(z)) peq f(z) $
   so we put
   $ c(z) :peq refl_f(z). $
 
@@ -2446,11 +2446,11 @@ equality between its elements.
 //   we know that $succ(k) + p$ is a successor, so $code(succ(k) + p) peq one$. Therefore we
 //   have
 //   $
-//     transport^code (succ(k) + p, 0, q, star) : code(0)
+//     transport^code (q, star) : code(0)
 //   $
 //   i.e. an element of $zero$. So we put
 //   $
-//     g(0, (k, (p, q))) :peq transport^code (succ(k) + p, 0, q, star) : Fin(0).
+//     g(0, (k, (p, q))) :peq transport^code (q, star) : Fin(0).
 //   $
 //   We then put
 //   $
@@ -2596,27 +2596,30 @@ $
   $
 - We can certainly go the other way, by an application of path induction:
 
-#lemma[For a type $A$ and a type family $B : A -> UU_i$, there is a function
+#lemma[For a type $A$, a type family $B : A -> UU_i$ and functions
+  $f, g : product_(x : A) B(x)$, there is a function
   $
-    happly : product_(f : product_(x : A) B(x)) product_(g : product_(x : A) B(x)) (f = g) -> product_(x : A) f(x) = g(x).
+    happly : (f = g) -> product_(x : A) f(x) = g(x).
   $
   That is to say that if two functions are (propositionally) equal, then they are
   (propositionally) equal pointwise.
 ]
 #proof[
-  For brevity, we write the type $product_(x : A) B(x)$ as $F$. Put
+  Fix $A, B, f, g$ as in the statement of the lemma. For brevity, we write the type
+  $product_(x : A) B(x)$ as $F$. Put
   $
     C : product_(f : F) product_(g: F) f = g -> UU_i \
     C(f, g, \_) :peq product_(x : A) f(x) = g(x).
   $
-  For $z : F$ we compute $C(z, z, refl_z) peq product_(x : A) z(x) = z(x)$, so we put
+  For a variable $z : F$ we compute $C(z, z, refl_z) peq product_(x : A) z(x) = z(x)$, so we
+  put
   $
     c : product_(z : F) C(z, z, refl_z) \
     c(z) :peq lambda (x : A) sd refl_(z(x)).
   $
-  We then define $happly :peq ind_=(C, c)$ to get
+  We then define $happly :peq ind_=(C, c, f, g)$ to get
   $
-    happly : product_(f : F) product_(g : F) (f = g) -> product_(x : A) f(x) = g(x)
+    happly : (f = g) -> product_(x : A) f(x) = g(x)
   $
   as required.
 ]
@@ -2627,16 +2630,13 @@ $
   For a type $A$, a type family $B : A -> UU_i$ and functions $f, g: product_(x : A) B(x)$,
   the function
   $
-    happly(f, g) : (f = g) -> product_(x : A) f(x) = g(x)
+    happly : (f = g) -> product_(x : A) f(x) = g(x)
   $
   is an equivalence. That is to say, there is a function of type
   $
-    funext : product_(f : product_(x : A) B(x)) product_(g : product_(x : A) B(x)) (product_(x : A) f(x) = g(x)) -> f = g.
+    funext : (product_(x : A) f(x) = g(x)) -> f = g.
   $
 ]
-
-- Like $transport$, we adopt the convention that $happly$ and $funext$ take their first two
-  parameters explicitly. (TODO: should we change all three to match HoTT book?)
 
 - We now consider the transport function in the case of identities between functions
 - We want to transport a function $f : A(x_1) -> B(x_1)$ along an equality $x_1 = x_2$ to
@@ -2649,8 +2649,8 @@ $
   For a type $X$, elements $x_1, x_2 : X$, type families $A, B : X -> UU_i$ and a function
   $f : A(x_1) -> B(x_1)$, we have
   $
-    transport^(lambda (x : X) sd A(x) -> B(x)) (x_1, x_2, p, f) = \
-    (lambda (x : A(x_2)) sd transport^B (x_1, x_2, p, f(transport^A (x_2, x_1, p^(-1), x)))).
+    transport^(lambda (x : X) sd A(x) -> B(x)) (p, f) = \
+    (lambda (x : A(x_2)) sd transport^B (p, f(transport^A (p^(-1), x)))).
   $
 
   That is to say, if we want to compute the transport of a function $f : A(x_1) -> B(x_1)$
@@ -2670,10 +2670,10 @@ $
       node(bx2, $B(x_2)$)
       node(ax1, $A(x_1)$)
       node(bx1, $B(x_1)$)
-      edge(ax2, bx2, "->", $transport^(lambda (x : X) sd A(x) -> B(x))(x_1, x_2, p, f)$)
-      edge(ax2, ax1, "->", $transport^A (x_2, x_1, p^(-1))$)
+      edge(ax2, bx2, "->", $transport^(lambda (x : X) sd A(x) -> B(x))(p, f)$)
+      edge(ax2, ax1, "->", $transport^A (p^(-1))$)
       edge(ax1, bx1, "->", $f$)
-      edge(bx1, bx2, "->", $transport^B (x_1, x_2, p)$)
+      edge(bx1, bx2, "->", $transport^B (p)$)
     })
 
   ]
@@ -2685,23 +2685,23 @@ $
   $
     // & C &   & : product_(x_1 : X) product_(x_2 : X) (x_1 = x_2) -> UU_i \
     C & (x_1, x_2, p) :peq \
-    & transport^(lambda (x : X) sd A(x) -> B(x)) (x_1, x_2, p, f'(x_1)) = \
-    & (lambda (x : A(x_2)) sd transport^B (x_1, x_2, p, f'(x_1, transport^A (x_2, x_1, p^(-1), x))))
+      & transport^(lambda (x : X) sd A(x) -> B(x)) (p, f'(x_1)) = \
+      & (lambda (x : A(x_2)) sd transport^B (p, f'(x_1, transport^A (p^(-1), x))))
   $
   and compute $C(z, z, refl_z)$ for $z : X$. For $x : A(z)$, we have
   $
-    transport^A (z, z, refl_z^(-1), x) peq x
+    transport^A (refl_z^(-1), x) peq x
   $
   and
   $
-    transport^B (z, z, refl_z f'(z, x)) peq f'(z, x),
+    transport^B (refl_z, f'(z, x)) peq f'(z, x),
   $
   so we have a judgmental equality (using the $eta$-rule) for the right-hand side of
   $C(z, z, refl_z)$:
-  $ lambda (x : A(z)) sd transport^B (z, z, refl_z, f'(z, x)) peq f'(z). $
+  $ lambda (x : A(z)) sd transport^B (refl_z, f'(z, x)) peq f'(z). $
   Considering the left-hand side, we have
   $
-    transport^(lambda (x : X) sd A(x) -> B(x)) (z, z, refl_z, f'(z)) peq f'(z)
+    transport^(lambda (x : X) sd A(x) -> B(x)) (refl_z, f'(z)) peq f'(z)
   $
   so we may put
   $
@@ -2709,9 +2709,9 @@ $
   $
   Therefore, fixing $x_1, x_2 : A$ and writing $f :peq f'(x_1)$, we have
   $
-    ind_=&(C, c, x_1, x_2, p) : \
-    & transport^(lambda (x : X) sd A(x) -> B(x)) (x_1, x_2, p, f) = \
-    & (lambda (x : A(x_2)) sd transport^B (x_1, x_2, p, f(transport^A (x_2, x_1, p^(-1), x))))
+    ind_= & (C, c, x_1, x_2, p) : \
+          & transport^(lambda (x : X) sd A(x) -> B(x)) (p, f) = \
+          & lambda (x : A(x_2)) sd transport^B (p, f(transport^A (p^(-1), x)))
   $
   as required.
 ]
@@ -2752,21 +2752,21 @@ $
 
 #lemma[For $A : UU_i$, $a, x, y : A$ and $p : x =_A y$, we have
   $
-    &transport^(x |-> a = x) (x, y, p, q) &&=_(a = y) q bullet p quad &&"for" q : a = x \
-    &transport^(x |-> x = a) (x, y, p, q) &&=_(y = a) p^(-1) bullet q quad &&"for" q : x = a \
-    &transport^(x |-> x = x) (x, y, p, q) &&=_(y = y) p^(-1) bullet q bullet p quad &&"for" q : x = x
+    &transport^(x |-> a = x) (p, q) &&=_(a = y) q bullet p quad &&"for" q : a = x \
+    &transport^(x |-> x = a) (p, q) &&=_(y = a) p^(-1) bullet q quad &&"for" q : x = a \
+    &transport^(x |-> x = x) (p, q) &&=_(y = y) p^(-1) bullet q bullet p quad &&"for" q : x = x
   $
 ]<lem:transport-path-composition>
 #proof[
   /* TODO write more words */
   For the first claim, we consider the case of $q : a =_A x$. We put
   $
-    C(x, y, p) :peq product_(q : a = x) transport^(x |-> a = x) (x, y, p, q) = q bullet p \
+    C(x, y, p) :peq product_(q : a = x) transport^(x |-> a = x) (p, q) = q bullet p \
   $
   We wish to exhibit, for all $z : A$, an element of type
-  $ product_(q : a = z) transport^(x |-> a = x) (z, z, refl_z, q) = q bullet refl_z $
+  $ product_(q : a = z) transport^(x |-> a = x) (refl_z, q) = q bullet refl_z $
   but we have
-  $ transport^(x |-> a = x)(z, z, refl_z, q) peq q $
+  $ transport^(x |-> a = x)(refl_z, q) peq q $
   by @thm:indiscernibility-of-identicals, and we have a path $r : q = q bullet refl_z$ by
   @lem:paths-inv-assoc, so we put
   $
@@ -2774,7 +2774,7 @@ $
   $
   By induction we get
   $
-    ind(C, c) : product_(x : A) product_(y : A) product_(p : x = y) product_(q : a = x) transport^(x |-> a = x)(x, y, p, q) =_(a = x_2) q bullet p
+    ind(C, c) : product_(x : A) product_(y : A) product_(p : x = y) product_(q : a = x) transport^(x |-> a = x)(p, q) =_(a = x_2) q bullet p
   $
 
   The second and third claims are analogous, by altering the type of $q$.
@@ -2826,15 +2826,15 @@ $
   $ Delta' :peq Delta, q : x = y, q' : x = y, r : q = q', $
   we compute $apd_g (r)$. Recall that ... TODO facts about $apd$ ..., so we have
   $
-    transport^(x |-> p = x) (q, q', r, g(q)) : p = q'.
+    transport^(x |-> p = x) (r, g(q)) : p = q'.
   $
   and
   $
-    apd_g (r) : transport^(x |-> p = x) (q, q', r, g(q)) = g(q').
+    apd_g (r) : transport^(x |-> p = x) (r, g(q)) = g(q').
   $
   By @lem:transport-path-composition, we have a path
   $
-    t : transport^(x |-> p = x) (q, q', r, g(q)) = g(q) bullet r
+    t : transport^(x |-> p = x) (r, g(q)) = g(q) bullet r
   $
   so by path composition we get
   $
