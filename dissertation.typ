@@ -2236,6 +2236,110 @@ equality between its elements.
     HoTT book
 ]
 
+// #example([Finite sets TODO])[
+//   We show that $Fin(n)$ has exactly $n$ elements. We do this by recalling our definition of
+//   $<=$ from (TODO earlier):
+//   $
+//     n <= m :peq sum_(p : NN) n + p = m
+//   $
+
+//   We define a type family $B : NN -> UU_i$ as
+//   $
+//     B(n) :peq sum_(k : NN) (succ(k) <= n).
+//   $
+//   That is, $B(n)$ consists of pairs of natural numbers $k$ and witnesses to the type
+//   $succ(k) <= n$, so the left projections of its elements consist precisely of natural
+//   numbers strictly less than $n$. (Note that $n <= m$ is itself defined as a pair type, so
+//   elements of $B(n)$ will have the form $(k, (p, q))$ where $k : NN$, $p : NN$ and
+//   $q : succ(k) + p = n$.)
+
+//   We therefore want to show a sequence of equivalences
+//   $
+//     product_(n : NN) Fin(n) equiv B(n).
+//   $
+//   Because we are working with a sequence of equivalences over $NN$, we will make our
+//   quasi-inverses functions of $NN$ also.
+
+//   We want functions
+//   $
+//     f : product_(n : NN) Fin(n) -> B(n), quad g : product_(n : NN) B(n) -> Fin(n)
+//   $
+//   and sequences of homotopies
+//   $
+//     alpha : product_(n : NN) f(n) compose g(n) ~ id_B(n), quad beta : product_(n : NN) g(n) compose f(n) ~ id_Fin(n).
+//   $
+
+//   We define $f$ by pattern matching:
+//   $
+//     & f(0) : Fin(0) -> B(0) \
+//     & f(0, z) :peq ind_zero (lambda (\_ : zero) sd B(0), z)
+//   $
+//   that is, when $n peq 0$, $Fin(0) peq zero$, so we can use $ind_zero$ to give us an element
+//   of whatever type we like. The case for a successor itself uses pattern matching for
+//   coproduct and pair types:
+//   $
+//     & f(succ(n)) : Fin(succ(n)) -> B(succ(n)) \
+//     & f(succ(n), inl(star)) :peq (0, (n, refl_succ(n))) \
+//     & f(succ(n), inr(y)) :peq (succ(k), (p, ap_succ (q))) \
+//     & wide "where" (k, (p, q)) peq f(n, y).
+//   $
+
+//   We define $g$ also by pattern matching. Considering $g(0)$, we want a function
+//   $
+//     g(0) : B(0) -> Fin(0),
+//   $
+//   but recalling that $Fin(0) peq zero$, this means we must construct an element of $zero$
+//   given $k : NN$, $p : NN$ and $q : succ(k) + p = 0$. To do this, we introduce a type family
+//   $code : NN -> UU_i$ defined by
+//   $
+//     & code(0) :peq zero \
+//     & code(succ(\_)) :peq one
+//   $
+//   and transport $code(succ(k) + p))$ across the equality $q$. From the definition of $add$,
+//   we know that $succ(k) + p$ is a successor, so $code(succ(k) + p) peq one$. Therefore we
+//   have
+//   $
+//     transport^code (succ(k) + p, 0, q, star) : code(0)
+//   $
+//   i.e. an element of $zero$. So we put
+//   $
+//     g(0, (k, (p, q))) :peq transport^code (succ(k) + p, 0, q, star) : Fin(0).
+//   $
+//   We then put
+//   $
+//     & g(succ(n), (0,       && (p, q))) :peq inl(star) \
+//     & g(succ(n), (succ(m), && (p, q))) :peq inr(g(n, (m, (p, q)))).
+//   $
+
+//   It remains to construct the sequences of homotopies $alpha$ and $beta$. Let us consider
+//   $alpha$ first.
+
+//   Fix $n : NN$. We want to construct
+//   $
+//     alpha(n) : product_(x : B(n)) f(n, g(n, x)) = x
+//   $
+//   which we do by pattern matching. If $n$ is zero, we have $g(n, x) : zero$ for all
+//   $x : B(0)$, so we may construct $f(n, g(n, x)) = x$ freely:
+//   $
+//     alpha(0, x) :peq ind_zero (lambda (z : zero) sd f(n, g(n, x)) = x, g(n, x)).
+//   $
+//   If $n$ is a successor, i.e. $n peq succ(n')$, and $x$ is $(0, (p, q))$, then we have
+//   $ g(succ(n'), (0, (p, q))) peq inl(star), $
+//   and
+//   $ f(succ(n'), inl(star))) peq (0, (n', refl_succ(n'))) $
+//   so we need to show that $p = n'$ and $q = refl_succ(n')$. We have
+//   $
+//     q : succ(0) + p = succ(n'),
+//   $
+//   and by the uniqueness of paths in $NN$ (TODO move to after that theorem), we must have $q : refl_succ(n')$ and hence $p = n'$.
+
+//   So we put
+//   $
+//   alpha(0, (succ(n'), (p, q))) :peq 
+//   $
+//   TODO: I don't know if this is worth it
+// ]
+
 We wish to show a similar property for the natural numbers, i.e. that for natural numbers
 $n : NN$ and $m : NN$, we have $n = m equiv one$ if $n = m$ is inhabited, and
 $n = m equiv zero$ otherwise. In order to do this, we introduce a type family
