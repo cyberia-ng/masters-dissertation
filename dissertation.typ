@@ -1295,7 +1295,24 @@ number $n$, given $n$ itself and the value at $n$.
   $
 ]
 
-- TODO expand on what is _primitive_ recursion
+== Pattern matching
+
+When we are working with the $ind$ functions for our various types, we have so far specified
+the antecedent functions and invoked the inductor explicitly. This can become quite verbose,
+so we introduce the concept of *pattern matching*.
+
+Using pattern matching, we may define functions using syntax like
+$
+  &f : A times B -> C \
+  &f((x, y)) :peq t.
+$
+Here, we rely on
+
+== Finite types (2) (TODO)
+
+Now that we have the singleton type $one$, the empty type $zero$ and the coproduct
+type-former $+$, we can construct the previously-
+
 
 == Propositions as types
 
@@ -1633,29 +1650,6 @@ our previously-defined types.
   $
   as required.
 ]
-
-We now return to the example mentioned (TODO) earlier, finite sets.
-
-TODO
-
-- Something like, $Fin(0) :peq zero$ and $Fin(succ(n)) :peq one + Fin(n)$.
-- Want to show $Fin(n)$ has $n$ elements. Can we do this in a generic way over $n$?
-- Say for $Fin(2) peq one + (one + zero)$, given 3 elements of it, wts there is at least one
-  equality between them.
-- To give a fn out of $A + B$, sufficient to give a fn out of $A$ and a fn out of $B$
-  - so to give a fn out of $one + (one + zero)$, sufficient to give a fn out of $one$ and a
-    fn out of $one + zero$, i.e. another fn out of $one$ and a fn out of $zero$.
-  - But we need a fn out of $Fin(2) times Fin(2) times Fin(2)$, so need to do this all 3
-    times.
-  - Need to give
-    $
-      f : product_(a : Fin(2)) product_(b : Fin(2)) product_(c : Fin(2)) (a = b) + (b = c) + (a = c)
-    $
-  - Can we involve $NN$-recursion somehow?
-  - Show that all maps $Fin(1) -> Fin(2)$ leave an element left over?
-  - This would tell us that $Fin(2)$ has _at least_ 2 elements, but not that it has
-    _only_ 2.
-  - Similar problem: how do we really know there isn't a "secret" element of $zero$?
 
 === Properties of identity types
 
@@ -2335,7 +2329,7 @@ equality between its elements.
 
 //   So we put
 //   $
-//   alpha(0, (succ(n'), (p, q))) :peq 
+//   alpha(0, (succ(n'), (p, q))) :peq
 //   $
 //   TODO: I don't know if this is worth it
 // ]
