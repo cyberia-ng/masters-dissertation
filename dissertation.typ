@@ -239,13 +239,6 @@ Note that we do not distinguish between the language of types and the language o
 Since we will be presenting a dependent type theory, types may depend on terms and vice
 versa, so they are part of the same language.
 
-// == Variables
-
-// The concept of a variable is familiar to logicians. They are denoted by a single lowercase
-// letter, usually taken from $x, y, z$, with an optional subscript. To indicate $n$ variables
-// we will use $x_1, x_2, ..., x_n$. In type theory, all variables are of a particular type,
-// which is written $x : A$.
-
 == Judgments
 
 We introduce three kinds of judgments in our presentation of type theory, namely *context
@@ -270,8 +263,9 @@ $
 $
 Sometimes the type annotation "$: A$" will be omitted when it is clear from context. This
 judgment is a metatheoretic equality, which is to be contrasted with "internal" equality
-which we will introduce later. It says that whenever we see the term $t$, we may rewrite it
-as $t'$ and vice versa.
+which we will introduce later. This is the reason we use the symbol $peq$ in place of the
+more standard $=$, which we reserve for use in identity types later. This judgment says that
+whenever we see the term $t$, we may rewrite it as $t'$ and vice versa.
 
 We write deductive rules in the "proof tree" style, where antecedents are written above a
 line and consequents below it:
@@ -436,8 +430,11 @@ typing judgments and in judgmental equalities
 Although these rules must be stated at least once, the process of reading (and writing)
 proofs using them explicitly is rather tedious, and therefore we will use them implicitly
 going forward. A demonstration of a proof using the structural rules for simply-typed lambda
-calculus may be found in #cite(<mainproject>, form: "prose", supplement: [Proposition
-  3.4.2]).
+calculus may be found in #cite(
+  <mainproject>,
+  // form: "prose",
+  supplement: [Proposition 3.4.2],
+).
 
 == Data for types
 
@@ -445,13 +442,15 @@ The first part of this chapter will deal with introducing some useful types, whi
 use for the remainder of the thesis. These definitions follow a similar pattern. For each
 new type we introduce, we give the following data:
 
-- *Formation rules* which specify how to make the type out of existing types.
-- *Introduction rules* which specify how to construct terms of the new type.
-- *Elimination rules* which specify how to reduce terms of the new type to terms of a
-  simpler type.
-- *Computation rules* which specify how elimination interacts with construction.
-- *Uniqueness principle* (optional) which may impose constraints on the elements of a type
-  by declaring certain elements to be equivalent under given conditions.
+#pad(left: 15pt)[
+  / Formation rules: which specify how to make the type out of existing types.
+  / Introduction rules: which specify how to construct terms of the new type.
+  / Elimination rules: which specify how to reduce terms of the new type to terms of a
+    simpler type.
+  / Computation rules: which specify how elimination interacts with construction.
+  / Uniqueness principle: (optional) which may impose constraints on the elements of a type
+    by declaring certain elements to be equivalent under given conditions.
+]
 
 == Function types<sec:function-types>
 
@@ -507,7 +506,7 @@ The data for function types and terms are given by the following rules:
 The $->$-Comp and $->$-Uniq rules are respectively also known as the $beta$ and $eta$ rules
 in $lambda$-calculus.
 
-== Type families
+== Type families<sec:type-families>
 
 A *type family* is an element of a function type $A -> UU_i$, i.e. it is a function which
 takes some parameter (of type $A$) and returns a type. In this way, we can construct types
@@ -534,10 +533,10 @@ types*. A dependent function is one in which the output type may depend on the i
 _value_. The notation for a dependent function type is $product_(x : A) B(x)$, where
 $B : A -> UU_i$ is a type family. This represents the type of a function which takes a
 parameter $x$ of type $A$ and returns a value of type $B(x)$. Continuing the example of
-finite sets from above, we might define a function $sans("max") : product_(n : NN) Fin(n)$
-which returns the highest number available in $Fin(n)$; that is, $max(1) peq 0_(Fin(1))$,
-$max(2) peq 1_(Fin(2))$ etc., where we use a subscript on the numeral to emphasize that the
-elements of each type $Fin(n)$ are distinct.
+finite sets from @sec:type-families, we might define a function
+$sans("max") : product_(n : NN) Fin(n)$ which returns the highest number available in
+$Fin(n)$; that is, $max(1) peq 0_(Fin(1))$, $max(2) peq 1_(Fin(2))$ etc., where we use a
+subscript on the numeral to emphasize that the elements of each type $Fin(n)$ are distinct.
 
 Using primitive constants to represent syntax, we introduce a primitive constant $c_Pi$, and
 write $c_Pi (A, lambda (x : A) sd B(x))$ as $product_(x : A) B(x)$. The rules for dependent
@@ -605,7 +604,7 @@ function types correspond closely with their counterparts for non-dependent func
 ]
 
 
-=== Functions in "open form" vs "closed form"
+=== Functions in "open form" vs "closed form"<sec:open-form-funs>
 
 When we wish to introduce a constant which will be defined to be equal to some function, our
 syntax so far allows us to write expressions such as
@@ -856,12 +855,12 @@ $
   $
 ]
 #proof[
-  We apply the $Sigma$-Elim rule in both cases to derive the types. Let $A : UU_i$ be a type
-  and $B : A -> UU_i$ be a type family. Recall that this means that we will work in the
-  context $A : UU_i, B : A -> UU_i$, which we term $Gamma$ where necessary.
+  We apply the "$Sigma$-Elim" rule in both cases to derive the types. Let $A : UU_i$ be a
+  type and $B : A -> UU_i$ be a type family. Recall that this means that we will work in the
+  context $A : UU_i, B : A -> UU_i$.
 
-  By $Sigma$-Form, we have $sum_(x : A) B(x) : UU_i$, and we put $C(\_) :peq A$ in open
-  form, or equivalently in closed form
+  By the rule "$Sigma$-Form", we have $sum_(x : A) B(x) : UU_i$, and we put $C(\_) :peq A$
+  in open form, or equivalently in closed form
   $
     C :peq lambda(\_ : sum_(x : A) B(x)) sd A
   $
@@ -872,8 +871,11 @@ $
   $
   We have all the antecedents for the $Sigma$-Elim rule, so we may conclude
   $
-    ind_(sum_(x : A) B(x)) (C, pi'_0) : product_(p : sum_(x : A) B(x)) C(p) \
-    "i.e." quad pi_0 : (sum_(x : A) B(x)) -> A.
+    ind_(sum_(x : A) B(x)) (C, pi'_0) : product_(p : sum_(x : A) B(x)) C(p)
+  $
+  i.e.
+  $
+    pi_0 : (sum_(x : A) B(x)) -> A.
   $
 
   By a similar process for $pi_1$, we put
@@ -882,21 +884,22 @@ $
   $
   so that
   $
-    ind_(sum_(x : A) B(x))(C, pi'_1) : product_(p : sum_(x : A) B(x)) C(p) \
-    "i.e." quad pi_1 : product_(p : sum_(x : A) B(x)) B(pi_0(p))
+    ind_(sum_(x : A) B(x))(C, pi'_1) : product_(p : sum_(x : A) B(x)) C(p)
   $
+  i.e.
+  $ pi_1 : product_(p : sum_(x : A) B(x)) B(pi_0(p)) $
   as required.
 ]
 
-#remark[In this proof, we gave a discursive version of a formal process for deriving the
-  proposition from the assumptions. We note that this discursive version can be translated
-  into a truly formal proof in type theory, and that this will be the case for all the
-  proofs we write. /*(TODO mention Agda)*/ For the sake of introducing the style of proof,
-  we were relatively explicit in showing the necessary antecedents for the $Sigma$-Elim
-  rule, and in pointing out an elided use of the $beta$-rule, but we will not always be so.
-  As we progress through the text and become more comfortable with the rules, we will
-  naturally begin to use them implicitly in some cases. We hope that this achieves a balance
-  of clarity and brevity.]
+#remark[This is the first proof we present, and we hope that it demonstrates our choice of
+  style going forward. While every proof we give will be directly translatable to a formal
+  proof-tree deduction/*TODO mention Agda?*/, we will go through the steps discursively.
+
+  In this case, we were relatively explicit in showing the necessary antecedents for the
+  $Sigma$-Elim rule, and in pointing out an elided use of the $beta$-rule, but we will not
+  always be so. As we progress through the text and become more comfortable with the rules,
+  we will naturally begin to use them implicitly in some cases. We hope that this achieves a
+  balance of clarity and brevity.]
 
 We have proved a statement about the types of the projection functions $pi_0$ and $pi_1$
 using the $Sigma$-Elim rule. What can we achieve with the $Sigma$-Comp rule? The following
@@ -912,12 +915,14 @@ indeed pairs.
   $
 ]<prop:projection_equality>
 #proof[
-  By definition of $pi_0$, we have
+  We will use the "$Sigma$-Comp" rule, the "$Pi$-Comp" rule and our structural rules of
+  judgmental equality. Recalling our convention that $f(a,b,c)$ means $f(a)(b)(c)$, by the
+  definition of $pi_0$, we have
   $
     pi_0((x, y)) peq ind_(sum_(x : A) B(x)) (lambda (\_ : sum_(x : A) B(x)) sd A, pi'_0, (x, y)).
   $
 
-  Then we apply $Sigma$-Comp and equalities to get
+  We apply the "$Sigma$-Comp" rule and use the rules of equalities implicitly to get
   $
     pi_0((x, y)) peq pi'_0(x, y).
   $
@@ -927,13 +932,11 @@ indeed pairs.
     pi_0((x, y)) peq (lambda (x : A) sd lambda (y : B(x)) sd x)(x, y)
   $
 
-  Applying $beta$-reduction we get
+  Applying the "$Pi$-Comp" rule ($beta$-reduction) we get
   $
     pi_0((x, y)) peq pi_0((x, y)) peq x
   $
-  as required.
-
-  The proof for $pi_1$ is completely analogous.
+  as required. The proof for $pi_1$ is similar.
 ]
 
 == Coproduct types
@@ -943,10 +946,10 @@ theory, or to discriminated unions from computer science. Conceptually, it repre
 whose elements can be either elements of a type $A$ or elements of a type $B$. In the
 functional programming language Haskell, for example, this type is called `Either`.
 
-We introduce three more primitive constants, $c_+$, $inl$ and $inr$. We write $c_+ (A, B)$
-as $A + B$. Elements of $A + B$ can be constructed by terms $inl(a)$, where $a : A$, and
-$inr(b)$, where $b : B$. These are the formal rules for formation and construction of the
-coproduct:
+We introduce three more primitive constants, $c_+$, $inl$ and $inr$, writing $c_+ (A, B)$ as
+$A + B$. Elements of $A + B$ can be constructed by terms $inl(a)$, where $a : A$, and
+$inr(b)$, where $b : B$. The formal rules for formation and construction of the coproduct
+are:
 
 #pt(rule-set(
   prooftree(rule(
@@ -972,11 +975,11 @@ coproduct:
 ))
 
 In order to define a function out of a coproduct type, we need to provide two functions: one
-which operates on elements of type $A$ and one which operates on elements of type $B$, and
-then we choose which function to use depending on the "source" type of the particular
-element. We use a defined constant $ind_(A+B)$ to perform this construction, using the
-pattern of the inductor established previously. This situation is captured by the following
-type of $ind_(A+B)$:
+which operates on elements of type $A$ and one which operates on elements of type $B$. We
+then choose which function to use depending on whether the particular element is constructed
+by $inl$ or $inr$. We use a defined constant $ind_(A+B)$ to perform this, using the pattern
+of the inductor established previously. This situation is captured by the following type of
+$ind_(A+B)$:
 
 $
   ind_(A+B) : product_(C:A + B -> UU_i) ((product_(x : A) C(inl(x))) -> (product_(x: B) C(inr(x))) -> product_(x : A+B) C(x))
@@ -1013,7 +1016,47 @@ inductor:
   ),
 )
 
-== Finite types
+== Pattern matching<sec:pattern-matching-1>
+
+When we are working with the $ind$ functions for our various types, we have so far specified
+the antecedent functions and invoked the inductor explicitly. This can become quite verbose,
+so we introduce the concept of *pattern matching*.
+
+Using pattern matching, we may define functions using syntax like
+$
+  & f : product_(x : A + B) C(x) \
+  & f(inl(a)) :peq t \
+  & f(inr(b)) :peq s,
+$
+where the term $t$ is of type $C(inl(a))$ and $s$ is of type $C(inr(b))$. The terms $t$ and
+$s$ may contain free variables $a : A$ and $b : B$ respectively. What we are doing here is
+_implicitly_ invoking the inductor for the coproduct type. Indeed, we can translate this
+directly into
+$
+  & f :peq ind_(A + B) (C, lambda (a : A) sd t, lambda (b : B) sd s)
+$
+but the pattern matched version is often clearer.
+
+For pair types, pattern matching looks like
+$
+  & f : product_(x : A times B) C(x) \
+  & f((a, b)) :peq t
+$
+where $t$ is of type $C((a, b))$ and may contain free variables $a : A$ and $b : B$.
+
+These examples of pattern matching may raise an important question: how do we know that by
+defining functions in this way, we have really defined a total function? In other words, how
+do we know that the patterns $inl(a)$ and $inr(b)$ "cover" all possible elements of $A + B$;
+similarly how do we know that the pattern $(a, b)$ "covers" all possible elements of
+$A times B$? The answer lies in the fact that these can be translated into the forms using
+the inductor: for pair types, it is precisely the "$Sigma$-Elim" rule that says in order to
+define a function out of $A times B$, it is enough to define a function on $a : A$ and
+$b : B$.
+
+Later, we will see that indeed all elements of $A times B$ are such pairs $(a, b)$, and a
+similar proof will show that all elements of $A + B$ are $inl$ or $inr$.
+
+== The singleton and empty types
 
 Having given a number of ways of forming types from existing types, we now move on to
 defining some "basic" types, which exist without prerequisites. We begin with two types
@@ -1293,42 +1336,110 @@ number $n$, given $n$ itself and the value at $n$.
   $
     fact(3) peq 6.
   $
-]
+]<example:fact>
 
-== Pattern matching
+== Recursive pattern matching
 
-When we are working with the $ind$ functions for our various types, we have so far specified
-the antecedent functions and invoked the inductor explicitly. This can become quite verbose,
-so we introduce the concept of *pattern matching*.
+We return to the concept of pattern matching discussed in @sec:pattern-matching-1. We want
+to apply this concept to defining functions out of $NN$, using $ind_NN$, as we did for
+functions out of pair and coproduct types. This raises some issues, however.
 
-Using pattern matching, we may define functions using syntax like
+Computer scientists are familiar with the concept of recursion as "a function which calls
+itself". An example of a recursive function from computer science might be
 $
-  &f : A times B -> C \
-  &f((x, y)) :peq t.
+  & fact : && NN -> NN \
+$$
+  & fact(0)       && :peq 1 \
+  & fact(succ(n)) && :peq succ(n) times fact(n) \
 $
-Here, we rely on
+(where $times$ here denotes multiplication). Here we see that in the third line, the term
+$fact(n)$ appears both on the left- and the right-hand side of the definition. This is
+dangerous! It might allow us to write such "functions" as
+#let never = $sans("never")$
+$
+  never : NN -> NN \
+  never(n) :peq never(n).
+$
+If given to a computer, the function $never$ will continuously evaluate itself and never
+yield a value. This is unacceptable to mathematicians, who require all our functions to be
+well-defined.
 
-== Finite types (2) (TODO)
+The solution to this problem, in depedent type theory, is to assert that the recursive call
+on the right-hand side of the definition _must_ reduce the value of $n$. In fact, this is
+precisely the point of primitive recursion: in order to define a function out of the natural
+numbers, we must provide an initial value $c_0$, and a step function $c_s$, which is
+evaluated each time (in the $NN$-Comp rule) at decreasing values. When we define functions
+out of $NN$ by pattern matching, therefore, we use syntax like that of $fact$ above:
+$
+  & f : && NN -> A \
+$$
+  & f(0)       && :peq t \
+  & f(succ(n)) && :peq s
+$
+where $t :A$ is a term and $s : A$ is a term with a free variable $n : NN$, but may only
+recursively call $f$ in the form $f(n)$. In dependent type theory, the recursive function
+$fact$ given above is therefore valid, while $never$ is not. The recursive form of $fact$
+translates directly by pattern matching to the explicit version using the inductor in
+@example:fact.
+
+TODO: talk about double recursion, use Giacomo's notes.
+
+== Finite types
 
 Now that we have the singleton type $one$, the empty type $zero$ and the coproduct
-type-former $+$, we can construct the previously-
+type-former $+$, we can construct the previously-mentioned example of finite sets, from
+@sec:type-families. This is presented as an exercise in #cite(
+  <hottbook>,
+  // form: "prose",
+  supplement: [Chapter 1],
+).
 
+We define the type family $Fin$ by recursive pattern matching:
+$
+  Fin : NN -> UU_i
+$
+$
+  & Fin(0)       && :peq zero \
+  & Fin(succ(n)) && :peq one + Fin(n).
+$
+
+For the sake of being explicit, this translates into the form
+$
+  &&         c_0 & :peq zero \
+  && c_s (\_, T) & :peq one + T \
+  &&         Fin & :peq ind_NN (lambda (\_ : NN) sd UU_i, c_0, c_s).
+$
+
+By applying the $NN$-Comp rules, we see for example that
+$Fin(3) peq one + (one + (one + zero))$. We are not able to prove (yet) that $Fin(n)$ has
+exactly $n$ elements (TODO we may even take it as axiomatic? or we may prove it later).
 
 == Propositions as types
 
 An interesting property of type theory is that it corresponds with the principles of
-(constructive) logic. Indeed, we may translate propositional logic into types as follows:
-(TODO make table, cite book explicitly)
-- True: $one$
-- False: $zero$
-- A and B: $A times B$
-- A or B: $A + B$
-- A implies B: $A -> B$
-- Not A: $A -> zero$.
+(constructive) logic. This is known as the Curry-Howard correspondence. We may translate
+propositional logic into types as follows #cite(<hottbook>, supplement: [Section 1.11]):
+
+#align(center, table(
+  columns: (auto, auto),
+  stroke: none,
+  table.header([*Logical statement*], [*Type*]),
+  table.hline(),
+  [True], $one$,
+  [False], $zero$,
+  [$A$ and $B$], $A times B$,
+  [$A$ or $B$], $A + B$,
+  [$A$ implies $B$], $A -> B$,
+  [Not $A$], $A -> zero$,
+))
+
 
 We consider a proposition to be true if its corresponding type has an element, and we call
-this element a *witness* to the truth of the proposition. A worked example in (TODO: HOTT
-book) gives a proof of one of de Morgan's laws,
+this element a *witness* to the truth of the proposition. A worked example in #cite(
+  <hottbook>,
+  // form: "prose",
+  supplement: [Section 1.11],
+) gives a proof of one of de Morgan's laws,
 $ "if not A and not B, then not (A or B)". $
 The type translation of this is
 $ (A -> zero) times (B -> zero) -> (A + B) -> zero. $
@@ -1346,7 +1457,7 @@ $
 $
 
 #example[
-  It is left as an exercise in (HOTT book) to show the converse, i.e.
+  It is left as an exercise in #cite(<hottbook>) to show the converse, i.e.
   #align(center)[
     if not ($A$ or $B$) then (not $A$) and (not $B$)
   ]
@@ -1354,7 +1465,10 @@ $
   That is to say, we want to exhibit an element
   $ t : ((A + B) -> zero) -> ((A -> zero) times (B -> zero)). $
 
-  Let $Gamma tack A : UU_i, b : UU_i, z : (A + B) -> zero$. Then we have
+  In a nod to the logical style of this statement, we will write this example formally using
+  proof trees.
+
+  Let $Gamma$ be the context $A : UU_i, b : UU_i, z : (A + B) -> zero$. Then we have
 
   #pt(prooftree(
     rule(
@@ -1394,11 +1508,15 @@ $
   as required.
 ]
 
+=== Predicate logic
+
 We may use the fact that we are working in dependent type theory to move from propositional
 to predicate logic by considering a type family $P : A -> UU_i$ as a predicate and
 translating
 - "for all $x$, $P(x)$" to $product_(x : A) P(x)$, and
 - "there exists an $x$ such that $P(x)$" to $sum_(x : A) P(x)$.
+
+We explore this correspondence with some further examples.
 
 #example[The statement
   #block(inset: (left: 2em, right: 2em))[#align(center)[if for all $x : A$, $P(x)$ and
@@ -1502,62 +1620,63 @@ rules first, and then examine their meaning using examples.
 
 A useful first point of understanding these rules is to compute a consequence of them, the
 *indiscernibility of identicals*. In terms of types and elements, it gives us a way of
-"transporting" an element of a type $C(x)$ into an element of a type $C(y)$, as long as
-there is a witness to the equality of $x$ and $y$. Translated to the language of type
-families as predicates, it means that predicates which are satisfied by some element remain
-satisfied by any equal element, i.e. that equal terms may be substituted for each other.
+"transporting" an element of a type $C(x)$ "across" an equality $x = y$ to obtain an element
+of a type $C(y)$. Translated to the language of type families as predicates, it means that
+predicates which are satisfied by some element remain satisfied by any equal element, i.e.
+that equal terms may be substituted for each other.
 
-#theorem([Indiscernibility of identicals])[For every type family $D : A -> UU_i$ there is a
-  function
+#theorem([Indiscernibility of identicals])[Let $A : UU_i$ be a type and $D : A -> UU_i$ a
+  type family. For every pair of elements $x : A$, $y : A$, there is a function
   $
-    transport^D : product_(x : A) product_(y : A) (x =_A y) -> D(x) -> D(y)
+    transport^D : (x =_A y) -> D(x) -> D(y)
   $
-  such that for all $z : A$
+  such that when $x peq y$, we have
   $
-    transport^D (z, z, refl_z) peq id_D(z).
+    transport^D (refl_x) peq id_D(x).
   $
 ]<thm:indiscernibility-of-identicals>
 
 #proof[
-  Fix a type family $D : A -> UU_i$.
-
-  Define $C$, as in the computation and elimination rules, as
+  Fix a type family $D : A -> UU_i$ and variables $x : A$, $y : A$. Define $C$, as in the
+  computation and elimination rules, as
   $
     C : product_(x : A) product_(y : A) (x =_A y) -> UU_i \
     C(x, y, \_) :peq D(x) -> D(y).
   $
 
-  Also define $c$ as
+  For a variable $z : A$, we have $C(z, z, refl_z) peq D(z) -> D(z)$, so we require a
+  function
   $
-    c : product_(z : A) C(z, z, refl_z) \
-    c(z, x) :peq x,
+    c : product_(z : A) D(z) -> D(z),
   $
-  or equivalently (by judgmental equality),
+  for which we put the identity:
   $
-    c : product_(z : A) D(z) -> D(z) \
-    c(z) :peq id_D(z).
+    c(z) :peq id_(D(z))
   $
 
-  Then by using the elimination rule, we obtain a function
+  We define $transport^D$ as
   $
-    ind_(=_A) (C, c) : product_(x : A) product_(y : A) product_(p : x =_A y) D(x) -> D(y)
+    transport^D :peq ind_(=_A) (C, c, x, y)
   $
-  and by using the computation rule (and function application), we have
+  so that by the rule "=-Elim" we have
   $
-    ind_(=_A) (C, c, x, x, refl_x) peq id_D(x)
+    transport^D : (x = y) -> D(x) -> D(y).
+  $
+
+  Moreover, by the rule "=-Comp" we have
+  $
+    transport^D (refl_x) peq id_(D(x))
   $
   as required.
 ]
 
-#remark[We borrow the name $transport$ from (TODO HoTT book Lemma 2.3.1), but in our usage
-  the parameters $x$ and $y$ are explicit. Therefore, when we use $transport^D$, it will
-  have two extra parameters at the beginning, which determine the origin and destination
-  types.]
-
-This principle says that, given $x : A$ and $y : A$, and a witness to their equality, we can
-transform any witness to the predicate $D(x)$ into a witness to $D(y)$, and that when we
-consider the witness $refl_x$ to the equality $x =_A x$, this transformation is the
-identity.
+#remark[The function $transport$ is very useful, since it allows to talk about elements of
+  $D(x)$ as if they were elements of $D(y)$. For example, given elements $w : D(x)$ and
+  $z : D(y)$, we cannot form a type $w = z$, since $w$ and $z$ live in different types.
+  Using $transport$, however, we can suppose a witness $p : x = y$ and form the type
+  $transport^D (p, w) = z$. We will make frequent use of $transport$ throughout the rest of
+  the text.
+]
 
 Moving to the general form of the elimination rule, we allow $C$ to depend not only on
 $x : A$ and $y : A$ (which must be equal) but also on the specific witness $p$ to their
@@ -1565,19 +1684,15 @@ equality. The rule supposes that we have such a family $C$, and for each $z : A$
 $c(z) : C(z, z, refl_z)$. We then get an element of $C(a, b, p)$ for all $a : A$, $b : A$
 such that $a$ and $b$ are (propositionally) equal. In other words, if we want to construct
 an element of the family $C(a, b, p)$, it is sufficient to show an element of
-$C(z, z, refl_z)$.
+$C(z, z, refl_z)$. This allows us to move from statements about judgmental equality to
+statements about propositional equality: the rule "opens up" propositional equality by
+saying that if we assume a judgmental equality and conclude something, we can conclude the
+same thing on the basis of a propositional equality;
 
 This is precisely analogous to the principle of induction on natural numbers -- if we want
 to construct a function $f : NN -> T$, it is sufficient to provide a value $c_0 : T$ and a
-step function $c_s : NN -> NN -> T$. The difference between the induction principle for
-identity types and for natural numbers is then one of intuition: as mathematicians, we can
-intuit that the induction principle holds for the natural numbers, because of our
-familiarity with their structure, so we take the principle as an axiom of the type $NN$.
-When working with identity types, we have to work the other way: we first see the axiom for
-the induction principle and have to build an intuition from it.
-
-- TODO/FEEDBACK do we? surely whoever came up with the principle had some intuition for it
-  first
+step function $c_s : NN -> NN -> T$. The induction principle "opens up" functions out of the
+natural numbers by saying we only need to provide the data $c_0$ and $c_s$.
 
 In the language of propositions and predicates, the induction principle says that if
 $C(z, z, refl_z)$ is true -- i.e. $C$ is a reflexive predicate -- then $C(a, b, p)$ is true
@@ -1712,16 +1827,6 @@ We now show that identity types form an equivalence relation.
 ]<prop:identity-equiv>
 #proof[We have reflexivity axiomatically by the "$=$-Intr" rule. We have symmetry by
   @lemma:identity-symmetry and transitivity is by @lemma:identity-transitivity.]
-
-
-- $one$ has only one element
-- Construct finite sets
-
-#block[
-  #set text(luma(130))
-  == ... Fragments ...
-  - Judgemental equality vs propositional equality: $peq$ vs $=$
-]
 
 = Homotopy
 
