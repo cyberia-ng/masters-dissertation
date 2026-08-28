@@ -31,6 +31,7 @@
 #let example = examplethmbox("common", "Example")
 #let remark = remarkthmbox("common", "Remark")
 #let note = notethmbox("common", "Note")
+#let axiom = notethmbox("common", "Axiom")
 #let proof = thmproof(
   "proof",
   "Proof",
@@ -165,6 +166,8 @@
 #let code = $sans("code")$
 #let encode = $sans("encode")$
 #let decode = $sans("decode")$
+#let happly = $sans("happly")$
+#let funext = $sans("funext")$
 #let isSet = $sans("isSet")$
 #let is1Type = $sans("is1Type")$
 #let bigrule = (..args) => {
@@ -2329,6 +2332,137 @@ $
     alpha : product_(a : code(m, n)) encode(m, n, decode(m, n, a)) =_code(m, n) a
   $
   TODO
+]
+
+== Function extensionality and univalence
+
+- Want to consider identity of functions. We have the $eta$ rule to say that functions are
+  judgmentally equal if they are pointwise judgmentally equal, but we would like to extend
+  this to propositional equality.
+- I.e. we would like a witness to
+  $
+    product_(f : product_(x : A) B(x)) product_(g : product_(x : A) B(x)) (product_(x : A) f(x) =_B(x) g(x)) -> f =_(product_(x : A) B(x)) g
+  $
+- We can certainly go the other way, by an application of path induction:
+
+#lemma[For a type $A$ and a type family $B : A -> UU_i$, there is a function
+  $
+    happly : product_(f : product_(x : A) B(x)) product_(g : product_(x : A) B(x)) (f = g) -> product_(x : A) f(x) = g(x).
+  $
+  That is to say that if two functions are (propositionally) equal, then they are
+  (propositionally) equal pointwise.
+]
+#proof[
+  For brevity, we write the type $product_(x : A) B(x)$ as $F$. Put
+  $
+    C : product_(f : F) product_(g: F) f = g -> UU_i \
+    C(f, g, \_) :peq product_(x : A) f(x) = g(x).
+  $
+  For $z : F$ we compute $C(z, z, refl_z) peq product_(x : A) z(x) = z(x)$, so we put
+  $
+    c : product_(z : F) C(z, z, refl_z) \
+    c(z) :peq lambda (x : A) sd refl_(z(x)).
+  $
+  We then define $happly :peq ind_=(C, c)$ to get
+  $
+    happly : product_(f : F) product_(g : F) (f = g) -> product_(x : A) f(x) = g(x)
+  $
+  as required.
+]
+
+- We have no way to go back the other way, so we must take it as an axiom:
+
+#axiom([Function extensionality])[
+  For a type $A$, a type family $B : A -> UU_i$ and functions $f, g: product_(x : A) B(x)$,
+  the function
+  $
+    happly(f, g) : (f = g) -> product_(x : A) f(x) = g(x)
+  $
+  is an equivalence. That is to say, there is a function of type
+  $
+    funext : product_(f : product_(x : A) B(x)) product_(g : product_(x : A) B(x)) (product_(x : A) f(x) = g(x)) -> f = g.
+  $
+]
+
+- Like $transport$, we adopt the convention that $happly$ and $funext$ take their first two
+  parameters explicitly. (TODO: should we change all three to match HoTT book?)
+
+- We now consider the transport function in the case of identities between functions
+- We want to transport a function $f : A(x_1) -> B(x_1)$ along an equality $x_1 = x_2$ to
+  get a function $g : A(x_2) -> B(x_2)$.
+- We can express this already with our $transport$ function, setting the type family to be
+  transported over to be $x |-> A(x) -> B(x)$, but we show that this is equivalent to
+  something else:
+
+#lemma[
+  For a type $X$, elements $x_1, x_2 : X$, type families $A, B : X -> UU_i$ and a function
+  $f : A(x_1) -> B(x_1)$, we have
+  $
+    transport^(lambda (x : X) sd A(x) -> B(x)) (x_1, x_2, p, f) = \
+    (lambda (x : A(x_2)) sd transport^B (x_1, x_2, p, f(transport^A (x_2, x_1, p^(-1), x)))).
+  $
+
+  That is to say, if we want to compute the transport of a function $f : A(x_1) -> B(x_1)$
+  across an equality $x_1 = x_2$, we can apply the following process: first transport its
+  parameter across $p^(-1) : x_2 = x_1$ to get an element of $A(x_1)$, then apply $f$ to get
+  an element of $B(x_1)$, then transport back across $p : x_1 = x_2$ to get an element of
+  $B(x_2)$.
+
+  This corresponds to the following commutative diagram of functions and types:
+  #align(center)[
+    #diagram({
+      let ax1 = (0, 1)
+      let ax2 = (0, 0)
+      let bx1 = (1, 1)
+      let bx2 = (1, 0)
+      node(ax2, $A(x_2)$)
+      node(bx2, $B(x_2)$)
+      node(ax1, $A(x_1)$)
+      node(bx1, $B(x_1)$)
+      edge(ax2, bx2, "->", $transport^(lambda (x : X) sd A(x) -> B(x))(x_1, x_2, p, f)$)
+      edge(ax2, ax1, "->", $transport^A (x_2, x_1, p^(-1))$)
+      edge(ax1, bx1, "->", $f$)
+      edge(bx1, bx2, "->", $transport^B (x_1, x_2, p)$)
+    })
+
+  ]
+]
+#proof[
+  We proceed by path induction. Fix $X, A, B$ as in the lemma and let
+  $ f' : product_(x_1 : X) A(x_1) -> B(x_1). $
+  We put
+  $
+    // & C &   & : product_(x_1 : X) product_(x_2 : X) (x_1 = x_2) -> UU_i \
+    C & (x_1, x_2, p) :peq \
+    & transport^(lambda (x : X) sd A(x) -> B(x)) (x_1, x_2, p, f'(x_1)) = \
+    & (lambda (x : A(x_2)) sd transport^B (x_1, x_2, p, f'(x_1, transport^A (x_2, x_1, p^(-1), x))))
+  $
+  and compute $C(z, z, refl_z)$ for $z : X$. For $x : A(z)$, we have
+  $
+    transport^A (z, z, refl_z^(-1), x) peq x
+  $
+  and
+  $
+    transport^B (z, z, refl_z f'(z, x)) peq f'(z, x),
+  $
+  so we have a judgmental equality (using the $eta$-rule) for the right-hand side of
+  $C(z, z, refl_z)$:
+  $ lambda (x : A(z)) sd transport^B (z, z, refl_z, f'(z, x)) peq f'(z). $
+  Considering the left-hand side, we have
+  $
+    transport^(lambda (x : X) sd A(x) -> B(x)) (z, z, refl_z, f'(z)) peq f'(z)
+  $
+  so we may put
+  $
+    c(z) :peq refl_(f'(z)).
+  $
+  Therefore, fixing $x_1, x_2 : A$ and writing $f :peq f'(x_1)$, we have
+  $
+    ind_=&(C, c, x_1, x_2, p) : \
+    & transport^(lambda (x : X) sd A(x) -> B(x)) (x_1, x_2, p, f) = \
+    & (lambda (x : A(x_2)) sd transport^B (x_1, x_2, p, f(transport^A (x_2, x_1, p^(-1), x))))
+  $
+  as required.
 ]
 
 == Sets
