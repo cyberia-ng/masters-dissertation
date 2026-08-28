@@ -652,8 +652,7 @@ This is useful when we wish to apply our induction terms (which are expressed in
 generality using type families and dependent functions) in a way which happens to be
 non-dependent.
 
-=== Equivalence of non-dependent $Pi$-types with function types
-
+=== Equivalence of non-dependent $Pi$-types with function types<sec:dep-fun-equiv>
 
 If we suppose, in the rules for $Pi$-types, that we have
 $B peq lambda (x : A) sd B' : UU_i$, and that $x$ does not occur freely in $B'$, then we
@@ -1654,11 +1653,22 @@ that equal terms may be substituted for each other.
     c(z) :peq id_(D(z))
   $
 
+  We then apply the "=-Elim" rule to derive the type of $ind_=(C, c)$:
+  $
+    ind_=_A (C, c) : product_(x : A) product_(y : A) product_(p : x =_A y) D(x) -> D(y).
+  $
+  Recalling the equivalence between non-dependent function types and dependent function
+  types which do not use their parameter in their return type (@sec:dep-fun-equiv), we may
+  write
+  $
+    ind_=_A (C, c) : product_(x : A) product_(y : B) (x =_A y) -> D(x) -> D(y).
+  $
+
   We define $transport^D$ as
   $
     transport^D :peq ind_(=_A) (C, c, x, y)
   $
-  so that by the rule "=-Elim" we have
+  so that it has the desired type:
   $
     transport^D : (x = y) -> D(x) -> D(y).
   $
@@ -1766,54 +1776,92 @@ our previously-defined types.
   as required.
 ]
 
-=== Properties of identity types
+=== Identity as an equivalence relation
 
-We now show that identity types form an equivalence relation.
+In order for us to believe that the type $x =_A y$ really "means" that $x : A$ and $y : A$
+are in some sense equal, we must at least know that identity forms an equivalence relation.
+That is, it obeys the laws of reflexivity, symmetry and transitivity. This section proves
+these laws for identity types.
 
-#lemma[For a type $A : UU_i$, there is a function
-  $ (-)^(-1) : product_(x : A) product_(y : A) (x =_A y) -> (y =_A x). $
+#lemma[For a type $A : UU_i$ and elements $x : A$, $y : A$, there is a function
+  $ (-)^(-1) : (x =_A y) -> (y =_A x). $
   That is to say, any element $p : x =_A y$ can be transformed into an element
   $p^(-1) : y =_A x$, so the identity type is symmetric.
 
   Furthermore, for all $x : A$, $refl_x^(-1) peq refl_x$.
 ]<lemma:identity-symmetry>
 #proof[
-  - Put $C(x, y, \_) :peq y =_A x$
-  - Put $c(z) :peq refl_z$
-  - Apply inductor to get
-    $
-      ind_(=_A)(C, c) : product_(a : A) product_(b : A) product_(p : a =_A b) b =_A a
-    $
-    which is non-dependent in the innermost function so equivalent to
-    $
-      ind_(=_A)(C, c) : product_(x : A) product_(y : A) (x =_A y) -> (y =_A x)
-    $
-    as required.
-  - Use comp rule to derive "furthermore" case
+  We use the computation and elimination rules for identity types. For
+  $C : product_(x : A) product_(y : A) (x =_A y) -> UU_i$, we put
+  $
+    C(x, y, \_) :peq y =_A x.
+  $
+  For a variable $z : A$, we have $C(z, z, refl_z) peq z =_A z$, so the natural fit for $c$
+  is
+  $
+    c : product_(z : A) C(z, z, refl_z) \
+    c(z) :peq refl_z
+  $
+
+  Fixing variables $x : A$ and $y : A$ as in the statement of the lemma, we define
+  $
+    (-)^(-1) :peq ind_=_A (C, c, x, y)
+  $
+  and use the "=-Elim" rule to verify that it has the desired type
+  $
+    (-)^(-1) : (x =_A y) -> (y =_A x)
+  $
+
+  To prove the "furthermore" case, we use the "=-Comp" rule. For a variable $x : A$, we have
+  $
+    refl_x^(-1) peq ind_=_A (C, c, x, x, refl_x) peq c(x) peq refl_x
+  $
+  as required.
 ]
 
-#lemma[For a type $A : UU_i$, there is a function
+#lemma[For a type $A : UU_i$ and elements $x : A$, $y : A$, $z : A$, there is a function
   $
-    (- bullet -) : product_(x : A) product_(y : A) product_(z : A) (x =_A y) -> (y =_A z) -> (x =_A z).
+    (- bullet -) : (x =_A y) -> (y =_A z) -> (x =_A z).
   $
   That is to say, given elements $p : x =_A y$ and $q : y =_A z$, we may construct an
   element $p bullet q : x =_A z$, so the identity type is transitive.
 
   Furthermore, for all $x : A$, $refl_x bullet refl_x peq refl_x.$
 ]<lemma:identity-transitivity>
-#proof[Let $A : UU_i$ and $z : A$ be in the context. Then
+#proof[
+  Fix variables $x : A$, $y : A$ and $z : A$ as in the statement of the lemma, and for the
+  $C$ as in the elimination and computation rules for identity, put
+  $
+    C(x, y, \_) :peq (y =_A z) -> (x =_A z).
+  $
 
-  - Put $C(x, y, \_) :peq (y =_A z) -> (x =_A z)$
-  - Put $c(w) :peq id_(w =_A z)$
-  - Then get
-    $ind(C, c) : product_(x : A) product_(y : A) product_(p : x =_A y) (y =_A z) -> (x =_A z)$
-  - I.e. $ind(C, c) : product_(x : A) product_(y : A) (x =_A y) -> (y =_A z) -> (x =_A z)$
-  - Apply $Pi$-Intr on $z$ to get
-    $
-      f' : product_(z : A) product_(x : A) product_(y : A) (x =_A y) -> (y =_A z) -> (x =_A z)
-    $
-  - Reorder arguments of $f'$ to get required $f$.
-  - Apply computation rule to get case for $refl_x$.
+  For a variable $w : A$ (renamed from $z$ in the statements of the rules), we compute
+  $C(w, w, refl_w) peq (w =_A z) -> (w =_A z)$, so we write
+  $
+    c(w) :peq id_(w =_A z).
+  $
+  Using the elimination rule, we get
+  $
+    ind(C, c) : product_(x : A) product_(y : A) (x =_A y) -> (y =_A z) -> (x =_A z).
+  $
+  We define
+  $
+    (- bullet -) :peq ind(C, c, x, y)
+  $
+  so that the type is the desired one:
+  $
+    (- bullet -) : (x = y) -> (y = z) -> (x = z).
+  $
+
+  Applying the computation rule, we see
+  $
+    (refl_x bullet -) peq ind(C, c, x, x, refl_x) peq id_(x = x)
+  $
+  so
+  $
+    refl_x bullet refl_x peq refl_x
+  $
+  as required.
 ]
 
 #proposition[The identity type over a type $A : UU_i$ forms an equivalence relation, in the
