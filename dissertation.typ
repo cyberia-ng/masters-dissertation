@@ -2587,7 +2587,7 @@ $
   $
   Let us briefly type-check this, to be comfortable with what is happening here. We
   temporarily assume we have variables $m, n : NN$ and $p : m = n$ in context, and we
-  compute $code^((m, -))$. We have
+  compute the type of $transport^code(m, -)$. We have
   $
     transport^code(m, -) : (m = n) -> code(m, m) -> code(m, n).
   $
