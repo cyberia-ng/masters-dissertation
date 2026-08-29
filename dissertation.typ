@@ -2175,6 +2175,39 @@ use the terms "path" and "witness" interchangably from now on.
 - By the existence of $ap_f$ and $apd_f$, we say that all functions in type theory are
   "continuous" -- they preserve paths.
 
+The following lemma describes a useful interaction between $ap$ and $transport$.
+
+#lemma([HoTT 2.3.10])[For types $A$ and $B$, a type family $D: B -> UU_i$, a function
+  $f : A -> B$, elements $x, y : A$ and a witness $p : x = y$, we have
+  $
+    transport^D (ap_f (p)) = transport^(D compose f) (p).
+  $
+]<lem:transport-ap>
+#proof[
+  We proceed by path induction on $p$. We put
+  $
+    C : product_(x : A) product_(y : A) (x = y) -> UU_i \
+    C(x, y, p) :peq transport^D (ap_f (p)) = transport^(D compose f) (p).
+  $
+  For a variable $z : A$, we compute
+  $
+    C(z, z, refl_z) & peq transport^D (ap_f (refl_z)) = transport^(D compose f) (refl_z) \
+                    & peq transport^D (refl_f(z)) = transport^(D compose f) (refl_z) \
+                    & peq id_(D(f(z))) = id_(D(f(z)))
+  $
+  so we put
+  $
+    c : product_(z : A) C(z, z, refl_z) \
+    c(z) :peq refl_id_(D(f(z))).
+  $
+
+  By path induction, we have
+  $
+    ind_=(C, c, x, y, p) : transport^D (ap_f (p)) = transport^(D compose f) (p)
+  $
+  as required.
+]
+
 == Homotopies and equivalences
 
 - We move from identity of elements of types to identity of functions and of types
@@ -2316,7 +2349,7 @@ equivalent. We will use to show an interesting property of the singleton type $o
 only does it have a single element, but indeed there is only a single witness to any
 equality between its elements.
 
-#theorem([HoTT 2.8.1])[For any $x, y : one$, we have $x = y equiv one$.]
+#theorem([HoTT 2.8.1])[For any $x, y : one$, we have $x = y equiv one$.]<thm:one-is-a-set>
 #proof[
   We construct a function $f : (x =_one y) -> one$ by setting $f(\_) :peq star$ and we aim
   to show that it has a quasi-inverse. We need a function $g : one -> (x =_one y)$. By the
@@ -2487,10 +2520,52 @@ equality between its elements.
 //   TODO: I don't know if this is worth it
 // ]
 
-We wish to show a similar property for the natural numbers, i.e. that for natural numbers
-$n : NN$ and $m : NN$, we have $n = m equiv one$ if $n = m$ is inhabited, and
-$n = m equiv zero$ otherwise. In order to do this, we introduce a type family
-$code : NN -> NN -> UU_i$, which is defined using the induction rules for $NN$ (TODO).
+== Transport and coding
+
+One of the uses of the $transport$ function is when it is combined with a method of proof
+called "coding". When we use coding, we define a type family $code : A -> UU_i$, which turns
+an element of $A$ into some type which we find useful. Given an equality $p : x =_A y$, we
+transport a value of $code(x)$ into a value of $code(y)$, which we then use to make some
+statement about $x$ and $y$ when they are equal. This is best illustrated with an example.
+
+#example[
+  We consider the coproduct type $A + B$ for types $A$ and $B$ and show that for all $a : A$
+  and $b : B$, it is not the case that $inl(a) =_(A + B) inr(b)$.
+
+  Fixing types $A$, $B$ and variables $a : A$, $b : B$, we translate this logical statement
+  into type theory. We wish to construct a function
+  $
+    f : (inl(a) = inr(b)) -> zero.
+  $
+
+  To do this, we use the coding method. We define, by pattern matching,
+  $
+    code : A + B -> UU_i
+  $$
+    & code(inl(\_)) :peq one \
+    & code(inr(\_)) :peq zero.
+  $
+  The transport function $transport^code$ has type
+  $
+    transport^code : (inl(a) = inr(b)) -> code(inl(a)) -> code(inr(b)).
+  $
+  By computing using judgmental equalities, we have $code(inl(a)) peq one$ and
+  $code(inr(b)) peq zero$, so we have a function
+  $
+    transport^code : (inl(a) = inr(b)) -> one -> zero.
+  $
+  By partially applying just the second parameter, we get the desired function:
+  $
+    f(p) :peq transport^code (p, star).
+  $
+]
+
+Now that we are familiar with the coding method, we can use it in the following proof about
+natural numbers. We wish to show a property similar to @thm:one-is-a-set, but for the
+natural numbers, i.e. that for natural numbers $n : NN$ and $m : NN$, we have
+$n = m equiv one$ if $n = m$ is inhabited, and $n = m equiv zero$ otherwise. We use the
+coding method, and introduce the type family $code : NN -> NN -> UU_i$, defined by
+doubly-recursive pattern matching:
 
 $
               code(0, 0) & :peq one \
@@ -2498,15 +2573,6 @@ $
         code(succ(m), 0) & :peq zero \
   code(succ(m), succ(n)) & :peq code(m, n)
 $
-- TODO work out how to define this without pattern matching, or talk about pattern matching
-
-We also define a function $r : product_(n : NN) code(n, n)$ by
-$
-        r(0) & :peq star \
-  r(succ(n)) & :peq r(n)
-$
-- TODO can't we just say $r(\_) :peq star$?
-
 
 #theorem([HoTT 2.13.1])[For all $m, n : NN$, we have
   $ (m = n) equiv code(m, n). $
@@ -2518,30 +2584,44 @@ $
   $
     encode : product_(m : NN) product_(n : NN) (m = n) -> code(m, n)
   $
-  using induction. Put $C(m, n, \_) :peq code(m, n)$, $c(n) :peq star$, then we get
+  by using the transport function with the type $code(m, -)$:
   $
-    encode :peq ind_(=_NN) (C, c) : product_(m : NN) product_(n : NN) (m = n) -> code(m, n)
+    encode(m, n, p) :peq transport^(code(m, -)) (p, star).
   $
-  and
+  Let us briefly type-check this, to be comfortable with what is happening here. We
+  temporarily assume we have variables $m, n : NN$ and $p : m = n$ in context, and we
+  compute $code^((m, -))$. We have
   $
-    encode(n, n, refl_n) peq star.
+    transport^code(m, -) : (m = n) -> code(m, m) -> code(m, n).
+  $
+  We can deduce that $code(m, m) peq one$ from the definition#footnote([although such a
+    deduction requires a proof of length $O(m)$]), so the term on the right-hand side of the
+  definition of $encode$ indeed has the correct type:
+  $
+    transport^code(m, -) (p, star) : code(m, n).
   $
 
   We then define
   $
     decode : product_(m : NN) product_(n : NN) code(m, n) -> (m = n)
   $
-  by
+  using doubly-recursive pattern matching. For clarity, we annotate each partial definition
+  with its computed type.
   $
-                decode(0, 0) & :peq lambda (\_ : one) sd refl_0 \
-          decode(0, succ(n)) & :peq ind_zero (lambda (\_ : zero) sd (0 = succ(n))) \
-          decode(succ(m), 0) & :peq ind_zero (lambda (\_ : zero) sd (succ(m) = 0)) \
-    decode(succ(m), succ(n)) & :peq lambda (\_ : code(m, n)) sd ap_succ (decode(m, n)).
+    decode(0, 0) & :peq lambda (\_ : one) sd refl_0 && : one -> (0 = 0)\
+    decode(0, succ(n)) & :peq ind_zero (lambda (\_ : zero) sd (0 = succ(n))) && : zero -> (0 = succ(n)) \
+    decode(succ(m), 0) & :peq ind_zero (lambda (\_ : zero) sd (succ(m) = 0)) && : zero -> (succ(m) = 0)\
   $
-  - TODO again, pattern matching
+  and the final partial definition (which is presented separately for typographical
+  reasons):
+  $
+    decode & (succ(m), succ(n)) :peq \
+           & lambda (c : code(succ(m), succ(n))) sd ap_succ (decode(m, n, c)) \
+           & : code(succ(m), succ(n)) -> (succ(m) = succ(n)) \
+  $
 
-  We aim to show, for all $m, n : NN$, that $encode(m, n)$ and $decode(m, n)$ are
-  quasi-inverses, i.e. to exhibit homotopies
+  Fix $m, n : NN$ in context. We aim to show, for all $m, n : NN$, that $encode(m, n)$ and
+  $decode(m, n)$ are quasi-inverses, i.e. to exhibit homotopies
   $
     alpha & : encode(m, n) compose decode(m, n) ~ id_(code(m, n)) \
      beta & : decode(m, n) compose encode(m, n) ~ id_(m = n).
@@ -2551,30 +2631,41 @@ $
   $
     beta : product_(p : m = n) decode(m, n, encode(m, n, p)) =_(n = m) p,
   $
-  which we do by induction on $m = n$. Put
+  which we do by path induction on $m = n$. Put
   $ C(m, n, p) :peq decode(m, n, encode(m, n, p)) =_(n = m) p. $
-  We wish to define $c : product_(n : NN) C(n, n, refl_n)$, so we compute
+  We wish to define $c : product_(n : NN) C(n, n, refl_n)$. Recalling from the definition of
+  $transport$ that
+  $ transport^code(n, -) (refl_n, star) peq star : one, $
+  we compute
   $
     C(n, n, refl_n) & peq decode(n, n, encode(n, n, refl_n)) =_(n = n) refl_n \
                     & peq decode(n, n, star) =_(n = n) refl_n.
   $
-  By $NN$-induction, we put
+  We define $c$ by recursive pattern matching: when the argument to $c$ is zero, we have
+  $decode(0, 0, star) peq refl_0$, so $C(0, 0, refl_0) peq refl_0 = refl_0$. We therefore
+  put
   $
-    & c_0 :peq refl_(refl_0) : C(0, 0, refl_0) \
-    & c_s : product_(k : NN) C(k, k, refl_k) -> C(succ(k), succ(k), refl_succ(k)) \
-    & c_s (\_, p) :peq ap_succ (p)
+    c(0) :peq refl_refl_0 : C(0, 0, refl_0).
   $
-  and therefore obtain the desired $c$ for induction on $m = n$:
+  When the argument to $c$ is $succ(n)$, we first compute
   $
-    c :peq ind_NN (lambda (n : NN) sd C(n, n, refl_n), c_0, c_s) : product_(n : NN) C(n, n, refl_n).
+    decode(succ(n), succ(n), star) peq ap_succ (decode(n, n, star))
   $
-  Using induction on $m = n$, we then obtain
+  so we need to construct a value of
+  $ ap_succ (decode(n, n, star)) = refl_succ(n). $
+  But we may recursively use $c(n)$, which has the type
   $
-    ind_(=_NN) (C, c) : product_(m : NN) product_(n : NN) product_(p : m = n) C(m, n, p).
+    c(n) : decode(n, n, star) = refl_n.
   $
-  We then put
+  Recalling that $ap_succ (refl_n) peq refl_succ(n)$, we put
   $
-    beta :peq ind_(=_NN) (C, c, m, n)
+    c(succ(n)) :peq ap_ap_succ (c(n)).
+  $
+  We have now constructed $c : product_(n : NN) C(n, n, refl_n)$, so we may put
+  $ beta :peq ind_=_N (C, c, m, n) $
+  and derive by path induction
+  $
+    beta : product_(p : m = n) decode(m, n, encode(m, n, p)) =_(n = m) p
   $
   as required.
 
@@ -2582,7 +2673,76 @@ $
   $
     alpha : product_(a : code(m, n)) encode(m, n, decode(m, n, a)) =_code(m, n) a
   $
-  TODO
+  We do this by defining
+  $
+    alpha' : product_(m : NN) product_(n : NN) product_(a : code(m, n)) encode(m, n, decode(m, n, a)) =_code(m, n) a
+  $
+  and then writing $alpha :peq alpha'(m, n)$ for the $m$ and $n$ in our context. We proceed
+  in defining $alpha'$ by doubly-recursive pattern matching. If the arguments are both zero,
+  we have $code(0, 0) peq one$, $decode(0, 0, \_) peq refl_0$, and
+  $encode(0, 0, refl_0) peq transport^code(m, -) (refl_0, star) peq star$, so we need to
+  provide a witness to $star = a$. By @prop:one-is-a-singleton, $refl_star$ is such a
+  witness, so we put
+  $
+    alpha'(0, 0) :peq lambda (a : one) sd refl_star.
+  $
+
+  If the arguments are zero and a successor, we have $code(0, succ(n)) peq zero$, so we may
+  use the $zero$-Elim rule to get our desired type:
+  $
+    alpha'(0, succ(n)) :peq ind_zero (lambda (a : zero) sd encode(0, succ(n), decode(0, succ(n), a) = a))
+  $
+  similarly for a successor and zero we put,
+  $
+    alpha'(succ(m), 0) :peq ind_zero (lambda (a : zero) sd encode(succ(m), 0, decode(succ(m), 0, a) = a)).
+  $
+  For the case of defining $alpha'(succ(m), succ(n))$, we fix $a : code(succ(m), succ(n))$
+  and compute:
+  $
+    encode & (succ(m), succ(n), decode(succ(m), succ(n), a)) \
+           & peq encode(succ(m), succ(n), ap_succ (decode(m, n, a))) \
+           & peq transport^code(succ(m), -) (ap_succ (decode(m, n, a)), star)
+  $
+  by definitions of $encode$ and $decode$. Then by @lem:transport-ap, we have a witness $q$
+  to the following equality:
+  $
+    q : & transport^code(succ(m), -) (ap_succ (decode(m, n, a)), star) \
+        & = transport^code(succ(m), succ(-)) (decode(m, n, a), star).
+  $
+  Recalling from the definition of $code$ that $code(succ(m), succ(n)) peq code(m, n)$, we
+  have
+  $
+    transport^code(succ(m), succ(-)) & (decode(m, n, a), star) \
+                                     & peq transport^code(m, -) (decode(m, n, a), star) \
+                                     & peq encode(m, n, decode(m, n, a)).
+  $
+  So our witness $q$ has the computed type
+  $
+    q : & encode(succ(m), succ(n), decode(succ(m), succ(n), a)) \
+        & = encode(m, n, decode(m, n, a)).
+  $
+
+  Recall that by recursive pattern matching, we may suppose in the definition of
+  $alpha'(succ(m), succ(n), a)$ that
+  $ alpha'(m, n, a) : encode(m, n, decode(m, n, a)) = a. $
+  we put
+  $
+    alpha'(succ(m), succ(n), a) :peq q bullet alpha'(m, n, a)
+  $
+  and $alpha'$ is finally fully-defined by recursive pattern matching. To recap, we have
+  $
+    alpha' : product_(m : NN) product_(n : NN) product_(a : code(m, n)) encode(m, n, decode(m, n, a)) = a
+  $
+  so we put $alpha :peq alpha'(m, n)$. Therefore we have homotopies
+  $
+    & alpha : encode(m, n) compose decode(m, n) && ~ id_code(m, n) \
+    & beta : decode(m, n) compose encode(m, n)  && ~ id_(m = n)
+  $
+  and hence an equivalence
+  $
+    (m = n) equiv code(m, n)
+  $
+  as required.
 ]
 
 == Function extensionality and univalence
