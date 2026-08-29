@@ -1904,10 +1904,9 @@ we say that $H$ is *endpoint preserving*. By setting $X_1$ to the singleton set,
 consider paths themselves to be homotopies between points, and furthermore the notion of
 inverses and composition generalize to the case of homotopies.
 
-By considering the space of functions $[0, 1] -> X$ itself as a topological space (FEEDBACK:
-verify we can do this), denoted $X'$, we get a notion of homotopies between homotopies. This
-concept can be iterated up to infinity, so we have a tower of homotopies at different
-"levels".
+By considering the space of functions $[0, 1] -> X$ itself as a topological space, denoted
+$X'$, we get a notion of homotopies between homotopies. This concept can be iterated up to
+infinity, so we have a tower of homotopies at different "levels".
 
 Moreover, homotopies form an equivalence relation on the paths or homotopies they transform.
 For paths (or homotopies) $f$ and $g$, we say $f ~ g$ if there exists an endpoint-preserving
@@ -2137,9 +2136,7 @@ use the terms "path" and "witness" interchangably from now on.
 
 
 #lemma([HoTT Book 2.2.2])[TODO: Functoriality of $ap$
-
-  FEEDBACK: not sure we need this but would be good to include for
-  completeness]<lemma:ap-functoriality>
+]<lemma:ap-functoriality>
 
 #lemma([HoTT Book 2.3.4])[
   For a type family $B : A -> UU_i$, a dependent function $f : product_(x : A) -> B(x)$ and
@@ -2400,7 +2397,7 @@ equality between its elements.
     r : refl_star =_(z =_one z) refl_z.
   $
   Since we know $z =_one star$ is inhabited, we have
-  $refl_(refl_star) : refl_z =_(z =_one z) refl_star$ (FEEDBACK is this correct?), so we put
+  $refl_(refl_star) : refl_z =_(z =_one z) refl_star$, so we put
   $
     c(z) :peq refl_refl_star.
   $
@@ -2890,9 +2887,6 @@ $
   $
 ]
 
-- These correspond to groupoids where homotopies between paths consist only of identity
-  - (TODO/FEEDBACK: we can show that higher paths being identities $=>$ witnesses are
-    unique, but can we show converse?)
 - We saw that $one$ and $NN$ are sets
 - $zero$ is a set because we can construct
   $product_(x : zero) product_(y : zero) product_(p : x = y) product_(q : x = y) p = q$
