@@ -168,6 +168,7 @@
 #let decode = $sans("decode")$
 #let happly = $sans("happly")$
 #let funext = $sans("funext")$
+#let idtoequiv = $sans("idtoequiv")$
 #let isSet = $sans("isSet")$
 #let is1Type = $sans("is1Type")$
 #let bigrule = (..args) => {
@@ -1413,7 +1414,7 @@ By applying the $NN$-Comp rules, we see for example that
 $Fin(3) peq one + (one + (one + zero))$. We are not able to prove (yet) that $Fin(n)$ has
 exactly $n$ elements (TODO we may even take it as axiomatic? or we may prove it later).
 
-== Propositions as types
+== Propositions as types<sec:propositions-as-types>
 
 An interesting property of type theory is that it corresponds with the principles of
 (constructive) logic. This is known as the Curry-Howard correspondence. We may translate
@@ -2205,7 +2206,7 @@ The following lemma describes a useful interaction between $ap$ and $transport$.
   as required.
 ]
 
-== Homotopies and equivalences
+== Homotopies and equivalences<sec:homotopies-and-equivalences>
 
 - We move from identity of elements of types to identity of functions and of types
 - We use the term homotopy here to refer to such an identity, in a way which is at face
@@ -2742,7 +2743,7 @@ $
   as required.
 ]
 
-== Function extensionality and univalence
+== Function extensionality
 
 - Want to consider identity of functions. We have the $eta$ rule to say that functions are
   judgmentally equal if they are pointwise judgmentally equal, but we would like to extend
@@ -2873,7 +2874,80 @@ $
   as required.
 ]
 
-== Sets
+== Univalence
+
+In this section we consider the idea of identity types within a universe. Recall that
+universes form the types of types, so for types $A : UU_i$ and $B : UU_i$, we can form the
+type $A =_UU_i B$. How can we construct elements of this type? Certainly we have
+$refl_A : A =_UU_i A$, but in @sec:homotopies-and-equivalences we also introduced the idea
+of an equivalence between types. It would be nice if we could derive an identity, i.e. a
+path $p : A =_UU_i B$, from an equivalence $A equiv B$.
+
+It is easy enough to go the other way:
+
+#lemma[For types $A : UU_i$, $B : UU_i$, there is a function
+  $
+    idtoequiv : (A =_UU_i B) -> (A equiv B).
+  $
+]
+#proof[
+  We fix $A$ and $B$ as in the statement of the lemma, and also fix a path $p : A = B$.
+
+  We need functions $f : A -> B$, $g : B -> A$ and homotopies
+  $
+    & alpha : f compose g & ~ id_B \
+    & beta : g compose f  & ~ id_A
+  $
+  For $f$, we consider the identity function on $UU_i$ as a type family:
+  $id_UU_i : UU_i -> UU_i$, and transport an element $a : A$ across $p$ to obtain an element
+  of $B$. Formally, we put
+  $
+    f(a) :peq transport^id (p, a) : B.
+  $
+  We do the same thing for $g$, but in reverse:
+  $
+    g(b) :peq transport^id (p^(-1), b) : A
+  $
+  Now we need to construct
+  $
+    alpha : product_(b : B) f(g(b)) = b
+  $
+  which we do by path induction. Put
+  $
+    C(A, B, p) :peq product_(b : B) transport^id (p, transport^id (p^(-1), b)) = b,
+  $
+  and for a (type) variable $Z : UU_i$, we have
+  $
+    C(Z, Z, refl_Z) &peq product_(b : B) transport^id (refl_Z, transport^id (refl_Z^(-1), b)) = b \
+    &peq product_(b : B) b = b
+  $
+  so we put
+  $
+    c(Z) :peq lambda (b : B) sd refl_b.
+  $
+  We then define $alpha :peq ind_=(C, c, A, B, p)$, so we have
+  $
+    alpha : f compose g ~ id_B.
+  $
+  The construction for $beta$ is similar, so we have an equivalence $A equiv B$. By a
+  $beta$-reduction on $p$, we have the function
+  $
+    idtoequiv : (A =_UU_i B) -> (A equiv B)
+  $
+  as required.
+]
+
+As it turns out #cite(<hottbook>, supplement: [Section 2.10]), it is not possible to derive
+the converse, so we must take it as an axiom. This is the axiom known as *univalence*.
+
+#axiom([HoTT 2.10.3, Univalence])[
+  For types $A : UU_i$ and $B: UU_i$, the function $idtoequiv$ is an equivalence.
+
+  TODO expand. Remark about a "good" definition of $isequiv$.
+]
+
+
+= Sets and logic
 
 - Sets are types where witnesses are unique
 
@@ -3026,4 +3100,19 @@ $
   $
   as required.
   - TODO remark about contexts not being explicit in HoTT book
+]
+
+== Propositions
+
+We discussed in @sec:propositions-as-types how we could translate between first-order logic
+and type theory, using the Curry-Howard correspondence. Propositions are types, logical
+connectives are type formers and predicates are dependent functions or pairs. However, some
+rules which classical mathematicians or logicians may be familiar with do not hold in type
+theory. For example, the "law of double negation", which states that for a proposition $A$,
+we have $¬¬A -> A$. The next theorem shows that this does not hold in general in type
+theory.
+
+#theorem([HoTT 3.2.2])[It is not the case that for all $A : UU_i$ we have $¬¬A -> A$.]
+#proof[
+  TODO
 ]
