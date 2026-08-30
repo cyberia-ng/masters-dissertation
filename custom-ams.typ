@@ -20,7 +20,7 @@
   abstract: none,
 
   // The article's paper size. Also affects the margins.
-  paper-size: "us-letter",
+  paper-size: "a4",
 
   // The result of a call to the `bibliography` function or `none`.
   bibliography: none,
