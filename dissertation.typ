@@ -2135,6 +2135,13 @@ use the terms "path" and "witness" interchangably from now on.
 
 == Functions and functors
 
+For judgmental equalities, the rule $"Subst"_3$ allows us to move from an equality of
+function parameters to an equality of values of the function at those parameters. If we have
+$f : A -> B$ and $t peq t' : A$, then we can conclude that $f(t) peq f(t')$. In this
+subsection, we generalize this principle to propositional equalities. In order to do this,
+we make use of a function $ap_f$, which "applies" a function $f$ to both sides of an
+identity type.
+
 #lemma([HoTT book Lemma 2.2.1])[For $f : A -> B$ a (non-dependent) function and $x : A$,
   $y : A$ elements, there is a function
   $
@@ -2170,12 +2177,33 @@ use the terms "path" and "witness" interchangably from now on.
   as required.
 ]
 
+We also note that $ap_f$ has a functorial relationship with paths under composition and
+inverse. We will not prove this, as we will not make use of it, but it is worth stating
+anyway.
 
-#lemma([HoTT Book 2.2.2])[TODO: Functoriality of $ap$
+#lemma([HoTT Book 2.2.2])[
+  Let $f: A -> B$, $g : B -> C$ be functions, $x, y, z : A$ be variables and $p : x =_A y$,
+  $q : y =_A z$ be paths.
+
+  Then we have the following equalities:
+  + $ap_f (p bullet q) = ap_f (p) bullet ap_f (q)$
+  + $ap_f (p^(-1)) = ap_f (p)^(-1)$
+  + $ap_g (ap_f (p)) = ap_(g compose f) (p)$
+  + $ap_id_A (p) = p$
+
 ]<lemma:ap-functoriality>
+#proof[Omitted]
+
+We have defined $ap_f$ in the case of $f : A -> B$ a non-dependent function. This makes
+sense for non-dependent functions, because $f$ has the same return type regardless of its
+input, and therefore we can form the type $f(x) =_B f(y)$. In the case of a dependent
+function, say $g : product_(x : A) B(x)$, the return type of $g$ varies with its parameter.
+We cannot form an identity type $g(x) = g(y)$ because these terms have different types. We
+overcome this by defining a "sibling" function to $ap$, called $apd$ ("apply dependently"),
+which uses $transport$ to resolve this problem.
 
 #lemma([HoTT Book 2.3.4])[
-  For a type family $B : A -> UU_i$, a dependent function $f : product_(x : A) -> B(x)$ and
+  For a type family $B : A -> UU_i$, a dependent function $f : product_(x : A) B(x)$ and
   elements $a, b : A$, there is a function
   $
     apd_f : product_(p : a = b) transport^B (p, f(a)) =_(B(b)) f(b)
@@ -2205,8 +2233,10 @@ use the terms "path" and "witness" interchangably from now on.
   We then define $apd_f :peq ind_= (C, c, a, b)$ as required.
 ]
 
-- By the existence of $ap_f$ and $apd_f$, we say that all functions in type theory are
-  "continuous" -- they preserve paths.
+By the existence of $ap$ and $apd$, we see that all functions in type theory "preserve"
+paths (identities) between their parameters. In topological terms, if there is a path from a
+point $x$ to a point $y$, there remains a path between the two points after function
+application. In this sense, we say that all functions in type theory are *continuous*.
 
 The following lemma describes a useful interaction between $ap$ and $transport$.
 
@@ -2243,10 +2273,19 @@ The following lemma describes a useful interaction between $ap$ and $transport$.
 
 == Homotopies and equivalences<sec:homotopies-and-equivalences>
 
-- We move from identity of elements of types to identity of functions and of types
-- We use the term homotopy here to refer to such an identity, in a way which is at face
-  value different from our earlier use of homotopy. We will see they become the same (with
-  univalence?)
+So far, we have dealt with identities between elements of types, which in the homotopical
+interpretation we consider as points in a topological space. Recalling that functions in
+type theory are simply elements of function types, and indeed types themselves are elements
+of universes, we can form identities between functions and types themselves. Over the next
+three sections, we will give ourselves the necessary tools to work with these kinds of
+identities.
+
+We begin with a more type-theoretic definition of a homotopy, which is the definition we
+will use going forward. This definition says that a homotopy between functions $f$ and $g$
+is a function which generates witnesses to the pointwise equality of $f$ and $g$ at all
+points in their input type.
+
+FEEDBACK/TODO: in what sense is this the same as homotopy from earlier?
 
 #definition[For a type family $P : A -> UU_i$ and dependent functions
   $f, g : product_(x : A) P(x)$, a *homotopy* from $f$ to $g$ is a dependent function of
@@ -2256,7 +2295,9 @@ The following lemma describes a useful interaction between $ap$ and $transport$.
   $
 ]
 
-- Proofs which are left to the reader in HoTT:
+We now prove two useful properties of homotopies: firstly, that they form an equivalence
+relation (which is suggested by our use of the notation $(- ~ -)$), and secondly, that they
+are well-behaved with respect to function composition.
 
 #lemma([HoTT book 2.4.2])[For a type family $P : A -> UU_i$, homotopy is an equivalence
   relation on each dependent function type $product_(x : A) P(x)$.
@@ -2270,6 +2311,8 @@ The following lemma describes a useful interaction between $ap$ and $transport$.
   $
 ]<lemma:homotopy-equivalence>
 #proof[
+  (Left to reader in HoTT)
+
   Using the notation in @lemma:identity-symmetry and @lemma:identity-transitivity, we define
   $
              r(f) & :peq refl_f(x) \
@@ -2303,6 +2346,11 @@ The following lemma describes a useful interaction between $ap$ and $transport$.
   as required.
 ]
 
+Having now constructed the concept of homotopies between functions, we put it to use in
+considering how to identify types with each other. An intuitive approach might be to
+consider, for types $A$ and $B$, whether we can move elements from $A$ to $B$ and back again
+(and vice versa) without loss of information. This is the notion of "quasi-inverses".
+
 #definition[For a function $f : A -> B$, a *quasi-inverse* of $f$ is a triple
   $(g, alpha, beta)$, where
   $
@@ -2325,8 +2373,12 @@ The following lemma describes a useful interaction between $ap$ and $transport$.
 ]
 
 - TODO some examples? Perhaps 2.4.8
-- $qinv$ is problematic in that there may be multiple inhabitants of $qinv(f)$
-- Therefore we define $isequiv$:
+
+Quasi-inverses are a useful approach, but they present a problem: for types $A$ and $B$ and
+a function $f : A -> B$, the type $qinv(f)$ may have multiple non-equal inhabitants (hence
+"quasi"). It will turn out that this is problematic for constructing a notion of identity
+between types, as we will see later in @sec:univalence, so we construct a slightly different
+formulation: that of "equivalences".
 
 #definition[
   For a function $f : A -> B$, we say that $f$ is an *equivalence* if there are functions
@@ -2358,11 +2410,11 @@ The following lemma describes a useful interaction between $ap$ and $transport$.
   $isequiv(f)$.
 ]
 
-The definition of the type $isequiv$ overcomes the problems with $qinv$ in the following
-way: for any two elements $e_1, e_2 : isequiv(f)$, we have $e_1 = e_2$. We will not prove
-this, but is worth noting now. We will mention why this is necessary when we introduce the
-concept of univalence later in @sec:univalence. We will, however, prove the following
-important proposition about $isequiv$ and $qinv$, namely that they are logically equivalent.
+The definition of the type $isequiv$ overcomes the problem with $qinv$ in that $isequiv(f)$
+has at most one inhabitant: for any two elements $e_1, e_2 : isequiv(f)$, we have
+$e_1 = e_2$. Unfortunately, the proof of this is beyond the scope of this work. We will,
+however, prove the following important proposition about $isequiv$ and $qinv$, namely that
+they are logically equivalent.
 
 #proposition[For each $f : A -> B$,
   + there is a function of type $qinv(f) -> isequiv(f)$; and
@@ -2402,6 +2454,8 @@ important proposition about $isequiv$ and $qinv$, namely that they are logically
   $
 
 ]
+
+We explore the concept of equivalence using an example.
 
 #example[
   Let the type $two : UU_i$ be defined as $two :peq one + one$. We write the elements of
@@ -2503,6 +2557,249 @@ equality between its elements.
   - TODO make a note somewhere about this proof being significantly more in-depth than in
     HoTT book
 ]
+
+== Function extensionality
+
+- Want to consider identity of functions. We have the $eta$ rule to say that functions are
+  judgmentally equal if they are pointwise judgmentally equal, but we would like to extend
+  this to propositional equality.
+- I.e. we would like a witness to
+  $
+    product_(f : product_(x : A) B(x)) product_(g : product_(x : A) B(x)) (product_(x : A) f(x) =_B(x) g(x)) -> f =_(product_(x : A) B(x)) g
+  $
+- We can certainly go the other way, by an application of path induction:
+
+#lemma[For a type $A$, a type family $B : A -> UU_i$ and functions
+  $f, g : product_(x : A) B(x)$, there is a function
+  $
+    happly : (f = g) -> product_(x : A) f(x) = g(x).
+  $
+  That is to say that if two functions are (propositionally) equal, then they are
+  (propositionally) equal pointwise.
+]
+#proof[
+  Fix $A, B, f, g$ as in the statement of the lemma. For brevity, we write the type
+  $product_(x : A) B(x)$ as $F$. Put
+  $
+    C : product_(f : F) product_(g: F) f = g -> UU_i \
+    C(f, g, \_) :peq product_(x : A) f(x) = g(x).
+  $
+  For a variable $z : F$ we compute $C(z, z, refl_z) peq product_(x : A) z(x) = z(x)$, so we
+  put
+  $
+    c : product_(z : F) C(z, z, refl_z) \
+    c(z) :peq lambda (x : A) sd refl_(z(x)).
+  $
+  We then define $happly :peq ind_=(C, c, f, g)$ to get
+  $
+    happly : (f = g) -> product_(x : A) f(x) = g(x)
+  $
+  as required.
+]
+
+- We have no way to go back the other way, so we must take it as an axiom:
+
+#axiom([Function extensionality])[
+  For a type $A$, a type family $B : A -> UU_i$ and functions $f, g: product_(x : A) B(x)$,
+  the function
+  $
+    happly : (f = g) -> product_(x : A) f(x) = g(x)
+  $
+  is an equivalence. That is to say, there is a function of type
+  $
+    funext : (product_(x : A) f(x) = g(x)) -> f = g.
+  $
+]<ax:function-extensionality>
+
+- We now consider the transport function in the case of identities between functions
+- We want to transport a function $f : A(x_1) -> B(x_1)$ along an equality $x_1 = x_2$ to
+  get a function $g : A(x_2) -> B(x_2)$.
+- We can express this already with our $transport$ function, setting the type family to be
+  transported over to be $x |-> A(x) -> B(x)$, but we show that this is equivalent to
+  something else:
+
+#lemma([HoTT 2.9.4])[
+  In a context consisting of
+  $
+    & X   && : UU_i, \
+    & x_1 && : X, \
+    & x_2 && : X, \
+    & p   && : x_1 =_X x_2, \
+    & A   && : X -> UU_i, \
+    & B   && : X -> UU_i, \
+    & f   && : A(x_1) -> B(x_1), \
+  $
+  we have
+  $
+    transport^(lambda (x : X) sd A(x) -> B(x)) (p, f) = \
+    lambda (a : A(x_2) sd transport^B (p, f(transport^A (p^(-1), a))).
+  $
+
+  That is to say, if we want to compute the transport of a function $f : A(x_1) -> B(x_1)$
+  across an equality $x_1 = x_2$, we can apply the following process: first transport its
+  parameter across $p^(-1) : x_2 = x_1$ to get an element of $A(x_1)$, then apply $f$ to get
+  an element of $B(x_1)$, then transport back across $p : x_1 = x_2$ to get an element of
+  $B(x_2)$.
+
+  This corresponds to the following commutative diagram of functions and types:
+  #align(center)[
+    #diagram({
+      let ax1 = (0, 1)
+      let ax2 = (0, 0)
+      let bx1 = (1, 1)
+      let bx2 = (1, 0)
+      node(ax2, $A(x_2)$)
+      node(bx2, $B(x_2)$)
+      node(ax1, $A(x_1)$)
+      node(bx1, $B(x_1)$)
+      edge(ax2, bx2, "->", $transport^(lambda (x : X) sd A(x) -> B(x))(p, f)$)
+      edge(ax2, ax1, "->", $transport^A (p^(-1))$)
+      edge(ax1, bx1, "->", $f$)
+      edge(bx1, bx2, "->", $transport^B (p)$)
+    })
+
+  ]
+]<lem:function-transport>
+#proof[
+  We proceed by path induction. Fix $X, A, B$ as in the lemma and let
+  $ f' : product_(x_1 : X) A(x_1) -> B(x_1). $
+  We put
+  $
+    // & C &   & : product_(x_1 : X) product_(x_2 : X) (x_1 = x_2) -> UU_i \
+    C & (x_1, x_2, p) :peq \
+      & transport^(lambda (x : X) sd A(x) -> B(x)) (p, f'(x_1)) = \
+      & (lambda (x : A(x_2)) sd transport^B (p, f'(x_1, transport^A (p^(-1), x))))
+  $
+  and compute $C(z, z, refl_z)$ for $z : X$. For $x : A(z)$, we have
+  $
+    transport^A (refl_z^(-1), x) peq x
+  $
+  and
+  $
+    transport^B (refl_z, f'(z, x)) peq f'(z, x),
+  $
+  so we have a judgmental equality (using the $eta$-rule) for the right-hand side of
+  $C(z, z, refl_z)$:
+  $ lambda (x : A(z)) sd transport^B (refl_z, f'(z, x)) peq f'(z). $
+  Considering the left-hand side, we have
+  $
+    transport^(lambda (x : X) sd A(x) -> B(x)) (refl_z, f'(z)) peq f'(z)
+  $
+  so we may put
+  $
+    c(z) :peq refl_(f'(z)).
+  $
+  Therefore, fixing $x_1, x_2 : A$ and writing $f :peq f'(x_1)$, we have
+  $
+    ind_= & (C, c, x_1, x_2, p) : \
+          & transport^(lambda (x : X) sd A(x) -> B(x)) (p, f) = \
+          & lambda (x : A(x_2)) sd transport^B (p, f(transport^A (p^(-1), x)))
+  $
+  as required.
+]
+
+== Univalence<sec:univalence>
+
+In this section we consider the idea of identity types within a universe. Recall that
+universes form the types of types, so for types $A : UU_i$ and $B : UU_i$, we can form the
+type $A =_UU_i B$. How can we construct elements of this type? Certainly we have
+$refl_A : A =_UU_i A$, but in @sec:homotopies-and-equivalences we also introduced the idea
+of an equivalence between types. It would be nice if we could derive an identity, i.e. a
+path $p : A =_UU_i B$, from an equivalence $A equiv B$.
+
+It is easy enough to go the other way:
+
+#lemma[For types $A : UU_i$, $B : UU_i$, there is a function
+  $
+    idtoequiv : (A =_UU_i B) -> (A equiv B).
+  $
+]
+#proof[
+  We fix $A$ and $B$ as in the statement of the lemma, and also fix a path $p : A = B$.
+
+  We need functions $f : A -> B$, $g : B -> A$ and homotopies
+  $
+    & alpha : f compose g & ~ id_B \
+    & beta : g compose f  & ~ id_A
+  $
+  For $f$, we consider the identity function on $UU_i$ as a type family:
+  $id_UU_i : UU_i -> UU_i$, and transport an element $a : A$ across $p$ to obtain an element
+  of $B$. Formally, we put
+  $
+    f(a) :peq transport^id (p, a) : B.
+  $
+  We do the same thing for $g$, but in reverse:
+  $
+    g(b) :peq transport^id (p^(-1), b) : A
+  $
+  Now we need to construct
+  $
+    alpha : product_(b : B) f(g(b)) = b
+  $
+  which we do by path induction. Put
+  $
+    C(A, B, p) :peq product_(b : B) transport^id (p, transport^id (p^(-1), b)) = b,
+  $
+  and for a (type) variable $Z : UU_i$, we have
+  $
+    C(Z, Z, refl_Z) &peq product_(b : B) transport^id (refl_Z, transport^id (refl_Z^(-1), b)) = b \
+    &peq product_(b : B) b = b
+  $
+  so we put
+  $
+    c(Z) :peq lambda (b : B) sd refl_b.
+  $
+  We then define $alpha :peq ind_=(C, c, A, B, p)$, so we have
+  $
+    alpha : f compose g ~ id_B.
+  $
+  The construction for $beta$ is similar, so we have an equivalence $A equiv B$. By a
+  $beta$-reduction on $p$, we have the function
+  $
+    idtoequiv : (A =_UU_i B) -> (A equiv B)
+  $
+  as required.
+]
+
+As it turns out #cite(<hottbook>, supplement: [Section 2.10]), it is not possible to derive
+the converse, so we must take it as an axiom. This is the axiom known as *univalence*.
+
+#axiom([HoTT 2.10.3, Univalence])[
+  For types $A : UU_i$ and $B: UU_i$, the function $idtoequiv$ is an equivalence. That is,
+  there is a witness to the type $isequiv(idtoequiv)$, so we have
+  $
+    (A = B) equiv (A equiv B).
+  $
+
+  We denote the(?) (FEEDBACK: how do we choose it?) quasi-inverse determined by this
+  equivalence as $ua$:
+  $
+    ua : (A equiv B) -> (A = B).
+  $
+]<axiom:univalence>
+
+- FEEDBACK: the type of $isequiv(idtoequiv)$ is
+  $
+    (sum_(g : B -> A) isequiv compose g ~ id_(A equiv B)) times (sum_(h: B -> A) h compose isequiv ~ id_(A = B))
+  $
+  and we have stated that this has exactly one inhabitant. But do we choose $g$ or $h$ for
+  $ua$?
+
+#remark[In @sec:homotopies-and-equivalences we mentioned that we chose the definition of
+  $isequiv$ over $qinv$ because of its property of having at most one inhabitant. The
+  statement of univalence that we have given is the justification for this. If we were to
+  have defined univalence differently, by writing
+  $
+    idtoqinv : (A = B) -> sum_(f : A -> B) qinv(f)
+  $
+  and taking it as an axiom that $idtoqinv$ has a quasi-inverse, it would be possible to
+  derive an inhabitant of $zero$, so our theory would be inconsistent. #cite(
+    <hottbook>,
+    supplement: [Exercise 4.6],
+  )
+]
+
+- TODO mention propositional computation rule
 
 // #example([Finite sets TODO])[
 //   We show that $Fin(n)$ has exactly $n$ elements. We do this by recalling our definition of
@@ -2832,249 +3129,6 @@ $
   $
   as required.
 ]
-
-== Function extensionality
-
-- Want to consider identity of functions. We have the $eta$ rule to say that functions are
-  judgmentally equal if they are pointwise judgmentally equal, but we would like to extend
-  this to propositional equality.
-- I.e. we would like a witness to
-  $
-    product_(f : product_(x : A) B(x)) product_(g : product_(x : A) B(x)) (product_(x : A) f(x) =_B(x) g(x)) -> f =_(product_(x : A) B(x)) g
-  $
-- We can certainly go the other way, by an application of path induction:
-
-#lemma[For a type $A$, a type family $B : A -> UU_i$ and functions
-  $f, g : product_(x : A) B(x)$, there is a function
-  $
-    happly : (f = g) -> product_(x : A) f(x) = g(x).
-  $
-  That is to say that if two functions are (propositionally) equal, then they are
-  (propositionally) equal pointwise.
-]
-#proof[
-  Fix $A, B, f, g$ as in the statement of the lemma. For brevity, we write the type
-  $product_(x : A) B(x)$ as $F$. Put
-  $
-    C : product_(f : F) product_(g: F) f = g -> UU_i \
-    C(f, g, \_) :peq product_(x : A) f(x) = g(x).
-  $
-  For a variable $z : F$ we compute $C(z, z, refl_z) peq product_(x : A) z(x) = z(x)$, so we
-  put
-  $
-    c : product_(z : F) C(z, z, refl_z) \
-    c(z) :peq lambda (x : A) sd refl_(z(x)).
-  $
-  We then define $happly :peq ind_=(C, c, f, g)$ to get
-  $
-    happly : (f = g) -> product_(x : A) f(x) = g(x)
-  $
-  as required.
-]
-
-- We have no way to go back the other way, so we must take it as an axiom:
-
-#axiom([Function extensionality])[
-  For a type $A$, a type family $B : A -> UU_i$ and functions $f, g: product_(x : A) B(x)$,
-  the function
-  $
-    happly : (f = g) -> product_(x : A) f(x) = g(x)
-  $
-  is an equivalence. That is to say, there is a function of type
-  $
-    funext : (product_(x : A) f(x) = g(x)) -> f = g.
-  $
-]<ax:function-extensionality>
-
-- We now consider the transport function in the case of identities between functions
-- We want to transport a function $f : A(x_1) -> B(x_1)$ along an equality $x_1 = x_2$ to
-  get a function $g : A(x_2) -> B(x_2)$.
-- We can express this already with our $transport$ function, setting the type family to be
-  transported over to be $x |-> A(x) -> B(x)$, but we show that this is equivalent to
-  something else:
-
-#lemma([HoTT 2.9.4])[
-  In a context consisting of
-  $
-    & X   && : UU_i, \
-    & x_1 && : X, \
-    & x_2 && : X, \
-    & p   && : x_1 =_X x_2, \
-    & A   && : X -> UU_i, \
-    & B   && : X -> UU_i, \
-    & f   && : A(x_1) -> B(x_1), \
-  $
-  we have
-  $
-    transport^(lambda (x : X) sd A(x) -> B(x)) (p, f) = \
-    lambda (a : A(x_2) sd transport^B (p, f(transport^A (p^(-1), a))).
-  $
-
-  That is to say, if we want to compute the transport of a function $f : A(x_1) -> B(x_1)$
-  across an equality $x_1 = x_2$, we can apply the following process: first transport its
-  parameter across $p^(-1) : x_2 = x_1$ to get an element of $A(x_1)$, then apply $f$ to get
-  an element of $B(x_1)$, then transport back across $p : x_1 = x_2$ to get an element of
-  $B(x_2)$.
-
-  This corresponds to the following commutative diagram of functions and types:
-  #align(center)[
-    #diagram({
-      let ax1 = (0, 1)
-      let ax2 = (0, 0)
-      let bx1 = (1, 1)
-      let bx2 = (1, 0)
-      node(ax2, $A(x_2)$)
-      node(bx2, $B(x_2)$)
-      node(ax1, $A(x_1)$)
-      node(bx1, $B(x_1)$)
-      edge(ax2, bx2, "->", $transport^(lambda (x : X) sd A(x) -> B(x))(p, f)$)
-      edge(ax2, ax1, "->", $transport^A (p^(-1))$)
-      edge(ax1, bx1, "->", $f$)
-      edge(bx1, bx2, "->", $transport^B (p)$)
-    })
-
-  ]
-]<lem:function-transport>
-#proof[
-  We proceed by path induction. Fix $X, A, B$ as in the lemma and let
-  $ f' : product_(x_1 : X) A(x_1) -> B(x_1). $
-  We put
-  $
-    // & C &   & : product_(x_1 : X) product_(x_2 : X) (x_1 = x_2) -> UU_i \
-    C & (x_1, x_2, p) :peq \
-      & transport^(lambda (x : X) sd A(x) -> B(x)) (p, f'(x_1)) = \
-      & (lambda (x : A(x_2)) sd transport^B (p, f'(x_1, transport^A (p^(-1), x))))
-  $
-  and compute $C(z, z, refl_z)$ for $z : X$. For $x : A(z)$, we have
-  $
-    transport^A (refl_z^(-1), x) peq x
-  $
-  and
-  $
-    transport^B (refl_z, f'(z, x)) peq f'(z, x),
-  $
-  so we have a judgmental equality (using the $eta$-rule) for the right-hand side of
-  $C(z, z, refl_z)$:
-  $ lambda (x : A(z)) sd transport^B (refl_z, f'(z, x)) peq f'(z). $
-  Considering the left-hand side, we have
-  $
-    transport^(lambda (x : X) sd A(x) -> B(x)) (refl_z, f'(z)) peq f'(z)
-  $
-  so we may put
-  $
-    c(z) :peq refl_(f'(z)).
-  $
-  Therefore, fixing $x_1, x_2 : A$ and writing $f :peq f'(x_1)$, we have
-  $
-    ind_= & (C, c, x_1, x_2, p) : \
-          & transport^(lambda (x : X) sd A(x) -> B(x)) (p, f) = \
-          & lambda (x : A(x_2)) sd transport^B (p, f(transport^A (p^(-1), x)))
-  $
-  as required.
-]
-
-== Univalence<sec:univalence>
-
-In this section we consider the idea of identity types within a universe. Recall that
-universes form the types of types, so for types $A : UU_i$ and $B : UU_i$, we can form the
-type $A =_UU_i B$. How can we construct elements of this type? Certainly we have
-$refl_A : A =_UU_i A$, but in @sec:homotopies-and-equivalences we also introduced the idea
-of an equivalence between types. It would be nice if we could derive an identity, i.e. a
-path $p : A =_UU_i B$, from an equivalence $A equiv B$.
-
-It is easy enough to go the other way:
-
-#lemma[For types $A : UU_i$, $B : UU_i$, there is a function
-  $
-    idtoequiv : (A =_UU_i B) -> (A equiv B).
-  $
-]
-#proof[
-  We fix $A$ and $B$ as in the statement of the lemma, and also fix a path $p : A = B$.
-
-  We need functions $f : A -> B$, $g : B -> A$ and homotopies
-  $
-    & alpha : f compose g & ~ id_B \
-    & beta : g compose f  & ~ id_A
-  $
-  For $f$, we consider the identity function on $UU_i$ as a type family:
-  $id_UU_i : UU_i -> UU_i$, and transport an element $a : A$ across $p$ to obtain an element
-  of $B$. Formally, we put
-  $
-    f(a) :peq transport^id (p, a) : B.
-  $
-  We do the same thing for $g$, but in reverse:
-  $
-    g(b) :peq transport^id (p^(-1), b) : A
-  $
-  Now we need to construct
-  $
-    alpha : product_(b : B) f(g(b)) = b
-  $
-  which we do by path induction. Put
-  $
-    C(A, B, p) :peq product_(b : B) transport^id (p, transport^id (p^(-1), b)) = b,
-  $
-  and for a (type) variable $Z : UU_i$, we have
-  $
-    C(Z, Z, refl_Z) &peq product_(b : B) transport^id (refl_Z, transport^id (refl_Z^(-1), b)) = b \
-    &peq product_(b : B) b = b
-  $
-  so we put
-  $
-    c(Z) :peq lambda (b : B) sd refl_b.
-  $
-  We then define $alpha :peq ind_=(C, c, A, B, p)$, so we have
-  $
-    alpha : f compose g ~ id_B.
-  $
-  The construction for $beta$ is similar, so we have an equivalence $A equiv B$. By a
-  $beta$-reduction on $p$, we have the function
-  $
-    idtoequiv : (A =_UU_i B) -> (A equiv B)
-  $
-  as required.
-]
-
-As it turns out #cite(<hottbook>, supplement: [Section 2.10]), it is not possible to derive
-the converse, so we must take it as an axiom. This is the axiom known as *univalence*.
-
-#axiom([HoTT 2.10.3, Univalence])[
-  For types $A : UU_i$ and $B: UU_i$, the function $idtoequiv$ is an equivalence. That is,
-  there is a witness to the type $isequiv(idtoequiv)$, so we have
-  $
-    (A = B) equiv (A equiv B).
-  $
-
-  We denote the(?) (FEEDBACK: how do we choose it?) quasi-inverse determined by this
-  equivalence as $ua$:
-  $
-    ua : (A equiv B) -> (A = B).
-  $
-]<axiom:univalence>
-
-- FEEDBACK: the type of $isequiv(idtoequiv)$ is
-  $
-    (sum_(g : B -> A) isequiv compose g ~ id_(A equiv B)) times (sum_(h: B -> A) h compose isequiv ~ id_(A = B))
-  $
-  and we have stated that this has exactly one inhabitant. But do we choose $g$ or $h$ for
-  $ua$?
-
-#remark[In @sec:homotopies-and-equivalences we mentioned that we chose the definition of
-  $isequiv$ over $qinv$ because of its property of having at most one inhabitant. The
-  statement of univalence that we have given is the justification for this. If we were to
-  have defined univalence differently, by writing
-  $
-    idtoqinv : (A = B) -> sum_(f : A -> B) qinv(f)
-  $
-  and taking it as an axiom that $idtoqinv$ has a quasi-inverse, it would be possible to
-  derive an inhabitant of $zero$, so our theory would be inconsistent. #cite(
-    <hottbook>,
-    supplement: [Exercise 4.6],
-  )
-]
-
-- TODO mention propositional computation rule
 
 = Sets and logic
 
