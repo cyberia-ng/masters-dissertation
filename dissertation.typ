@@ -2292,15 +2292,44 @@ The following lemma describes a useful interaction between $ap$ and $transport$.
 ]
 
 - TODO some examples? Perhaps 2.4.8
+- $qinv$ is problematic in that there may be multiple inhabitants of $qinv(f)$
+- Therefore we define $isequiv$:
 
-- Equivalence of types: use $isequiv : (A -> B) -> UU_i$
-- If $isequiv(f)$ is inhabited, $A$ and $B$ are equivalent, written $A tilde.eq B$.
-
-- Define
+#definition[
+  For a function $f : A -> B$, we say that $f$ is an *equivalence* if there are functions
+  $g : B -> A$ and $h : B -> A$ and homotopies
   $
-    isequiv &: (A -> B) ->UU_i \
+    f compose g ~ id_B
+  $
+  and
+  $
+    h compose f ~ id_A.
+  $
+  This is represented formally by the function $isequiv$, defined as
+  $
+    isequiv & : (A -> B) ->UU_i \
+  $$
     isequiv(f) &:peq (sum_(g : B -> A) (f compose g ~ id_B)) times (sum_(h : B -> A) h compose f ~ id_A)
   $
+
+  When there exists such a function $f$, with an element of $isequiv(f)$, we say that $A$
+  and $B$ are *equivalent*. We form the type
+  $
+    A equiv B : UU_i
+  $
+  by defining
+  $
+    A equiv B :peq sum_(f : A -> B) isequiv(f).
+  $
+  That is, a witness to the type $A equiv B$ is a function $f$ together with a witness to
+  $isequiv(f)$.
+]
+
+The definition of the type $isequiv$ overcomes the problems with $qinv$ in the following
+way: for any two elements $e_1, e_2 : isequiv(f)$, we have $e_1 = e_2$. We will not prove
+this, but is worth noting now. We will mention why this is necessary when we introduce the
+concept of univalence later (TODO ref section). We will, however, prove the following
+important proposition about $isequiv$ and $qinv$, namely that they are logically equivalent.
 
 #proposition[For each $f : A -> B$,
   + there is a function of type $qinv(f) -> isequiv(f)$; and
@@ -2342,8 +2371,7 @@ The following lemma describes a useful interaction between $ap$ and $transport$.
 
 ]
 
-@prop:qinv-is-equiv tells us that the concepts of equivalence and having a quasi-inverse are
-equivalent. We will use to show an interesting property of the singleton type $one$: not
+We will now use equivalence to show an interesting property of the singleton type $one$: not
 only does it have a single element, but indeed there is only a single witness to any
 equality between its elements.
 
