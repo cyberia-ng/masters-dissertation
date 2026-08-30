@@ -176,6 +176,7 @@
 #let idtoequiv = $sans("idtoequiv")$
 #let isSet = $sans("isSet")$
 #let is1Type = $sans("is1Type")$
+#let two = $bold(2)$
 #let bigrule = (..args) => {
   let judgments = args.pos()
   let kwargs = args.named()
@@ -2402,6 +2403,36 @@ important proposition about $isequiv$ and $qinv$, namely that they are logically
 
 ]
 
+#example[
+  Let the type $two : UU_i$ be defined as $two :peq one + one$. We write the elements of
+  $two$, which are formally $inl(star)$ and $inr(star)$, as $0_two$ and $1_two$
+  respectively. Let the function $f : two -> two$ be defined by
+  $
+    & f(0_two) && :peq 1_two \
+    & f(1_two) && : peq 0_two.
+  $
+
+  We show that $f$ is an equivalence, i.e. we have an element of $isequiv(f)$. We do this by
+  showing that $f$ is a quasi-inverse of itself, and relying on @prop:qinv-is-equiv.
+
+  Since we are showing that $f$ is a quasi-inverse of itself, the two homotopies required in
+  $qinv(f)$ reduce to a single homotopy
+  $
+    alpha : f compose f ~ id_two.
+  $
+  That is, we need to construct
+  $
+    alpha : product_(x : two) f(f(x)) =_two x.
+  $
+  Clearly, we have $f(f(0_two)) peq 0_two$ and $f(f(1_two)) peq 1_two$, so we simply put
+  $
+    alpha(x) :peq refl_x.
+  $
+
+  Formally then, we have $(f, alpha, alpha) : qinv(f)$ and hence an (unnamed) element of
+  $isequiv(f)$.
+]<example:two-equiv>
+
 We will now use equivalence to show an interesting property of the singleton type $one$: not
 only does it have a single element, but indeed there is only a single witness to any
 equality between its elements.
@@ -2853,7 +2884,7 @@ $
   $
     funext : (product_(x : A) f(x) = g(x)) -> f = g.
   $
-]
+]<ax:function-extensionality>
 
 - We now consider the transport function in the case of identities between functions
 - We want to transport a function $f : A(x_1) -> B(x_1)$ along an equality $x_1 = x_2$ to
@@ -2862,12 +2893,21 @@ $
   transported over to be $x |-> A(x) -> B(x)$, but we show that this is equivalent to
   something else:
 
-#lemma[
-  For a type $X$, elements $x_1, x_2 : X$, type families $A, B : X -> UU_i$ and a function
-  $f : A(x_1) -> B(x_1)$, we have
+#lemma([HoTT 2.9.4])[
+  In a context consisting of
+  $
+    & X   && : UU_i, \
+    & x_1 && : X, \
+    & x_2 && : X, \
+    & p   && : x_1 =_X x_2, \
+    & A   && : X -> UU_i, \
+    & B   && : X -> UU_i, \
+    & f   && : A(x_1) -> B(x_1), \
+  $
+  we have
   $
     transport^(lambda (x : X) sd A(x) -> B(x)) (p, f) = \
-    (lambda (x : A(x_2)) sd transport^B (p, f(transport^A (p^(-1), x)))).
+    lambda (a : A(x_2) sd transport^B (p, f(transport^A (p^(-1), a))).
   $
 
   That is to say, if we want to compute the transport of a function $f : A(x_1) -> B(x_1)$
@@ -2894,7 +2934,7 @@ $
     })
 
   ]
-]
+]<lem:function-transport>
 #proof[
   We proceed by path induction. Fix $X, A, B$ as in the lemma and let
   $ f' : product_(x_1 : X) A(x_1) -> B(x_1). $
@@ -3011,7 +3051,7 @@ the converse, so we must take it as an axiom. This is the axiom known as *unival
   $
     ua : (A equiv B) -> (A = B).
   $
-]
+]<axiom:univalence>
 
 - FEEDBACK: the type of $isequiv(idtoequiv)$ is
   $
@@ -3033,6 +3073,8 @@ the converse, so we must take it as an axiom. This is the axiom known as *unival
     supplement: [Exercise 4.6],
   )
 ]
+
+- TODO mention propositional computation rule
 
 = Sets and logic
 
@@ -3199,7 +3241,104 @@ theory. For example, the "law of double negation", which states that for a propo
 we have $¬¬A -> A$. The next theorem shows that this does not hold in general in type
 theory.
 
+In keeping with the Curry-Howard correspondence, we define the function $¬ : UU_i -> UU_i$
+as $¬(A) :peq A -> zero$.
+
+#lemma[Using the type $two$ from @example:two-equiv, let $u, v : ¬¬two$. Then we have
+  $u = v$.]<lem:two-double-negation-is-set>
+#proof[
+  Fix an element $x : ¬two$, i.e. $x : two -> zero$. Then we have $u(x) : zero$ and
+  $v(x) : zero$, so we can derive a witness to $u(x) = v(x)$:
+  $
+    ind_zero (lambda (\_ : zero) sd u(x) = v(x), u(x)) : u(x) = v(x)
+  $
+  Applying $beta$-reduction over $x$, we have a function
+  $
+    f : product_(x : ¬two) u(x) = v(x)
+  $
+  and hence by function extensionality we can derive
+  $
+    funext(f) : u = v
+  $
+  as required.
+]
+
 #theorem([HoTT 3.2.2])[It is not the case that for all $A : UU_i$ we have $¬¬A -> A$.]
 #proof[
-  TODO
+  We suppose that for all universes $UU_i$, we have we have a function
+  $ f : product_(A : UU_i) ¬¬A -> A, $
+  and we aim to derive an element of $zero$.
+
+  We borrow from @example:two-equiv the equivalence
+  $
+    & e(0_two) & :peq 1_two \
+    & e(1_two) & :peq 0_two
+  $
+  which shows that there is an element $(e, q) : two equiv two$. We apply univalence
+  (@axiom:univalence) to get an identity $p :peq ua((e, q))$,
+  $
+    p : two = two.
+  $
+  We now begin a long process of manipulating this identity using $transport$, $apd$ and
+  $happly$, so readers are invited to familiarize themselves with these functions if
+  necessary. For shorthand, we define the type family $D: UU_i -> UU_i$ as $D(A) :peq ¬¬A$,
+  and the type family $B : UU_i -> UU_i$ as $B(A) :peq ¬¬A -> A$, so that the type of $f$
+  becomes
+  $
+    f : product_(A : UU_i) B(A).
+  $
+
+  We apply the function $f$ across the identity $p$ using $apd_f$ to derive
+  $
+    apd_f (p) : transport^B (p, f(two)) = f(two).
+  $
+  We now use @lem:function-transport. We note that $B(A) peq D(A) -> id_UU_i (A)$, so we get
+  a witness
+  $
+    r : transport^B &(p, f(two)) = \
+    &lambda (a : ¬¬two) sd transport^(id_UU_i) (p, f(two, transport^D (p^(-1), a)))
+  $
+
+  Fixing a variable $u : ¬¬two$, we work with the previous two equalities pointwise using
+  $happly$. We have
+  $
+    happly(apd_f (p), u) : transport^B (p, f(two), u) = f(two, u)
+  $
+  and
+  $
+    happly(r, u) : transport^B (p, f(two), u) = transport^(id_UU_i) (p, f(two, transport^D (p^(-1), u))),
+  $
+  so by path composition we have #math.equation(numbering: "(1)", block: true)[
+    $
+      happly(r, u)^(-1) & bullet happly(apd_f (p), u) : \
+                        & transport^(id_UU_i) (p, f(two, transport^D (p^(-1), u))) = f(two, u).
+    $]<eq:happly>
+
+  We now consider the inner $transport$ on the right-hand side of this identity. It has the
+  type
+  $
+    transport^D (p^(-1), u) : ¬¬two,
+  $
+  so by @lem:two-double-negation-is-set, we have an identity
+  $
+    s : transport^D (p^(-1), u) = u.
+  $
+
+  We wish to make use of the identity $s$ to apply a substitution to equation @eq:happly,
+  but in order to do so we need to use $transport$ again.
+
+  We define a further shorthand type family $T : ¬¬two -> UU_i$ by
+  $
+    T(v) :peq transport^(id_UU_i) (p, f(two, v)) = f(two, v)
+  $
+  and compute
+  $
+    transport^T (s, happly(r, u)^(-1) bullet happly(apd_f (p), u)) : \
+    transport^(id_UU_i) (p, f(two, u)) = f(two, u).
+  $
+
+  Now, by the propositional computation rule (TODO mention it), we have
+  $
+    p_"something" : transport^(id_UU_i) (ua((e, q)), f(two, u)) = e(f(two, u))
+  $
 ]
