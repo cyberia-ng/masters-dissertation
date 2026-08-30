@@ -3095,7 +3095,7 @@ the converse, so we must take it as an axiom. This is the axiom known as *unival
     caption: [A visualization of contexts used in this proof. Black arrows represent context
       inclusion (e.g. $Delta$ includes $Gamma$) and blue arrows denote the movement as we go
       through the proof. Blue arrows marked with an asterisk denote that the move involves a
-      $beta$-reduction.],
+      $beta$-reduction. FEEDBACK: is this useful or confusing? necessary or superfluous?],
   )
   Let the context $Gamma$ consist of $A : UU_i, f : isSet(A)$. We aim to exhibit an element
   $g' : is1Type(A)$, and hence by $beta$-reduction an element $g$ such that
