@@ -17,6 +17,9 @@
 #let definitionthmbox = mythmbox.with(
   fill: rgb("#eeffee"),
 )
+#let axiomthmbox = mythmbox.with(
+  fill: rgb("#ffeeee"),
+)
 #let notethmbox = mythmbox.with(
   inset: 0pt,
 )
@@ -31,7 +34,7 @@
 #let example = examplethmbox("common", "Example")
 #let remark = remarkthmbox("common", "Remark")
 #let note = notethmbox("common", "Note")
-#let axiom = notethmbox("common", "Axiom")
+#let axiom = axiomthmbox("common", "Axiom")
 #let proof = thmproof(
   "proof",
   "Proof",
@@ -160,6 +163,8 @@
 #let refl = $sans("refl")$
 #let qinv = $sans("qinv")$
 #let isequiv = $sans("isequiv")$
+#let ua = $sans("ua")$
+#let idtoqinv = $sans("idtoqinv")$
 #let ap = $sans("ap")$
 #let apd = $sans("apd")$
 #let transport = $sans("transport")$
@@ -2297,8 +2302,6 @@ The following lemma describes a useful interaction between $ap$ and $transport$.
   as required.
 ]
 
-// - TODO include Lemma 2.4.3? Possibly requires talking about fibrations
-
 #definition[For a function $f : A -> B$, a *quasi-inverse* of $f$ is a triple
   $(g, alpha, beta)$, where
   $
@@ -2357,7 +2360,7 @@ The following lemma describes a useful interaction between $ap$ and $transport$.
 The definition of the type $isequiv$ overcomes the problems with $qinv$ in the following
 way: for any two elements $e_1, e_2 : isequiv(f)$, we have $e_1 = e_2$. We will not prove
 this, but is worth noting now. We will mention why this is necessary when we introduce the
-concept of univalence later (TODO ref section). We will, however, prove the following
+concept of univalence later in @sec:univalence. We will, however, prove the following
 important proposition about $isequiv$ and $qinv$, namely that they are logically equivalent.
 
 #proposition[For each $f : A -> B$,
@@ -2367,7 +2370,6 @@ important proposition about $isequiv$ and $qinv$, namely that they are logically
 ]<prop:qinv-is-equiv>
 #proof[
   Statement (1) is satisfied by the function $(g, alpha, beta) |-> (g, alpha, g, beta)$.
-  (TODO express in terms of projections? or note that you can...)
 
   For statement (2), we use the fact that homotopies are equivalence relations
   (@lemma:homotopy-equivalence) and the fact that they are well-behaved under composition
@@ -2931,7 +2933,7 @@ $
   as required.
 ]
 
-== Univalence
+== Univalence<sec:univalence>
 
 In this section we consider the idea of identity types within a universe. Recall that
 universes form the types of types, so for types $A : UU_i$ and $B : UU_i$, we can form the
@@ -2998,11 +3000,39 @@ As it turns out #cite(<hottbook>, supplement: [Section 2.10]), it is not possibl
 the converse, so we must take it as an axiom. This is the axiom known as *univalence*.
 
 #axiom([HoTT 2.10.3, Univalence])[
-  For types $A : UU_i$ and $B: UU_i$, the function $idtoequiv$ is an equivalence.
+  For types $A : UU_i$ and $B: UU_i$, the function $idtoequiv$ is an equivalence. That is,
+  there is a witness to the type $isequiv(idtoequiv)$, so we have
+  $
+    (A = B) equiv (A equiv B).
+  $
 
-  TODO expand. Remark about a "good" definition of $isequiv$.
+  We denote the(?) (FEEDBACK: how do we choose it?) quasi-inverse determined by this
+  equivalence as $ua$:
+  $
+    ua : (A equiv B) -> (A = B).
+  $
 ]
 
+- FEEDBACK: the type of $isequiv(idtoequiv)$ is
+  $
+    (sum_(g : B -> A) isequiv compose g ~ id_(A equiv B)) times (sum_(h: B -> A) h compose isequiv ~ id_(A = B))
+  $
+  and we have stated that this has exactly one inhabitant. But do we choose $g$ or $h$ for
+  $ua$?
+
+#remark[In @sec:homotopies-and-equivalences we mentioned that we chose the definition of
+  $isequiv$ over $qinv$ because of its property of having at most one inhabitant. The
+  statement of univalence that we have given is the justification for this. If we were to
+  have defined univalence differently, by writing
+  $
+    idtoqinv : (A = B) -> sum_(f : A -> B) qinv(f)
+  $
+  and taking it as an axiom that $idtoqinv$ has a quasi-inverse, it would be possible to
+  derive an inhabitant of $zero$, so our theory would be inconsistent. #cite(
+    <hottbook>,
+    supplement: [Exercise 4.6],
+  )
+]
 
 = Sets and logic
 
