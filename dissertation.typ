@@ -216,8 +216,8 @@ then proceed with the claim about its successor.
 == Terms
 
 As type theory is a syntactic system, we define the construction of its terms. In our
-presentation the basic terms may be _variables_, _primitive constants_ or _defined
-constants_. Terms are formed according to the rule
+presentation the basic terms are _variables_, _primitive constants_ and _defined constants_.
+Terms are formed according to the rule
 
 $
   t ::= x | lambda (x : t) sd t | t(t') | c | f.
@@ -290,11 +290,23 @@ $A : UU_i$ for some universe $UU_i$. When working with (a finite number of) type
 different universes, the cumulative property guarantees that we can always find a universe
 in which all our types are present.
 
+#note[
+  Here, the indexes of the heirarchy of universes are the ordinary (metatheoretic) natural
+  numbers. It may be tempting to desire a "top" universe, which contains all (infinitely
+  many) prior universes, perhaps denoted $UU_omega$ or $UU_infinity$. However, this is
+  precisely the situation that would allow us to derive a paradox -- that every type is
+  inhabited, including $zero$, the type which represents falsehood #cite(
+    <hottbook>,
+    supplement: [Section 1.3],
+  ).
+]
+
+
 A *context* is a (possibly empty) ordered list of distinct variables and their types, for
 example $x_1 : A_1, x_2 : A_2$. Since types are terms, each type may use variables occurring
 before it in the list, hence the order being important. Contexts are denoted by an uppercase
 Greek letter, usually $Gamma$ or $Delta$. The judgment that $Gamma$ is a well-formed context
-is denoted $Gamma ctx$, and the empty context is denoted $dot$.
+is denoted $Gamma ctx$, and the empty context is denoted "$dot$".
 
 Contexts appear on the left-hand side of a $tack$ symbol, with a judgment on the right, as
 in
@@ -302,7 +314,12 @@ $
   Gamma tack cal(J).
 $
 This is to be read as "in the context $Gamma$, $cal(J)$ holds", and means that the judgment
-$cal(J)$ contains variables and types declared in the context $Gamma$.
+$cal(J)$ contains variables and types declared in the context $Gamma$. In #cite(
+  <mainproject>,
+), we explore the relationship between variables, contexts and judgments in the context of
+encoding (simple) type theory in category theory. In particular, we observe that when
+presented categorically, named variables become unnecessary. However in this work we will
+work exclusively in logical terms, using named variables in our contexts and judgments.
 
 We have the following rules for universes and contexts.
 
@@ -505,7 +522,8 @@ The data for function types and terms are given by the following rules:
 ))
 
 The $->$-Comp and $->$-Uniq rules are respectively also known as the $beta$ and $eta$ rules
-in $lambda$-calculus.
+in $lambda$-calculus. (In #cite(<mainproject>), we focussed on function types and the
+associated $beta$- and $eta$- rules in the context of cartesian-closed categories.)
 
 == Type families<sec:type-families>
 
@@ -531,8 +549,9 @@ represents generically the type of an automorphism on $T$.
 
 Now we have introduced function types and type families, we introduce *_dependent_ function
 types*. A dependent function is one in which the output type may depend on the input
-_value_. The notation for a dependent function type is $product_(x : A) B(x)$, where
-$B : A -> UU_i$ is a type family. This represents the type of a function which takes a
+_value_. The notation for a dependent function type is
+$ product_(x : A) B(x) $
+where $B : A -> UU_i$ is a type family. This represents the type of a function which takes a
 parameter $x$ of type $A$ and returns a value of type $B(x)$. Continuing the example of
 finite sets from @sec:type-families, we might define a function
 $sans("max") : product_(n : NN) Fin(n)$ which returns the highest number available in
@@ -778,12 +797,14 @@ is sufficient to provide a (dependent) function in two variables, which is appli
 first element of the pair and then the second. For the non-dependent case, this corresponds
 to the equivalence between functions $A times B -> C$ and functions $A -> B -> C$.
 
-The name "inductor" in this context is somewhat confusing, since no induction is being
-performed. However, it is a concept which will be generalized to the other types we will
-introduce, and in the case of the natural numbers its name will be more appropriate. It is
-generally useful to have a common pattern for the computation and elimination rules of a
-type, and the purpose of the inductor is to represent this pattern. In general, the inductor
-provides a way to construct functions out of a type by providing simpler functions.
+#remark[The name "inductor" in this context is somewhat confusing, since no induction is
+  being performed. However, it is a concept which will be generalized to the other types we
+  will introduce, and in the case of the natural numbers its name will be more appropriate.
+  It is generally useful to have a common pattern for the computation and elimination rules
+  of a type, and the purpose of the inductor is to represent this pattern. In general, the
+  inductor provides a way to construct functions out of a type by providing simpler
+  functions.
+]
 
 The action of transforming binary functions into functions on pair types is captured by the
 following type of $ind_(sum_(x : A) B(x))$.
@@ -934,7 +955,7 @@ indeed pairs.
 
   Applying the "$Pi$-Comp" rule ($beta$-reduction) we get
   $
-    pi_0((x, y)) peq pi_0((x, y)) peq x
+    pi_0((x, y)) peq x
   $
   as required. The proof for $pi_1$ is similar.
 ]
@@ -1879,7 +1900,15 @@ these laws for identity types.
 
 = Homotopy
 
-In this section we will... TODO
+In this section we will explore the relationship between the type theory we have defined so
+far and a concept from the field of algebraic topology, namely *homotopies*. It will turn
+out that these two fields, from perhaps what many mathematicians would consider completely
+opposite ends of the field of mathematics, are closely related. The essence of it is that we
+can consider elements of a type as points in space, with witnesses to their identity being
+paths between them. We can deform these paths using continuous maps, and these continuous
+maps (known as homotopies) can be considered as "second level" witnesses to the identity of
+the lower witnesses, and so on up to infinity. We will first outline classical homotopy
+theory in broad terms, and then move to its relationship with identity types.
 
 == Classical homotopy theory
 
