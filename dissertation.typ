@@ -2646,7 +2646,7 @@ statement about $x$ and $y$ when they are equal. This is best illustrated with a
   $
     f(p) :peq transport^code (p, star).
   $
-]
+]<ex:coproduct-constructors-not-equal>
 
 Now that we are familiar with the coding method, we can use it in the following proof about
 natural numbers. We wish to show a property similar to @thm:one-is-a-set, but for the
@@ -3242,7 +3242,8 @@ we have $¬¬A -> A$. The next theorem shows that this does not hold in general 
 theory.
 
 In keeping with the Curry-Howard correspondence, we define the function $¬ : UU_i -> UU_i$
-as $¬(A) :peq A -> zero$.
+as $¬(A) :peq A -> zero$. We being with a lemma.
+
 
 #lemma[Using the type $two$ from @example:two-equiv, let $u, v : ¬¬two$. Then we have
   $u = v$.]<lem:two-double-negation-is-set>
@@ -3331,14 +3332,35 @@ as $¬(A) :peq A -> zero$.
   $
     T(v) :peq transport^(id_UU_i) (p, f(two, v)) = f(two, v)
   $
-  and compute
+  and define $p'$ as
   $
-    transport^T (s, happly(r, u)^(-1) bullet happly(apd_f (p), u)) : \
-    transport^(id_UU_i) (p, f(two, u)) = f(two, u).
+    p' :peq
+    transport^T (s, happly(r, u)^(-1) bullet happly(apd_f (p), u))
+  $
+  so that
+  $
+    p' : transport^(id_UU_i) (p, f(two, u)) = f(two, u).
   $
 
-  Now, by the propositional computation rule (TODO mention it), we have
+  Now, by the propositional computation rule (TODO mention it), we have an element $q'$ of
+  type
   $
-    p_"something" : transport^(id_UU_i) (ua((e, q)), f(two, u)) = e(f(two, u))
+    q' : transport^(id_UU_i) (ua((e, q)), f(two, u)) = e(f(two, u))
   $
+  and hence by path composition
+  $
+    p'^(-1) bullet q' : e(f(two, u)) =_two f(two, u).
+  $
+
+  However we can construct
+  $
+                & g : product_(x : two) ¬(e(x) =_two x) \
+    "i.e." wide & g : product_(x : two) (e(x) =_two x) -> zero
+  $
+  by recalling that $0_two$ and $1_two$ are shorthand for $inl(star)$ and $inr(star)$ and
+  using @ex:coproduct-constructors-not-equal.
+
+  Finally, we apply $g$ to $f(two, u)$ and the path composition $p'^(-1) bullet q'$ to
+  derive an element of $zero$:
+  $ g(f(two, u), p'^(-1) bullet q') : zero $
 ]
