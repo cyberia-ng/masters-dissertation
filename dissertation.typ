@@ -206,7 +206,7 @@
   v(0.5em)
 }
 
-= Type theory
+= Type theory<sec:type-theory>
 
 Type theory is a logical system, encoding *types* and *terms*, which is used as a foundation
 of mathematics. Loosely, a type may be considered as an object which contains elements,
@@ -354,7 +354,7 @@ capturing a variable in a $lambda$ expression), we will of course make a note of
 Moreover, in our proof trees, we will write the context explicitly as part of the judgment,
 even if we will not do much manipulation of it.
 
-== Structural rules
+== Structural rules<sec:structural-rules>
 
 To begin with, we state some essential rules for working in type theory. These rules allow
 us to manipulate terms and make judgments in a way which is natural for mathematicians.
@@ -2133,7 +2133,7 @@ witnesses to equalities as paths.
 By this equivalence between witnesses to identities and paths in a homotopy space, we will
 use the terms "path" and "witness" interchangably from now on.
 
-== Functions and functors
+== Functions and functors<sec:functions-functors>
 
 For judgmental equalities, the rule $"Subst"_3$ allows us to move from an equality of
 function parameters to an equality of values of the function at those parameters. If we have
@@ -2560,14 +2560,23 @@ equality between its elements.
 
 == Function extensionality
 
-- Want to consider identity of functions. We have the $eta$ rule to say that functions are
-  judgmentally equal if they are pointwise judgmentally equal, but we would like to extend
-  this to propositional equality.
-- I.e. we would like a witness to
-  $
-    product_(f : product_(x : A) B(x)) product_(g : product_(x : A) B(x)) (product_(x : A) f(x) =_B(x) g(x)) -> f =_(product_(x : A) B(x)) g
-  $
-- We can certainly go the other way, by an application of path induction:
+In @sec:functions-functors, we reflected on the fact that the $"Subst"_3$ rule allows us to
+move from a judgmental equality of function parameters to a judgmental equality of functions
+applied at those parameters. We constructed the functions $ap$ and $apd$ to derive this same
+movement for propositional equalities. In @sec:structural-rules, we referred to this kind of
+movement as being on the "inside" of a function application. In this section, we consider
+the movement on the "outside", i.e. how to work with equalities between functions as
+functions.
+
+When working with judgmental equalities between functions, we have two rules to help us,
+namely $"Subst"_2$ and the $eta$-rule ("$Pi$-Uniq"). The rule $"Subst"_2$ allows us to move
+from an equality of functions to a pointwise equality, while the $eta$-rule allows the
+opposite direction: if we have a pointwise judgmental equality between functions, we can
+conclude an equality of the functions as functions.
+
+We want to translate these rules into the language of propositional equalities, and we begin
+by constructing an analogous principle to the $"Subst"_2$ rule.
+
 
 #lemma[For a type $A$, a type family $B : A -> UU_i$ and functions
   $f, g : product_(x : A) B(x)$, there is a function
@@ -2597,7 +2606,11 @@ equality between its elements.
   as required.
 ]
 
-- We have no way to go back the other way, so we must take it as an axiom:
+We now consider the case of translating the $eta$-rule to propositional equalities. We would
+like to say that if two functions are propositionally equal pointwise, then they are
+propositionally equal as functions. Unfortunately, with the rules of type theory we have
+given in @sec:type-theory, there is no way to do this. As a consequence, we must take it as
+an axiom.
 
 #axiom([Function extensionality])[
   For a type $A$, a type family $B : A -> UU_i$ and functions $f, g: product_(x : A) B(x)$,
@@ -2609,14 +2622,16 @@ equality between its elements.
   $
     funext : (product_(x : A) f(x) = g(x)) -> f = g.
   $
+
+  TODO such that...
 ]<ax:function-extensionality>
 
-- We now consider the transport function in the case of identities between functions
-- We want to transport a function $f : A(x_1) -> B(x_1)$ along an equality $x_1 = x_2$ to
-  get a function $g : A(x_2) -> B(x_2)$.
-- We can express this already with our $transport$ function, setting the type family to be
-  transported over to be $x |-> A(x) -> B(x)$, but we show that this is equivalent to
-  something else:
+To add to our tools for working with identities between functions, we consider what happens
+when we transport a function type across an equality. If we have a function
+$f : A(x_1) -> B(x_1)$, transporting it across an equality $x_1 = x_2$ turns it into a
+function $f' : A(x_2) -> B(x_2)$. As the following lemma shows, it turns out that $f'$ is
+equal to a composition of $f$ with ordinary transport operations on type families $A$ and
+$B$.
 
 #lemma([HoTT 2.9.4])[
   In a context consisting of
@@ -3132,6 +3147,8 @@ $
 
 = Sets and logic
 
+TODO motivation
+
 - Sets are types where witnesses are unique
 
 #definition[We say that a type $A$ is a *set* if for all $x, y : A$ and all paths
@@ -3144,22 +3161,32 @@ $
   $
 ]
 
-- We saw that $one$ and $NN$ are sets
-- $zero$ is a set because we can construct
-  $product_(x : zero) product_(y : zero) product_(p : x = y) product_(q : x = y) p = q$
-  freely by the $zero$-Intr rule
-- If witnesses in a type form a set, call that set a 1-type. Similarly if witnesses to
-  witnesses form a set, that's a 2-type, and so on.
-- All sets are 1-types, all 1-types are 2-types, etc. They are upward-closed
+In @thm:one-is-a-set and @thm:n-is-set, we saw that the types $one$ and $NN$ are sets in
+this sense. Furthermore, it is easy to show that $zero$ is a set by an application of the
+$zero$-Elim rule.
+
+Since we are working in type-theory and identity types are themselves types, we can move up
+a level and consider whether the type $x =_A y$ is a set -- that is, witnesses to $x = y$
+may not be unique, but witnesses to an equality between witnesses are. If this is the case,
+we call $A$ a "1-type".
+
 #definition[
-  TODO words
+  A type $A$ is a *1-type* if, for each pair of elements $x, y : A$ and pair of witnesses
+  $p, q : x = y$, we have $p = q$. Equivalently, $A$ is a 1-type if for all $x, y : A$, the
+  type $x =_A y$ is a set.
   $
     is1Type : A -> UU_i \
-    // is1Type(A) :peq product_(x : A) product_(y : A) product_(p : x = y) product_(q : x = y) product_(r : p = q) product_(s : p = q) r = s\
     is1Type(A) :peq product_(x : A) product_(y : A) isSet(x =_A y)
   $
 ]
-- Proof of upward-closedness requires a lemma about transport
+
+In this definition, we said that a type where equalities form a set is called a 1-type, but
+we need not stop there. A type where equalities form a 1-type is called a 2-type, and a type
+where equalities form a 2-type is called a 3-type, and so on.
+
+We will show that these classes of types are upward closed: that is, all sets are 1-types,
+all 1-types are 2-types, and so on. Before we do so, however, we require another lemma about
+$transport$.
 
 #lemma[For $A : UU_i$, $a, x, y : A$ and $p : x =_A y$, we have
   $
@@ -3191,7 +3218,12 @@ $
   The second and third claims are analogous, by altering the type of $q$.
 ]
 
-#lemma[If $A$ is a set, then $A$ is a 1-type, i.e. there is a function
+We are now ready to prove our claim about upward-closedness. Although the statement of the
+proposition refers only to sets and 1-types, it is easy to see that in the case of an
+$n$-type, the $n$th-level identities form a set, hence a 1-type, and hence an $n$-type is
+also an $(n+1)$-type.
+
+#proposition[If $A$ is a set, then $A$ is a 1-type, i.e. there is a function
   $ g : isSet(A) -> is1Type(A). $
 ]
 #proof[
