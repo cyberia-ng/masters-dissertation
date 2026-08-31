@@ -177,6 +177,7 @@
 #let isSet = $sans("isSet")$
 #let is1Type = $sans("is1Type")$
 #let two = $bold(2)$
+#let isProp = $sans("isProp")$
 #let bigrule = (..args) => {
   let judgments = args.pos()
   let kwargs = args.named()
@@ -3450,3 +3451,25 @@ as $¬(A) :peq A -> zero$. We begin with a lemma.
   derive an element of $zero$:
   $ g(f(two, u), p'^(-1) bullet q') : zero $
 ]
+
+== Mere propositions
+
+TODO text
+
+#definition[A type $A$ is a *mere proposition* if for all $x, y : A$ we have $x = y$.
+
+  We define $isProp : A -> UU_i$ as
+  $
+    isProp(A) :peq product_(x : A) product_(y : A) x =_A y.
+  $
+]
+
+#axiom[
+  The law of double negation holds for mere propositions
+  $
+    product_(A : UU_i) isProp(A) -> ¬¬A -> A
+  $
+]
+
+- Unlike the law of double negation in general, this version is consistent with type theory.
+  (cite)
