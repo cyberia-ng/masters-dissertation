@@ -2793,7 +2793,7 @@ the converse, so we must take it as an axiom. This is the axiom known as *unival
 
 - FEEDBACK: the type of $isequiv(idtoequiv)$ is
   $
-    (sum_(g : B -> A) isequiv compose g ~ id_(A equiv B)) times (sum_(h: B -> A) h compose isequiv ~ id_(A = B))
+    (sum_(g : (A equiv B) -> (A = B)) isequiv compose g ~ id_(A equiv B)) times (sum_(h: (A equiv B) -> (A = B)) h compose isequiv ~ id_(A = B))
   $
   and we have stated that this has exactly one inhabitant. But do we choose $g$ or $h$ for
   $ua$?
@@ -3149,7 +3149,7 @@ $
 ]
 = Sets and logic
 
-TODO motivation
+TODO/FEEDBACK motivation
 
 - Sets are types where witnesses are unique
 
