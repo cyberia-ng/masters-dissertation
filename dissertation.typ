@@ -1725,7 +1725,7 @@ an element of the family $C(a, b, p)$, it is sufficient to show an element of
 $C(z, z, refl_z)$. This allows us to move from statements about judgmental equality to
 statements about propositional equality: the rule "opens up" propositional equality by
 saying that if we assume a judgmental equality and conclude something, we can conclude the
-same thing on the basis of a propositional equality;
+same thing on the basis of a propositional equality.
 
 This is precisely analogous to the principle of induction on natural numbers -- if we want
 to construct a function $f : NN -> T$, it is sufficient to provide a value $c_0 : T$ and a
@@ -3328,7 +3328,7 @@ we have $¬¬A -> A$. The next theorem shows that this does not hold in general 
 theory.
 
 In keeping with the Curry-Howard correspondence, we define the function $¬ : UU_i -> UU_i$
-as $¬(A) :peq A -> zero$. We being with a lemma.
+as $¬(A) :peq A -> zero$. We begin with a lemma.
 
 
 #lemma[Using the type $two$ from @example:two-equiv, let $u, v : ¬¬two$. Then we have
