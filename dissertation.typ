@@ -287,8 +287,6 @@ define a hierarchy of *universes*, denoted
 
 $ UU_0 quad UU_1 quad UU_2 quad ... quad UU_i quad ... $
 
-/* TODO state that these are indexed by (metatheoretic) natural numbers, not all ordinals */
-
 Each $UU_i$ is an element of $UU_(i + 1)$, and furthermore every universe contains all the
 types contained in previous universes. I.e. if $x : UU_i$ then $x : UU_j$ for all $j >= i$.
 This is known as the *cumulative* property. When we say $A$ is a type, what we mean is that
@@ -1591,7 +1589,7 @@ We explore this correspondence with some further examples.
   )))
 
   so the type $1 <= 2$ is inhabited by the pair $(1, refl_2)$.
-]
+]<ex:leq>
 
 
 == Identity types
@@ -2497,8 +2495,8 @@ equality between its elements.
   to show that it has a quasi-inverse. We need a function $g : one -> (x =_one y)$. By the
   rule "$one$-Elim", it is sufficient to provide a value of $x =_one y$ to construct $g$.
   However we know that we have $refl_star : x =_one star$ and $refl_star : y =_one star$ by
-  (TODO uniqueness of elements of $one$), so we can invert and compose as necessary to
-  obtain $refl_star : x =_one y$. Formally, we put
+  @prop:one-is-a-singleton, so we can invert and compose as necessary to obtain
+  $refl_star : x =_one y$. Formally, we put
   $
     g :peq ind_one (lambda (\_ : ) sd (x =_one y), refl_star)
   $
@@ -2515,10 +2513,9 @@ equality between its elements.
   $
 
   For $alpha$, we fix a variable $a : one$ and compute $f(g(a))$. Since $f$ sends every
-  argument to $star$, we have $f(g(a)) peq star$. Again by (TODO uniqueness of elements of
-  $one$) we have $refl_star : a =_one star$, so we have $refl_star : f(g(a)) =_one a$.
-  Abstracting over the variable $a$ (removing it from the context), we use the rule
-  "$Pi$-Intr" to construct
+  argument to $star$, we have $f(g(a)) peq star$. Again by @prop:one-is-a-singleton, we have
+  $refl_star : a =_one star$, so we have $refl_star : f(g(a)) =_one a$. Abstracting over the
+  variable $a$ (removing it from the context), we use the rule "$Pi$-Intr" to construct
   $
     & alpha : f compose g ~ id_one \
     & alpha(a) :peq refl_star.
@@ -2814,111 +2811,9 @@ the converse, so we must take it as an axiom. This is the axiom known as *unival
   )
 ]
 
-- TODO mention propositional computation rule
+- TODO mention propositional computation rule; don't think I can until I understand $ua$
+  better.
 
-// #example([Finite sets TODO])[
-//   We show that $Fin(n)$ has exactly $n$ elements. We do this by recalling our definition of
-//   $<=$ from (TODO earlier):
-//   $
-//     n <= m :peq sum_(p : NN) n + p = m
-//   $
-
-//   We define a type family $B : NN -> UU_i$ as
-//   $
-//     B(n) :peq sum_(k : NN) (succ(k) <= n).
-//   $
-//   That is, $B(n)$ consists of pairs of natural numbers $k$ and witnesses to the type
-//   $succ(k) <= n$, so the left projections of its elements consist precisely of natural
-//   numbers strictly less than $n$. (Note that $n <= m$ is itself defined as a pair type, so
-//   elements of $B(n)$ will have the form $(k, (p, q))$ where $k : NN$, $p : NN$ and
-//   $q : succ(k) + p = n$.)
-
-//   We therefore want to show a sequence of equivalences
-//   $
-//     product_(n : NN) Fin(n) equiv B(n).
-//   $
-//   Because we are working with a sequence of equivalences over $NN$, we will make our
-//   quasi-inverses functions of $NN$ also.
-
-//   We want functions
-//   $
-//     f : product_(n : NN) Fin(n) -> B(n), quad g : product_(n : NN) B(n) -> Fin(n)
-//   $
-//   and sequences of homotopies
-//   $
-//     alpha : product_(n : NN) f(n) compose g(n) ~ id_B(n), quad beta : product_(n : NN) g(n) compose f(n) ~ id_Fin(n).
-//   $
-
-//   We define $f$ by pattern matching:
-//   $
-//     & f(0) : Fin(0) -> B(0) \
-//     & f(0, z) :peq ind_zero (lambda (\_ : zero) sd B(0), z)
-//   $
-//   that is, when $n peq 0$, $Fin(0) peq zero$, so we can use $ind_zero$ to give us an element
-//   of whatever type we like. The case for a successor itself uses pattern matching for
-//   coproduct and pair types:
-//   $
-//     & f(succ(n)) : Fin(succ(n)) -> B(succ(n)) \
-//     & f(succ(n), inl(star)) :peq (0, (n, refl_succ(n))) \
-//     & f(succ(n), inr(y)) :peq (succ(k), (p, ap_succ (q))) \
-//     & wide "where" (k, (p, q)) peq f(n, y).
-//   $
-
-//   We define $g$ also by pattern matching. Considering $g(0)$, we want a function
-//   $
-//     g(0) : B(0) -> Fin(0),
-//   $
-//   but recalling that $Fin(0) peq zero$, this means we must construct an element of $zero$
-//   given $k : NN$, $p : NN$ and $q : succ(k) + p = 0$. To do this, we introduce a type family
-//   $code : NN -> UU_i$ defined by
-//   $
-//     & code(0) :peq zero \
-//     & code(succ(\_)) :peq one
-//   $
-//   and transport $code(succ(k) + p))$ across the equality $q$. From the definition of $add$,
-//   we know that $succ(k) + p$ is a successor, so $code(succ(k) + p) peq one$. Therefore we
-//   have
-//   $
-//     transport^code (q, star) : code(0)
-//   $
-//   i.e. an element of $zero$. So we put
-//   $
-//     g(0, (k, (p, q))) :peq transport^code (q, star) : Fin(0).
-//   $
-//   We then put
-//   $
-//     & g(succ(n), (0,       && (p, q))) :peq inl(star) \
-//     & g(succ(n), (succ(m), && (p, q))) :peq inr(g(n, (m, (p, q)))).
-//   $
-
-//   It remains to construct the sequences of homotopies $alpha$ and $beta$. Let us consider
-//   $alpha$ first.
-
-//   Fix $n : NN$. We want to construct
-//   $
-//     alpha(n) : product_(x : B(n)) f(n, g(n, x)) = x
-//   $
-//   which we do by pattern matching. If $n$ is zero, we have $g(n, x) : zero$ for all
-//   $x : B(0)$, so we may construct $f(n, g(n, x)) = x$ freely:
-//   $
-//     alpha(0, x) :peq ind_zero (lambda (z : zero) sd f(n, g(n, x)) = x, g(n, x)).
-//   $
-//   If $n$ is a successor, i.e. $n peq succ(n')$, and $x$ is $(0, (p, q))$, then we have
-//   $ g(succ(n'), (0, (p, q))) peq inl(star), $
-//   and
-//   $ f(succ(n'), inl(star))) peq (0, (n', refl_succ(n'))) $
-//   so we need to show that $p = n'$ and $q = refl_succ(n')$. We have
-//   $
-//     q : succ(0) + p = succ(n'),
-//   $
-//   and by the uniqueness of paths in $NN$ (TODO move to after that theorem), we must have $q : refl_succ(n')$ and hence $p = n'$.
-
-//   So we put
-//   $
-//   alpha(0, (succ(n'), (p, q))) :peq
-//   $
-//   TODO: I don't know if this is worth it
-// ]
 
 == Transport and coding
 
@@ -3145,6 +3040,112 @@ $
   as required.
 ]
 
+#example([Finite sets])[
+  FEEDBACK: I might cut this example because it's very long and not very informative
+
+  We show that $Fin(n)$ has exactly $n$ elements. We do this by recalling our definition of
+  $<=$ from @ex:leq:
+  $
+    n <= m :peq sum_(p : NN) n + p = m
+  $
+
+  We define a type family $B : NN -> UU_i$ as
+  $
+    B(n) :peq sum_(k : NN) (succ(k) <= n).
+  $
+  That is, $B(n)$ consists of pairs of natural numbers $k$ and witnesses to the type
+  $succ(k) <= n$, so the left projections of its elements consist precisely of natural
+  numbers strictly less than $n$. (Note that $n <= m$ is itself defined as a pair type, so
+  elements of $B(n)$ will have the form $(k, (p, q))$ where $k : NN$, $p : NN$ and
+  $q : succ(k) + p = n$.)
+
+  We therefore want to show a sequence of equivalences
+  $
+    product_(n : NN) Fin(n) equiv B(n).
+  $
+  Because we are working with a sequence of equivalences over $NN$, we will make our
+  quasi-inverses functions of $NN$ also.
+
+  We want functions
+  $
+    f : product_(n : NN) Fin(n) -> B(n), quad g : product_(n : NN) B(n) -> Fin(n)
+  $
+  and sequences of homotopies
+  $
+    alpha : product_(n : NN) f(n) compose g(n) ~ id_B(n), quad beta : product_(n : NN) g(n) compose f(n) ~ id_Fin(n).
+  $
+
+  We define $f$ by pattern matching:
+  $
+    & f(0) : Fin(0) -> B(0) \
+    & f(0, z) :peq ind_zero (lambda (\_ : zero) sd B(0), z)
+  $
+  that is, when $n peq 0$, $Fin(0) peq zero$, so we can use $ind_zero$ to give us an element
+  of whatever type we like. The case for a successor itself uses pattern matching for
+  coproduct and pair types:
+  $
+    & f(succ(n)) : Fin(succ(n)) -> B(succ(n)) \
+    & f(succ(n), inl(star)) :peq (0, (n, refl_succ(n))) \
+    & f(succ(n), inr(y)) :peq (succ(k), (p, ap_succ (q))) \
+    & wide "where" (k, (p, q)) peq f(n, y).
+  $
+
+  We define $g$ also by pattern matching. Considering $g(0)$, we want a function
+  $
+    g(0) : B(0) -> Fin(0),
+  $
+  but recalling that $Fin(0) peq zero$, this means we must construct an element of $zero$
+  given $k : NN$, $p : NN$ and $q : succ(k) + p = 0$. To do this, we introduce a type family
+  $code : NN -> UU_i$ defined by
+  $
+    & code(0) :peq zero \
+    & code(succ(\_)) :peq one
+  $
+  and transport $code(succ(k) + p))$ across the equality $q$. From the definition of $add$,
+  we know that $succ(k) + p$ is a successor, so $code(succ(k) + p) peq one$. Therefore we
+  have
+  $
+    transport^code (q, star) : code(0)
+  $
+  i.e. an element of $zero$. So we put
+  $
+    g(0, (k, (p, q))) :peq transport^code (q, star) : Fin(0).
+  $
+  We then put
+  $
+    & g(succ(n), (0,       && (p, q))) :peq inl(star) \
+    & g(succ(n), (succ(m), && (p, q))) :peq inr(g(n, (m, (p, q)))).
+  $
+
+  It remains to construct the sequences of homotopies $alpha$ and $beta$. Let us consider
+  $alpha$ first.
+
+  Fix $n : NN$. We want to construct
+  $
+    alpha(n) : product_(x : B(n)) f(n, g(n, x)) = x
+  $
+  which we do by pattern matching. If $n$ is zero, we have $g(n, x) : zero$ for all
+  $x : B(0)$, so we may construct $f(n, g(n, x)) = x$ freely:
+  $
+    alpha(0, x) :peq ind_zero (lambda (z : zero) sd f(n, g(n, x)) = x, g(n, x)).
+  $
+  If $n$ is a successor, i.e. $n peq succ(n')$, and $x$ is $(0, (p, q))$, then we have
+  $ g(succ(n'), (0, (p, q))) peq inl(star), $
+  and
+  $ f(succ(n'), inl(star))) peq (0, (n', refl_succ(n'))) $
+  so we need to show that $p = n'$ and $q = refl_succ(n')$. We have
+  $
+    q : succ(0) + p = succ(n'),
+  $
+  and by the uniqueness of paths in $NN$ (@thm:n-is-set), we must have $q : refl_succ(n')$
+  and hence $p = n'$.
+
+  So we put
+  $
+    alpha(0, (succ(n'), (p, q))) :peq ...
+  $
+  TODO: I don't know if this is worth it
+]
 = Sets and logic
 
 TODO motivation
@@ -3199,20 +3200,19 @@ $transport$.
   /* TODO write more words */
   For the first claim, we consider the case of $q : a =_A x$. We put
   $
-    C(x, y, p) :peq product_(q : a = x) transport^(x |-> a = x) (p, q) = q bullet p \
+    C(x, y, p) :peq product_(q : a = x) transport^(x |-> a = x) (p, q) = q bullet p. \
   $
   We wish to exhibit, for all $z : A$, an element of type
-  $ product_(q : a = z) transport^(x |-> a = x) (refl_z, q) = q bullet refl_z $
-  but we have
-  $ transport^(x |-> a = x)(refl_z, q) peq q $
-  by @thm:indiscernibility-of-identicals, and we have a path $r : q = q bullet refl_z$ by
-  @lem:paths-inv-assoc, so we put
+  $ product_(q : a = z) transport^(x |-> a = x) (refl_z, q) = q bullet refl_z. $
+  By @thm:indiscernibility-of-identicals, we have
+  $ transport^(x |-> a = x)(refl_z, q) peq q, $
+  and we have a path $r : q = q bullet refl_z$ by @lem:paths-inv-assoc, so we put
   $
     c(z) :peq refl_q bullet r : C(z, z, refl_z).
   $
   By induction we get
   $
-    ind(C, c) : product_(x : A) product_(y : A) product_(p : x = y) product_(q : a = x) transport^(x |-> a = x)(p, q) =_(a = x_2) q bullet p
+    ind(C, c) : product_(x : A) product_(y : A) product_(p : x = y) product_(q : a = x) transport^(x |-> a = x)(p, q) =_(a = x_2) q bullet p.
   $
 
   The second and third claims are analogous, by altering the type of $q$.
