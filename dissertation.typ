@@ -207,6 +207,22 @@
   v(0.5em)
 }
 
+#let new(it) = {
+  block(
+    stroke: (dash: "dashed", paint: green, thickness: 1.5pt),
+    inset: 5pt,
+    it,
+  )
+}
+
+#let newbox(it) = {
+  box(
+    stroke: (dash: "dashed", paint: green, thickness: 1.5pt),
+    inset: 5pt,
+    it,
+  )
+}
+
 = Type theory<sec:type-theory>
 
 Type theory is a logical system, encoding *types* and *terms*, which is used as a foundation
@@ -295,15 +311,17 @@ $A : UU_i$ for some universe $UU_i$. When working with (a finite number of) type
 different universes, the cumulative property guarantees that we can always find a universe
 in which all our types are present.
 
-#note[
-  Here, the indexes of the heirarchy of universes are the ordinary (metatheoretic) natural
-  numbers. It may be tempting to desire a "top" universe, which contains all (infinitely
-  many) prior universes, perhaps denoted $UU_omega$ or $UU_infinity$. However, this is
-  precisely the situation that would allow us to derive a paradox -- that every type is
-  inhabited, including $zero$, the type which represents falsehood #cite(
-    <hottbook>,
-    supplement: [Section 1.3],
-  ).
+#new[
+  #note[
+    Here, the indexes of the heirarchy of universes are the ordinary (metatheoretic) natural
+    numbers. It may be tempting to desire a "top" universe, which contains all (infinitely
+    many) prior universes, perhaps denoted $UU_omega$ or $UU_infinity$. However, this is
+    precisely the situation that would allow us to derive a paradox -- that every type is
+    inhabited, including $zero$, the type which represents falsehood #cite(
+      <hottbook>,
+      supplement: [Section 1.3],
+    ).
+  ]
 ]
 
 
@@ -353,111 +371,114 @@ capturing a variable in a $lambda$ expression), we will of course make a note of
 Moreover, in our proof trees, we will write the context explicitly as part of the judgment,
 even if we will not do much manipulation of it.
 
-== Structural rules<sec:structural-rules>
+#new[
+  == Structural rules<sec:structural-rules>
 
-To begin with, we state some essential rules for working in type theory. These rules allow
-us to manipulate terms and make judgments in a way which is natural for mathematicians.
+  To begin with, we state some essential rules for working in type theory. These rules allow
+  us to manipulate terms and make judgments in a way which is natural for mathematicians.
 
-The first rule says that the judgment $x : A$ may be derived from any context which contains
-a variable $x$ of type $A$:
-#pt(prooftree(rule(
-  $(x_1 : A_1, ..., x_n : A_n) ctx$,
-  $(x_1 : A_1, ..., x_n : A_n) tack x_i : A_i$,
-  name: [Vble],
-)))
+  The first rule says that the judgment $x : A$ may be derived from any context which
+  contains a variable $x$ of type $A$:
+  #pt(prooftree(rule(
+    $(x_1 : A_1, ..., x_n : A_n) ctx$,
+    $(x_1 : A_1, ..., x_n : A_n) tack x_i : A_i$,
+    name: [Vble],
+  )))
 
-We declare the following rules, *substitution* and *weakening* for typing judgments. The
-first says that we may substitute terms for variables freely, and the second says that we
-may introduce new variables while not affecting previous typing judgments.
+  We declare the following rules, *substitution* and *weakening* for typing judgments. The
+  first says that we may substitute terms for variables freely, and the second says that we
+  may introduce new variables while not affecting previous typing judgments.
 
-#pt(rule-set(
-  prooftree(
-    rule(
-      $Gamma tack t : A$,
-      $Gamma, x : A, Delta tack s : B$,
-      $Gamma, Delta[t slash x] tack s[t slash x] : B[t slash x]$,
-      name: $"Subst"_1$,
+  #pt(rule-set(
+    prooftree(
+      rule(
+        $Gamma tack t : A$,
+        $Gamma, x : A, Delta tack s : B$,
+        $Gamma, Delta[t slash x] tack s[t slash x] : B[t slash x]$,
+        name: $"Subst"_1$,
+      ),
     ),
-  ),
-  prooftree(rule(
-    $Gamma tack A : UU_i$,
-    $Gamma, Delta tack t : B$,
-    $Gamma, x : A, Delta tack t : B$,
-    name: $"Wkg"_1$,
-  )),
-))
+    prooftree(rule(
+      $Gamma tack A : UU_i$,
+      $Gamma, Delta tack t : B$,
+      $Gamma, x : A, Delta tack t : B$,
+      name: $"Wkg"_1$,
+    )),
+  ))
 
-#note[In the rule $"Wkg"_1$, it may first seem as though there is a danger that the variable
-  $x$ aliases with a variable present in $t$ or $B$, which may affect its truth. However,
-  this is not a problem, since we require variables in contexts to be unique, meaning that
-  $x : A$ cannot occur in $Gamma$ or $Delta$, and therefore not in $t$ or $B$.
+  #note[In the rule $"Wkg"_1$, it may first seem as though there is a danger that the
+    variable $x$ aliases with a variable present in $t$ or $B$, which may affect its truth.
+    However, this is not a problem, since we require variables in contexts to be unique,
+    meaning that $x : A$ cannot occur in $Gamma$ or $Delta$, and therefore not in $t$ or
+    $B$.
+  ]
+
+  The substitution and weakening rules have counterparts for judgmental equalities:
+
+  #pt(rule-set(
+    prooftree(rule(
+      $Gamma tack t : A$,
+      $Gamma, x : A, Delta tack u peq v : B$,
+      $Gamma, Delta[t slash x] tack u[t slash x] peq v[t slash x] : B[t slash x]$,
+      name: $"Subst"_2$,
+    )),
+    prooftree(rule(
+      $Gamma tack t peq s : A$,
+      $Gamma, x : A, Delta tack u : B$,
+      $Gamma, Delta tack u[t slash x] peq u[s slash x] : B[t slash x]$,
+      name: $"Subst"_3$,
+    )),
+    prooftree(rule(
+      $Gamma tack A : UU_i$,
+      $Gamma, Delta tack t peq s : B$,
+      $Gamma, x : A, Delta tack t peq s : B$,
+      name: $"Wkg"_2$,
+    )),
+  ))
+
+  The rule $"Subst"_2$ says that we may make substitutions on the "outside" of equalities,
+  for example we can go from $f(x) peq g(x)$ to $f(t) peq g(t)$; the rule $"Subst"_3$ says
+  that we may make substitutions on the "inside" of equalities, for example we can go from
+  $x peq y$ to $f(x) peq f(y)$. The weakening rule is analogous to the weakening rule for
+  typing judgments.
+
+  We also assume that judgmental equality is an equivalence relation,
+  #pt(
+    rule-set(
+      prooftree(rule($Gamma tack t : A$, $Gamma tack t peq t : A$)),
+      prooftree(rule(
+        $Gamma tack t peq s : A$,
+        $Gamma tack s peq t : A$,
+      )),
+      prooftree(rule(
+        $Gamma tack t peq s : A$,
+        $Gamma tack s peq u : A$,
+        $Gamma tack t peq u : A$,
+      )),
+    ),
+  )
+  and that judgmental equality of types allows us to replace equal types for each other in
+  typing judgments and in judgmental equalities
+  #pt(
+    rule-set(
+      prooftree(rule($Gamma tack t : A$, $Gamma tack A peq B : UU_i$, $Gamma tack t : B$)),
+      prooftree(rule(
+        $Gamma tack t peq s : A$,
+        $Gamma tack A peq B : UU_i$,
+        $Gamma tack t peq s : B$,
+      )),
+    ),
+  )
+
+  Although these rules must be stated at least once, the process of reading (and writing)
+  proofs using them explicitly is rather tedious, and therefore we will use them implicitly
+  going forward. A demonstration of a proof using the structural rules for simply-typed
+  lambda calculus may be found in #cite(
+    <mainproject>,
+    // form: "prose",
+    supplement: [Proposition 3.4.2],
+  ).
 ]
-
-The substitution and weakening rules have counterparts for judgmental equalities:
-
-#pt(rule-set(
-  prooftree(rule(
-    $Gamma tack t : A$,
-    $Gamma, x : A, Delta tack u peq v : B$,
-    $Gamma, Delta[t slash x] tack u[t slash x] peq v[t slash x] : B[t slash x]$,
-    name: $"Subst"_2$,
-  )),
-  prooftree(rule(
-    $Gamma tack t peq s : A$,
-    $Gamma, x : A, Delta tack u : B$,
-    $Gamma, Delta tack u[t slash x] peq u[s slash x] : B[t slash x]$,
-    name: $"Subst"_3$,
-  )),
-  prooftree(rule(
-    $Gamma tack A : UU_i$,
-    $Gamma, Delta tack t peq s : B$,
-    $Gamma, x : A, Delta tack t peq s : B$,
-    name: $"Wkg"_2$,
-  )),
-))
-
-The rule $"Subst"_2$ says that we may make substitutions on the "outside" of equalities, for
-example we can go from $f(x) peq g(x)$ to $f(t) peq g(t)$; the rule $"Subst"_3$ says that we
-may make substitutions on the "inside" of equalities, for example we can go from $x peq y$
-to $f(x) peq f(y)$. The weakening rule is analogous to the weakening rule for typing
-judgments.
-
-We also assume that judgmental equality is an equivalence relation,
-#pt(
-  rule-set(
-    prooftree(rule($Gamma tack t : A$, $Gamma tack t peq t : A$)),
-    prooftree(rule(
-      $Gamma tack t peq s : A$,
-      $Gamma tack s peq t : A$,
-    )),
-    prooftree(rule(
-      $Gamma tack t peq s : A$,
-      $Gamma tack s peq u : A$,
-      $Gamma tack t peq u : A$,
-    )),
-  ),
-)
-and that judgmental equality of types allows us to replace equal types for each other in
-typing judgments and in judgmental equalities
-#pt(
-  rule-set(
-    prooftree(rule($Gamma tack t : A$, $Gamma tack A peq B : UU_i$, $Gamma tack t : B$)),
-    prooftree(rule(
-      $Gamma tack t peq s : A$,
-      $Gamma tack A peq B : UU_i$,
-      $Gamma tack t peq s : B$,
-    )),
-  ),
-)
-
-Although these rules must be stated at least once, the process of reading (and writing)
-proofs using them explicitly is rather tedious, and therefore we will use them implicitly
-going forward. A demonstration of a proof using the structural rules for simply-typed lambda
-calculus may be found in #cite(
-  <mainproject>,
-  // form: "prose",
-  supplement: [Proposition 3.4.2],
-).
 
 == Data for types
 
@@ -527,8 +548,8 @@ The data for function types and terms are given by the following rules:
 ))
 
 The $->$-Comp and $->$-Uniq rules are respectively also known as the $beta$ and $eta$ rules
-in $lambda$-calculus. (In #cite(<mainproject>), we focussed on function types and the
-associated $beta$- and $eta$- rules in the context of cartesian-closed categories.)
+in $lambda$-calculus. #newbox[(In #cite(<mainproject>), we focussed on function types and
+  the associated $beta$- and $eta$- rules in the context of cartesian-closed categories.)]
 
 == Type families<sec:type-families>
 
@@ -598,34 +619,36 @@ function types correspond closely with their counterparts for non-dependent func
   )),
 ))
 
-#note[
-  As mentioned in @sec:universes-and-contexts, there is an alternative presentation of type
-  theory which relies more heavily on contexts. That presentation does not use type families
-  such as $Gamma tack B : A -> UU_i$, instead relying on judgments like
-  $Gamma, x : A tack B' : UU_i$, which means that $B'$ is a type which may reference a
-  variable $x$.
+#new[
+  #note[
+    As mentioned in @sec:universes-and-contexts, there is an alternative presentation of
+    type theory which relies more heavily on contexts. That presentation does not use type
+    families such as $Gamma tack B : A -> UU_i$, instead relying on judgments like
+    $Gamma, x : A tack B' : UU_i$, which means that $B'$ is a type which may reference a
+    variable $x$.
 
-  There, the rules $Pi$-Intr and $Pi$-Elim, for example, would be expressed as
-  #pt(
-    rule-set(
-      prooftree(bigrule(
-        $Gamma, x : A tack b : B$,
-        $Gamma tack lambda (x : A) sd b : product_(x : A) B$,
-        name: [$Pi$-Intr\*],
-      )),
-      prooftree(bigrule(
-        $Gamma tack f : product_(x : A) B$,
-        $Gamma tack a : A$,
-        $Gamma tack f(a) : B[a slash x]$,
-        name: [$Pi$-Elim\*],
-      )),
-    ),
-  )
-  In $Pi$-Intr\*, we see that $B$ is not a function which yields a type, but rather a type
-  with (potentially) a free variable $x$; similarly in $Pi$-Elim\*, the resulting type of
-  $f(a)$ is computed by variable substitution, $B[a slash x]$, rather than the function
-  application $B(a)$.
+    There, the rules $Pi$-Intr and $Pi$-Elim, for example, would be expressed as
+    #pt(
+      rule-set(
+        prooftree(bigrule(
+          $Gamma, x : A tack b : B$,
+          $Gamma tack lambda (x : A) sd b : product_(x : A) B$,
+          name: [$Pi$-Intr\*],
+        )),
+        prooftree(bigrule(
+          $Gamma tack f : product_(x : A) B$,
+          $Gamma tack a : A$,
+          $Gamma tack f(a) : B[a slash x]$,
+          name: [$Pi$-Elim\*],
+        )),
+      ),
+    )
+    In $Pi$-Intr\*, we see that $B$ is not a function which yields a type, but rather a type
+    with (potentially) a free variable $x$; similarly in $Pi$-Elim\*, the resulting type of
+    $f(a)$ is computed by variable substitution, $B[a slash x]$, rather than the function
+    application $B(a)$.
 
+  ]
 ]
 
 
@@ -677,82 +700,84 @@ This is useful when we wish to apply our induction terms (which are expressed in
 generality using type families and dependent functions) in a way which happens to be
 non-dependent.
 
-=== Equivalence of non-dependent $Pi$-types with function types<sec:dep-fun-equiv>
+#new[
+  === Equivalence of non-dependent $Pi$-types with function types<sec:dep-fun-equiv>
 
-If we suppose, in the rules for $Pi$-types, that we have
-$B peq lambda (x : A) sd B' : UU_i$, and that $x$ does not occur freely in $B'$, then we
-derive (via the $->$-Comp rule) that
-$ Gamma, x : A tack B(x) peq B'. $
-In that case, the $Pi$-Intr rule becomes
+  If we suppose, in the rules for $Pi$-types, that we have
+  $B peq lambda (x : A) sd B' : UU_i$, and that $x$ does not occur freely in $B'$, then we
+  derive (via the $->$-Comp rule) that
+  $ Gamma, x : A tack B(x) peq B'. $
+  In that case, the $Pi$-Intr rule becomes
 
-#pt(
-  prooftree(bigrule(
-    $Gamma, x : A tack b : B'$,
-    $Gamma tack lambda (x : A) sd b : product_(x : A) B'$,
-    name: [$Pi$-Intr],
-  )),
-)
+  #pt(
+    prooftree(bigrule(
+      $Gamma, x : A tack b : B'$,
+      $Gamma tack lambda (x : A) sd b : product_(x : A) B'$,
+      name: [$Pi$-Intr],
+    )),
+  )
 
-Comparing with the $->$-Intr rule,
-#pt(
-  prooftree(rule(
-    $Gamma, x : A tack t : B$,
-    $Gamma tack lambda(x : A) sd t : A -> B$,
-    name: [$->$-Intr],
-  )),
-)
-we see that this is just a rewriting of $product_(x : A) B'$ as $A -> B$. The application to
-the other rules is similar, and in this way we see that a $Pi$-type over $x : A$ which has
-no free occurences of $x$ is equivalent to a plain function type. By this equivalence, we
-refer to the function types from @sec:function-types as *non-dependent* function types. This
-is also the reason that there is no ambiguity in using the $lambda$-syntax for function
-notation for both dependent functions.
+  Comparing with the $->$-Intr rule,
+  #pt(
+    prooftree(rule(
+      $Gamma, x : A tack t : B$,
+      $Gamma tack lambda(x : A) sd t : A -> B$,
+      name: [$->$-Intr],
+    )),
+  )
+  we see that this is just a rewriting of $product_(x : A) B'$ as $A -> B$. The application
+  to the other rules is similar, and in this way we see that a $Pi$-type over $x : A$ which
+  has no free occurences of $x$ is equivalent to a plain function type. By this equivalence,
+  we refer to the function types from @sec:function-types as *non-dependent* function types.
+  This is also the reason that there is no ambiguity in using the $lambda$-syntax for
+  function notation for both dependent functions.
 
-One advantage of the context-driven approach mentioned in @sec:universes-and-contexts is
-that it would allow us to define dependent functions first, and then consider non-dependent
-functions as a special case. However, since we choose the more functional approach for its
-other merits, we must state this equivalence explicitly.
+  One advantage of the context-driven approach mentioned in @sec:universes-and-contexts is
+  that it would allow us to define dependent functions first, and then consider
+  non-dependent functions as a special case. However, since we choose the more functional
+  approach for its other merits, we must state this equivalence explicitly.
 
-=== Reordering of arguments
+  === Reordering of arguments
 
-Supposing that we have a function $f : A -> B -> C$, we may wish to transform it into a
-function $f' : B -> A -> C$, with its arguments swapped. Fortunately, this is easy to do for
-non-dependent functions:
+  Supposing that we have a function $f : A -> B -> C$, we may wish to transform it into a
+  function $f' : B -> A -> C$, with its arguments swapped. Fortunately, this is easy to do
+  for non-dependent functions:
 
-#pt(
-  prooftree(rule(
-    $Gamma tack a : A$,
-    $Gamma tack b : B$,
-    $Gamma tack f : A -> B -> C$,
-    $Gamma tack f' peq lambda (y : B) sd lambda (x : A) sd f(x, y)$,
-    $Gamma tack f'(b, a) peq f(a, b)$,
-  )),
-)
+  #pt(
+    prooftree(rule(
+      $Gamma tack a : A$,
+      $Gamma tack b : B$,
+      $Gamma tack f : A -> B -> C$,
+      $Gamma tack f' peq lambda (y : B) sd lambda (x : A) sd f(x, y)$,
+      $Gamma tack f'(b, a) peq f(a, b)$,
+    )),
+  )
 
-For the case of dependent functions, we may do almost the same thing, but we must be careful
-that the type of the latter parameter does not depend on the value of the former:
+  For the case of dependent functions, we may do almost the same thing, but we must be
+  careful that the type of the latter parameter does not depend on the value of the former:
 
-#pt(
-  prooftree(rule(
-    $Gamma tack a : A$,
-    $Gamma tack b : B$,
-    $Gamma tack f : product_(x : A) product_(y : B) C(x, y)$,
-    $Gamma tack f' peq lambda (y : B) sd lambda (x : A) sd f(x, y)$,
-    $Gamma tack f'(b, a) peq f(a, b)$,
-  )),
-)
+  #pt(
+    prooftree(rule(
+      $Gamma tack a : A$,
+      $Gamma tack b : B$,
+      $Gamma tack f : product_(x : A) product_(y : B) C(x, y)$,
+      $Gamma tack f' peq lambda (y : B) sd lambda (x : A) sd f(x, y)$,
+      $Gamma tack f'(b, a) peq f(a, b)$,
+    )),
+  )
 
-Note the specific signature of $f$. If we allowed $y$ to have type $B(x)$ rather than $B$,
-as in $f : product_(x : A) product_(y : B(x)) C(x, y)$, then we could not construct $f'$
-using the given $lambda$ syntax, since in the term
-$lambda (y : B(x)) sd lambda (x : A) sd f(x, y)$ we have a free occurrence of $x$.
+  Note the specific signature of $f$. If we allowed $y$ to have type $B(x)$ rather than $B$,
+  as in $f : product_(x : A) product_(y : B(x)) C(x, y)$, then we could not construct $f'$
+  using the given $lambda$ syntax, since in the term
+  $lambda (y : B(x)) sd lambda (x : A) sd f(x, y)$ we have a free occurrence of $x$.
 
-#note[In #cite(<hottbook>, form: "prose"), the authors frequently make use this equivalence
-  of parameter ordering, using syntax such as
-  $
-    product_(x : A, y : B) C(x, y),
-  $
-  however we prefer to avoid it, making explicit reorderings where necessary.]
+  #note[In #cite(<hottbook>, form: "prose"), the authors frequently make use this
+    equivalence of parameter ordering, using syntax such as
+    $
+      product_(x : A, y : B) C(x, y),
+    $
+    however we prefer to avoid it, making explicit reorderings where necessary.]
+]
 
 == Dependent pair types
 
@@ -880,57 +905,59 @@ $
     pi_1 & : product_(p : sum_(x : A) B(x)) B(pi_0(p))
   $
 ]
-#proof[
-  We apply the "$Sigma$-Elim" rule in both cases to derive the types. Let $A : UU_i$ be a
-  type and $B : A -> UU_i$ be a type family. Recall that this means that we will work in the
-  context $A : UU_i, B : A -> UU_i$.
+#new[
+  #proof[
+    We apply the "$Sigma$-Elim" rule in both cases to derive the types. Let $A : UU_i$ be a
+    type and $B : A -> UU_i$ be a type family. Recall that this means that we will work in
+    the context $A : UU_i, B : A -> UU_i$.
 
-  By the rule "$Sigma$-Form", we have $sum_(x : A) B(x) : UU_i$, and we put $C(\_) :peq A$
-  in open form, or equivalently in closed form
-  $
-    C :peq lambda(\_ : sum_(x : A) B(x)) sd A
-  $
-  and therefore by $->$-Intr we have $C : (sum_(x : A) B(x)) -> UU_i$. Then, we can rewrite
-  the type of $pi'_0$ -- using the $beta$-rule on the expression $C((x, y))$ -- as
-  $
-    pi'_0 : product_(x : A) product_(y : B(x)) C((x, y)).
-  $
-  We have all the antecedents for the $Sigma$-Elim rule, so we may conclude
-  $
-    ind_(sum_(x : A) B(x)) (C, pi'_0) : product_(p : sum_(x : A) B(x)) C(p)
-  $
-  i.e.
-  $
-    pi_0 : (sum_(x : A) B(x)) -> A.
-  $
+    By the rule "$Sigma$-Form", we have $sum_(x : A) B(x) : UU_i$, and we put $C(\_) :peq A$
+    in open form, or equivalently in closed form
+    $
+      C :peq lambda(\_ : sum_(x : A) B(x)) sd A
+    $
+    and therefore by $->$-Intr we have $C : (sum_(x : A) B(x)) -> UU_i$. Then, we can
+    rewrite the type of $pi'_0$ -- using the $beta$-rule on the expression $C((x, y))$ -- as
+    $
+      pi'_0 : product_(x : A) product_(y : B(x)) C((x, y)).
+    $
+    We have all the antecedents for the $Sigma$-Elim rule, so we may conclude
+    $
+      ind_(sum_(x : A) B(x)) (C, pi'_0) : product_(p : sum_(x : A) B(x)) C(p)
+    $
+    i.e.
+    $
+      pi_0 : (sum_(x : A) B(x)) -> A.
+    $
 
-  By a similar process for $pi_1$, we put
-  $
-    C(p) :peq B(pi_0 (p))
-  $
-  so that
-  $
-    ind_(sum_(x : A) B(x))(C, pi'_1) : product_(p : sum_(x : A) B(x)) C(p)
-  $
-  i.e.
-  $ pi_1 : product_(p : sum_(x : A) B(x)) B(pi_0(p)) $
-  as required.
+    By a similar process for $pi_1$, we put
+    $
+      C(p) :peq B(pi_0 (p))
+    $
+    so that
+    $
+      ind_(sum_(x : A) B(x))(C, pi'_1) : product_(p : sum_(x : A) B(x)) C(p)
+    $
+    i.e.
+    $ pi_1 : product_(p : sum_(x : A) B(x)) B(pi_0(p)) $
+    as required.
+  ]
+
+  #remark[This is the first proof we present, and we hope that it demonstrates our choice of
+    style going forward. While every proof we give will be directly translatable to a formal
+    proof-tree deduction/*TODO mention Agda?*/, we will go through the steps discursively.
+
+    In this case, we were relatively explicit in showing the necessary antecedents for the
+    $Sigma$-Elim rule, and in pointing out an elided use of the $beta$-rule, but we will not
+    always be so. As we progress through the text and become more comfortable with the
+    rules, we will naturally begin to use them implicitly in some cases. We hope that this
+    achieves a balance of clarity and brevity.]
+
+  We have proved a statement about the types of the projection functions $pi_0$ and $pi_1$
+  using the $Sigma$-Elim rule. What can we achieve with the $Sigma$-Comp rule? The following
+  proposition will be useful later, as part of the proof that all elements of pair types are
+  indeed pairs.
 ]
-
-#remark[This is the first proof we present, and we hope that it demonstrates our choice of
-  style going forward. While every proof we give will be directly translatable to a formal
-  proof-tree deduction/*TODO mention Agda?*/, we will go through the steps discursively.
-
-  In this case, we were relatively explicit in showing the necessary antecedents for the
-  $Sigma$-Elim rule, and in pointing out an elided use of the $beta$-rule, but we will not
-  always be so. As we progress through the text and become more comfortable with the rules,
-  we will naturally begin to use them implicitly in some cases. We hope that this achieves a
-  balance of clarity and brevity.]
-
-We have proved a statement about the types of the projection functions $pi_0$ and $pi_1$
-using the $Sigma$-Elim rule. What can we achieve with the $Sigma$-Comp rule? The following
-proposition will be useful later, as part of the proof that all elements of pair types are
-indeed pairs.
 
 #proposition[For a type $A : UU_i$ and a type family $B : A -> UU_i$ and elements $x : A$,
   $y : B(x)$, we have
@@ -1042,45 +1069,47 @@ inductor:
   ),
 )
 
-== Pattern matching<sec:pattern-matching-1>
+#new[
+  == Pattern matching<sec:pattern-matching-1>
 
-When we are working with the $ind$ functions for our various types, we have so far specified
-the antecedent functions and invoked the inductor explicitly. This can become quite verbose,
-so we introduce the concept of *pattern matching*.
+  When we are working with the $ind$ functions for our various types, we have so far
+  specified the antecedent functions and invoked the inductor explicitly. This can become
+  quite verbose, so we introduce the concept of *pattern matching*.
 
-Using pattern matching, we may define functions using syntax like
-$
-  & f : product_(x : A + B) C(x) \
-  & f(inl(a)) :peq t \
-  & f(inr(b)) :peq s,
-$
-where the term $t$ is of type $C(inl(a))$ and $s$ is of type $C(inr(b))$. The terms $t$ and
-$s$ may contain free variables $a : A$ and $b : B$ respectively. What we are doing here is
-_implicitly_ invoking the inductor for the coproduct type. Indeed, we can translate this
-directly into
-$
-  & f :peq ind_(A + B) (C, lambda (a : A) sd t, lambda (b : B) sd s)
-$
-but the pattern matched version is often clearer.
+  Using pattern matching, we may define functions using syntax like
+  $
+    & f : product_(x : A + B) C(x) \
+    & f(inl(a)) :peq t \
+    & f(inr(b)) :peq s,
+  $
+  where the term $t$ is of type $C(inl(a))$ and $s$ is of type $C(inr(b))$. The terms $t$
+  and $s$ may contain free variables $a : A$ and $b : B$ respectively. What we are doing
+  here is _implicitly_ invoking the inductor for the coproduct type. Indeed, we can
+  translate this directly into
+  $
+    & f :peq ind_(A + B) (C, lambda (a : A) sd t, lambda (b : B) sd s)
+  $
+  but the pattern matched version is often clearer.
 
-For pair types, pattern matching looks like
-$
-  & f : product_(x : A times B) C(x) \
-  & f((a, b)) :peq t
-$
-where $t$ is of type $C((a, b))$ and may contain free variables $a : A$ and $b : B$.
+  For pair types, pattern matching looks like
+  $
+    & f : product_(x : A times B) C(x) \
+    & f((a, b)) :peq t
+  $
+  where $t$ is of type $C((a, b))$ and may contain free variables $a : A$ and $b : B$.
 
-These examples of pattern matching may raise an important question: how do we know that by
-defining functions in this way, we have really defined a total function? In other words, how
-do we know that the patterns $inl(a)$ and $inr(b)$ "cover" all possible elements of $A + B$;
-similarly how do we know that the pattern $(a, b)$ "covers" all possible elements of
-$A times B$? The answer lies in the fact that these can be translated into the forms using
-the inductor: for pair types, it is precisely the "$Sigma$-Elim" rule that says in order to
-define a function out of $A times B$, it is enough to define a function on $a : A$ and
-$b : B$.
+  These examples of pattern matching may raise an important question: how do we know that by
+  defining functions in this way, we have really defined a total function? In other words,
+  how do we know that the patterns $inl(a)$ and $inr(b)$ "cover" all possible elements of
+  $A + B$; similarly how do we know that the pattern $(a, b)$ "covers" all possible elements
+  of $A times B$? The answer lies in the fact that these can be translated into the forms
+  using the inductor: for pair types, it is precisely the "$Sigma$-Elim" rule that says in
+  order to define a function out of $A times B$, it is enough to define a function on
+  $a : A$ and $b : B$.
 
-Later, we will see that indeed all elements of $A times B$ are such pairs $(a, b)$, and a
-similar proof will show that all elements of $A + B$ are $inl$ or $inr$.
+  Later, we will see that indeed all elements of $A times B$ are such pairs $(a, b)$, and a
+  similar proof will show that all elements of $A + B$ are $inl$ or $inr$.
+]
 
 == The singleton and empty types
 
@@ -1364,81 +1393,84 @@ number $n$, given $n$ itself and the value at $n$.
   $
 ]<example:fact>
 
-== Recursive pattern matching
+#new[
+  == Recursive pattern matching
 
-We return to the concept of pattern matching discussed in @sec:pattern-matching-1. We want
-to apply this concept to defining functions out of $NN$, using $ind_NN$, as we did for
-functions out of pair and coproduct types. This raises some issues, however.
+  We return to the concept of pattern matching discussed in @sec:pattern-matching-1. We want
+  to apply this concept to defining functions out of $NN$, using $ind_NN$, as we did for
+  functions out of pair and coproduct types. This raises some issues, however.
 
-Computer scientists are familiar with the concept of recursion as "a function which calls
-itself". An example of a recursive function from computer science might be
-$
-  & fact : && NN -> NN \
-$$
-  & fact(0)       && :peq 1 \
-  & fact(succ(n)) && :peq succ(n) times fact(n) \
-$
-(where $times$ here denotes multiplication). Here we see that in the third line, the term
-$fact(n)$ appears both on the left- and the right-hand side of the definition. This is
-dangerous! It might allow us to write such "functions" as
-#let never = $sans("never")$
-$
-  never : NN -> NN \
-  never(n) :peq never(n).
-$
-If given to a computer, the function $never$ will continuously evaluate itself and never
-yield a value. This is unacceptable to mathematicians, who require all our functions to be
-well-defined.
+  Computer scientists are familiar with the concept of recursion as "a function which calls
+  itself". An example of a recursive function from computer science might be
+  $
+    & fact : && NN -> NN \
+  $$
+    & fact(0)       && :peq 1 \
+    & fact(succ(n)) && :peq succ(n) times fact(n) \
+  $
+  (where $times$ here denotes multiplication). Here we see that in the third line, the term
+  $fact(n)$ appears both on the left- and the right-hand side of the definition. This is
+  dangerous! It might allow us to write such "functions" as
+  #let never = $sans("never")$
+  $
+    never : NN -> NN \
+    never(n) :peq never(n).
+  $
+  If given to a computer, the function $never$ will continuously evaluate itself and never
+  yield a value. This is unacceptable to mathematicians, who require all our functions to be
+  well-defined.
 
-The solution to this problem, in depedent type theory, is to assert that the recursive call
-on the right-hand side of the definition _must_ reduce the value of $n$. In fact, this is
-precisely the point of primitive recursion: in order to define a function out of the natural
-numbers, we must provide an initial value $c_0$, and a step function $c_s$, which is
-evaluated each time (in the $NN$-Comp rule) at decreasing values. When we define functions
-out of $NN$ by pattern matching, therefore, we use syntax like that of $fact$ above:
-$
-  & f : && NN -> A \
-$$
-  & f(0)       && :peq t \
-  & f(succ(n)) && :peq s
-$
-where $t :A$ is a term and $s : A$ is a term with a free variable $n : NN$, but may only
-recursively call $f$ in the form $f(n)$. In dependent type theory, the recursive function
-$fact$ given above is therefore valid, while $never$ is not. The recursive form of $fact$
-translates directly by pattern matching to the explicit version using the inductor in
-@example:fact.
+  The solution to this problem, in depedent type theory, is to assert that the recursive
+  call on the right-hand side of the definition _must_ reduce the value of $n$. In fact,
+  this is precisely the point of primitive recursion: in order to define a function out of
+  the natural numbers, we must provide an initial value $c_0$, and a step function $c_s$,
+  which is evaluated each time (in the $NN$-Comp rule) at decreasing values. When we define
+  functions out of $NN$ by pattern matching, therefore, we use syntax like that of $fact$
+  above:
+  $
+    & f : && NN -> A \
+  $$
+    & f(0)       && :peq t \
+    & f(succ(n)) && :peq s
+  $
+  where $t :A$ is a term and $s : A$ is a term with a free variable $n : NN$, but may only
+  recursively call $f$ in the form $f(n)$. In dependent type theory, the recursive function
+  $fact$ given above is therefore valid, while $never$ is not. The recursive form of $fact$
+  translates directly by pattern matching to the explicit version using the inductor in
+  @example:fact.
 
-TODO: talk about double recursion, use Giacomo's notes.
+  TODO: talk about double recursion, use Giacomo's notes.
 
-== Finite types
+  == Finite types
 
-Now that we have the singleton type $one$, the empty type $zero$ and the coproduct
-type-former $+$, we can construct the previously-mentioned example of finite sets, from
-@sec:type-families. This is presented as an exercise in #cite(
-  <hottbook>,
-  // form: "prose",
-  supplement: [Chapter 1],
-).
+  Now that we have the singleton type $one$, the empty type $zero$ and the coproduct
+  type-former $+$, we can construct the previously-mentioned example of finite sets, from
+  @sec:type-families. This is presented as an exercise in #cite(
+    <hottbook>,
+    // form: "prose",
+    supplement: [Chapter 1],
+  ).
 
-We define the type family $Fin$ by recursive pattern matching:
-$
-  Fin : NN -> UU_i
-$
-$
-  & Fin(0)       && :peq zero \
-  & Fin(succ(n)) && :peq one + Fin(n).
-$
+  We define the type family $Fin$ by recursive pattern matching:
+  $
+    Fin : NN -> UU_i
+  $
+  $
+    & Fin(0)       && :peq zero \
+    & Fin(succ(n)) && :peq one + Fin(n).
+  $
 
-For the sake of being explicit, this translates into the form
-$
-  &&         c_0 & :peq zero \
-  && c_s (\_, T) & :peq one + T \
-  &&         Fin & :peq ind_NN (lambda (\_ : NN) sd UU_i, c_0, c_s).
-$
+  For the sake of being explicit, this translates into the form
+  $
+    &&         c_0 & :peq zero \
+    && c_s (\_, T) & :peq one + T \
+    &&         Fin & :peq ind_NN (lambda (\_ : NN) sd UU_i, c_0, c_s).
+  $
 
-By applying the $NN$-Comp rules, we see for example that
-$Fin(3) peq one + (one + (one + zero))$. We are not able to prove (yet) that $Fin(n)$ has
-exactly $n$ elements (TODO we may even take it as axiomatic? or we may prove it later).
+  By applying the $NN$-Comp rules, we see for example that
+  $Fin(3) peq one + (one + (one + zero))$. We are not able to prove (yet) that $Fin(n)$ has
+  exactly $n$ elements (TODO we may even take it as axiomatic? or we may prove it later).
+]
 
 == Propositions as types<sec:propositions-as-types>
 
@@ -1651,85 +1683,88 @@ of a type $C(y)$. Translated to the language of type families as predicates, it 
 predicates which are satisfied by some element remain satisfied by any equal element, i.e.
 that equal terms may be substituted for each other.
 
-#theorem([Indiscernibility of identicals])[Let $A : UU_i$ be a type and $D : A -> UU_i$ a
-  type family. For every pair of elements $x : A$, $y : A$, there is a function
-  $
-    transport^D : (x =_A y) -> D(x) -> D(y)
-  $
-  such that when $x peq y$, we have
-  $
-    transport^D (refl_x) peq id_D(x).
-  $
-]<thm:indiscernibility-of-identicals>
+#new[
+  #theorem([Indiscernibility of identicals])[Let $A : UU_i$ be a type and $D : A -> UU_i$ a
+    type family. For every pair of elements $x : A$, $y : A$, there is a function
+    $
+      transport^D : (x =_A y) -> D(x) -> D(y)
+    $
+    such that when $x peq y$, we have
+    $
+      transport^D (refl_x) peq id_D(x).
+    $
+  ]<thm:indiscernibility-of-identicals>
 
-#proof[
-  Fix a type family $D : A -> UU_i$ and variables $x : A$, $y : A$. Define $C$, as in the
-  computation and elimination rules, as
-  $
-    C : product_(x : A) product_(y : A) (x =_A y) -> UU_i \
-    C(x, y, \_) :peq D(x) -> D(y).
-  $
+  #proof[
+    Fix a type family $D : A -> UU_i$ and variables $x : A$, $y : A$. Define $C$, as in the
+    computation and elimination rules, as
+    $
+      C : product_(x : A) product_(y : A) (x =_A y) -> UU_i \
+      C(x, y, \_) :peq D(x) -> D(y).
+    $
 
-  For a variable $z : A$, we have $C(z, z, refl_z) peq D(z) -> D(z)$, so we require a
-  function
-  $
-    c : product_(z : A) D(z) -> D(z),
-  $
-  for which we put the identity:
-  $
-    c(z) :peq id_(D(z))
-  $
+    For a variable $z : A$, we have $C(z, z, refl_z) peq D(z) -> D(z)$, so we require a
+    function
+    $
+      c : product_(z : A) D(z) -> D(z),
+    $
+    for which we put the identity:
+    $
+      c(z) :peq id_(D(z))
+    $
 
-  We then apply the "=-Elim" rule to derive the type of $ind_=(C, c)$:
-  $
-    ind_=_A (C, c) : product_(x : A) product_(y : A) product_(p : x =_A y) D(x) -> D(y).
-  $
-  Recalling the equivalence between non-dependent function types and dependent function
-  types which do not use their parameter in their return type (@sec:dep-fun-equiv), we may
-  write
-  $
-    ind_=_A (C, c) : product_(x : A) product_(y : B) (x =_A y) -> D(x) -> D(y).
-  $
+    We then apply the "=-Elim" rule to derive the type of $ind_=(C, c)$:
+    $
+      ind_=_A (C, c) : product_(x : A) product_(y : A) product_(p : x =_A y) D(x) -> D(y).
+    $
+    Recalling the equivalence between non-dependent function types and dependent function
+    types which do not use their parameter in their return type (@sec:dep-fun-equiv), we may
+    write
+    $
+      ind_=_A (C, c) : product_(x : A) product_(y : B) (x =_A y) -> D(x) -> D(y).
+    $
 
-  We define $transport^D$ as
-  $
-    transport^D :peq ind_(=_A) (C, c, x, y)
-  $
-  so that it has the desired type:
-  $
-    transport^D : (x = y) -> D(x) -> D(y).
-  $
+    We define $transport^D$ as
+    $
+      transport^D :peq ind_(=_A) (C, c, x, y)
+    $
+    so that it has the desired type:
+    $
+      transport^D : (x = y) -> D(x) -> D(y).
+    $
 
-  Moreover, by the rule "=-Comp" we have
-  $
-    transport^D (refl_x) peq id_(D(x))
-  $
-  as required.
+    Moreover, by the rule "=-Comp" we have
+    $
+      transport^D (refl_x) peq id_(D(x))
+    $
+    as required.
+  ]
+
+  #remark[The function $transport$ is very useful, since it allows to talk about elements of
+    $D(x)$ as if they were elements of $D(y)$. For example, given elements $w : D(x)$ and
+    $z : D(y)$, we cannot form a type $w = z$, since $w$ and $z$ live in different types.
+    Using $transport$, however, we can suppose a witness $p : x = y$ and form the type
+    $transport^D (p, w) = z$. We will make frequent use of $transport$ throughout the rest
+    of the text.
+  ]
+
 ]
-
-#remark[The function $transport$ is very useful, since it allows to talk about elements of
-  $D(x)$ as if they were elements of $D(y)$. For example, given elements $w : D(x)$ and
-  $z : D(y)$, we cannot form a type $w = z$, since $w$ and $z$ live in different types.
-  Using $transport$, however, we can suppose a witness $p : x = y$ and form the type
-  $transport^D (p, w) = z$. We will make frequent use of $transport$ throughout the rest of
-  the text.
-]
-
 Moving to the general form of the elimination rule, we allow $C$ to depend not only on
 $x : A$ and $y : A$ (which must be equal) but also on the specific witness $p$ to their
 equality. The rule supposes that we have such a family $C$, and for each $z : A$, an element
 $c(z) : C(z, z, refl_z)$. We then get an element of $C(a, b, p)$ for all $a : A$, $b : A$
 such that $a$ and $b$ are (propositionally) equal. In other words, if we want to construct
 an element of the family $C(a, b, p)$, it is sufficient to show an element of
-$C(z, z, refl_z)$. This allows us to move from statements about judgmental equality to
-statements about propositional equality: the rule "opens up" propositional equality by
-saying that if we assume a judgmental equality and conclude something, we can conclude the
-same thing on the basis of a propositional equality.
+$C(z, z, refl_z)$. #newbox[This allows us to move from statements about judgmental equality
+  to statements about propositional equality: the rule "opens up" propositional equality by
+  saying that if we assume a judgmental equality and conclude something, we can conclude the
+  same thing on the basis of a propositional equality.
 
-This is precisely analogous to the principle of induction on natural numbers -- if we want
-to construct a function $f : NN -> T$, it is sufficient to provide a value $c_0 : T$ and a
-step function $c_s : NN -> NN -> T$. The induction principle "opens up" functions out of the
-natural numbers by saying we only need to provide the data $c_0$ and $c_s$.
+  This is precisely analogous to the principle of induction on natural numbers -- if we want
+  to construct a function $f : NN -> T$, it is sufficient to provide a value $c_0 : T$ and a
+  step function $c_s : NN -> NN -> T$. The induction principle "opens up" functions out of
+  the natural numbers by saying we only need to provide the data $c_0$ and $c_s$.
+]
 
 In the language of propositions and predicates, the induction principle says that if
 $C(z, z, refl_z)$ is true -- i.e. $C$ is a reflexive predicate -- then $C(a, b, p)$ is true
@@ -1743,27 +1778,29 @@ judgmentally equal.
 Now that we have defined identity types, we can make some statements about identities within
 our previously-defined types.
 
-#proposition[The type $one$ has only one element.]<prop:one-is-a-singleton>
-#proof[
-  We have defined, in the $one$-Intr rule, how to specify a particular element of $one$,
-  namely $star : one$. The method we will use to prove this proposition is to show that
-  given an element $a : one$, there is a witness to the equality $a =_one star$. That is,
-  that there is a function $f : product_(a : one) a =_one star$.
+#new[
+  #proposition[The type $one$ has only one element.]<prop:one-is-a-singleton>
+  #proof[
+    We have defined, in the $one$-Intr rule, how to specify a particular element of $one$,
+    namely $star : one$. The method we will use to prove this proposition is to show that
+    given an element $a : one$, there is a witness to the equality $a =_one star$. That is,
+    that there is a function $f : product_(a : one) a =_one star$.
 
-  The $one$-Elim rule says that in order to construct such a function out of $one$, it is
-  sufficient to give its value at $star$. (To most mathematicians, this statement alone
-  should give us the necessary intuition that $one$ only has one element.) Working formally,
-  we define a type family $C$ as
-  $
-    C : one -> UU_i \
-    C(a) :peq a =_one star.
-  $
-  Recall that the $one$-Elim rule says that we must provide an element $c : C(star)$, i.e.
-  $c : star =_one star$. Of course, $refl_star$ is such an element, so we then conclude
-  $
-    ind_one (C, refl_star) : product_(a : one) a =_one star
-  $
-  as required.
+    The $one$-Elim rule says that in order to construct such a function out of $one$, it is
+    sufficient to give its value at $star$. (To most mathematicians, this statement alone
+    should give us the necessary intuition that $one$ only has one element.) Working
+    formally, we define a type family $C$ as
+    $
+      C : one -> UU_i \
+      C(a) :peq a =_one star.
+    $
+    Recall that the $one$-Elim rule says that we must provide an element $c : C(star)$, i.e.
+    $c : star =_one star$. Of course, $refl_star$ is such an element, so we then conclude
+    $
+      ind_one (C, refl_star) : product_(a : one) a =_one star
+    $
+    as required.
+  ]
 ]
 
 #proposition[Every element of a pair type $A times B$ is equal to $(x, y)$, for some
@@ -1805,10 +1842,12 @@ our previously-defined types.
 
 === Identity as an equivalence relation
 
-In order for us to believe that the type $x =_A y$ really "means" that $x : A$ and $y : A$
-are in some sense equal, we must at least know that identity forms an equivalence relation.
-That is, it obeys the laws of reflexivity, symmetry and transitivity. This section proves
-these laws for identity types.
+#new[
+  In order for us to believe that the type $x =_A y$ really "means" that $x : A$ and $y : A$
+  are in some sense equal, we must at least know that identity forms an equivalence
+  relation. That is, it obeys the laws of reflexivity, symmetry and transitivity. This
+  section proves these laws for identity types.
+]
 
 #lemma[For a type $A : UU_i$ and elements $x : A$, $y : A$, there is a function
   $ (-)^(-1) : (x =_A y) -> (y =_A x). $
@@ -1817,33 +1856,36 @@ these laws for identity types.
 
   Furthermore, for all $x : A$, $refl_x^(-1) peq refl_x$.
 ]<lemma:identity-symmetry>
-#proof[
-  We use the computation and elimination rules for identity types. For
-  $C : product_(x : A) product_(y : A) (x =_A y) -> UU_i$, we put
-  $
-    C(x, y, \_) :peq y =_A x.
-  $
-  For a variable $z : A$, we have $C(z, z, refl_z) peq z =_A z$, so the natural fit for $c$
-  is
-  $
-    c : product_(z : A) C(z, z, refl_z) \
-    c(z) :peq refl_z
-  $
+#new[
+  #proof[
+    We use the computation and elimination rules for identity types. For
+    $C : product_(x : A) product_(y : A) (x =_A y) -> UU_i$, we put
+    $
+      C(x, y, \_) :peq y =_A x.
+    $
+    For a variable $z : A$, we have $C(z, z, refl_z) peq z =_A z$, so the natural fit for
+    $c$ is
+    $
+      c : product_(z : A) C(z, z, refl_z) \
+      c(z) :peq refl_z
+    $
 
-  Fixing variables $x : A$ and $y : A$ as in the statement of the lemma, we define
-  $
-    (-)^(-1) :peq ind_=_A (C, c, x, y)
-  $
-  and use the "=-Elim" rule to verify that it has the desired type
-  $
-    (-)^(-1) : (x =_A y) -> (y =_A x)
-  $
+    Fixing variables $x : A$ and $y : A$ as in the statement of the lemma, we define
+    $
+      (-)^(-1) :peq ind_=_A (C, c, x, y)
+    $
+    and use the "=-Elim" rule to verify that it has the desired type
+    $
+      (-)^(-1) : (x =_A y) -> (y =_A x)
+    $
 
-  To prove the "furthermore" case, we use the "=-Comp" rule. For a variable $x : A$, we have
-  $
-    refl_x^(-1) peq ind_=_A (C, c, x, x, refl_x) peq c(x) peq refl_x
-  $
-  as required.
+    To prove the "furthermore" case, we use the "=-Comp" rule. For a variable $x : A$, we
+    have
+    $
+      refl_x^(-1) peq ind_=_A (C, c, x, x, refl_x) peq c(x) peq refl_x
+    $
+    as required.
+  ]
 ]
 
 #lemma[For a type $A : UU_i$ and elements $x : A$, $y : A$, $z : A$, there is a function
@@ -1855,40 +1897,42 @@ these laws for identity types.
 
   Furthermore, for all $x : A$, $refl_x bullet refl_x peq refl_x.$
 ]<lemma:identity-transitivity>
-#proof[
-  Fix variables $x : A$, $y : A$ and $z : A$ as in the statement of the lemma, and for the
-  $C$ as in the elimination and computation rules for identity, put
-  $
-    C(x, y, \_) :peq (y =_A z) -> (x =_A z).
-  $
+#new[
+  #proof[
+    Fix variables $x : A$, $y : A$ and $z : A$ as in the statement of the lemma, and for the
+    $C$ as in the elimination and computation rules for identity, put
+    $
+      C(x, y, \_) :peq (y =_A z) -> (x =_A z).
+    $
 
-  For a variable $w : A$ (renamed from $z$ in the statements of the rules), we compute
-  $C(w, w, refl_w) peq (w =_A z) -> (w =_A z)$, so we write
-  $
-    c(w) :peq id_(w =_A z).
-  $
-  Using the elimination rule, we get
-  $
-    ind(C, c) : product_(x : A) product_(y : A) (x =_A y) -> (y =_A z) -> (x =_A z).
-  $
-  We define
-  $
-    (- bullet -) :peq ind(C, c, x, y)
-  $
-  so that the type is the desired one:
-  $
-    (- bullet -) : (x = y) -> (y = z) -> (x = z).
-  $
+    For a variable $w : A$ (renamed from $z$ in the statements of the rules), we compute
+    $C(w, w, refl_w) peq (w =_A z) -> (w =_A z)$, so we write
+    $
+      c(w) :peq id_(w =_A z).
+    $
+    Using the elimination rule, we get
+    $
+      ind(C, c) : product_(x : A) product_(y : A) (x =_A y) -> (y =_A z) -> (x =_A z).
+    $
+    We define
+    $
+      (- bullet -) :peq ind(C, c, x, y)
+    $
+    so that the type is the desired one:
+    $
+      (- bullet -) : (x = y) -> (y = z) -> (x = z).
+    $
 
-  Applying the computation rule, we see
-  $
-    (refl_x bullet -) peq ind(C, c, x, x, refl_x) peq id_(x = x)
-  $
-  so
-  $
-    refl_x bullet refl_x peq refl_x
-  $
-  as required.
+    Applying the computation rule, we see
+    $
+      (refl_x bullet -) peq ind(C, c, x, x, refl_x) peq id_(x = x)
+    $
+    so
+    $
+      refl_x bullet refl_x peq refl_x
+    $
+    as required.
+  ]
 ]
 
 #proposition[The identity type over a type $A : UU_i$ forms an equivalence relation, in the
@@ -1905,15 +1949,18 @@ these laws for identity types.
 
 = Homotopy
 
-In this section we will explore the relationship between the type theory we have defined so
-far and a concept from the field of algebraic topology, namely *homotopies*. It will turn
-out that these two fields, from perhaps what many mathematicians would consider completely
-opposite ends of the field of mathematics, are closely related. The essence of it is that we
-can consider elements of a type as points in space, with witnesses to their identity being
-paths between them. We can deform these paths using continuous maps, and these continuous
-maps (known as homotopies) can be considered as "second level" witnesses to the identity of
-the lower witnesses, and so on up to infinity. We will first outline classical homotopy
-theory in broad terms, and then move to its relationship with identity types.
+#new[
+  In this section we will explore the relationship between the type theory we have defined
+  so far and a concept from the field of algebraic topology, namely *homotopies*. It will
+  turn out that these two fields, from perhaps what many mathematicians would consider
+  completely opposite ends of the field of mathematics, are closely related. The essence of
+  it is that we can consider elements of a type as points in space, with witnesses to their
+  identity being paths between them. We can deform these paths using continuous maps, and
+  these continuous maps (known as homotopies) can be considered as "second level" witnesses
+  to the identity of the lower witnesses, and so on up to infinity. We will first outline
+  classical homotopy theory in broad terms, and then move to its relationship with identity
+  types.
+]
 
 == Classical homotopy theory
 
@@ -1993,153 +2040,158 @@ into the $infinity$-groupoid structure.
 We need, however, to show that the laws of inverses and associativity hold when we consider
 witnesses to equalities as paths.
 
-#lemma([HoTT 2.1.4])[
-  For a type $A : UU_i$, elements $x, y, z, w : A$ and witnesses $p : x =_A y$,
-  $q : y =_A z$ and $r : z =_A w$, the following statements hold:
+#new[
+  #lemma([HoTT 2.1.4])[
+    For a type $A : UU_i$, elements $x, y, z, w : A$ and witnesses $p : x =_A y$,
+    $q : y =_A z$ and $r : z =_A w$, the following statements hold:
 
-  + $p = p bullet refl_y$ and $p = refl_x bullet p$
-  + $p bullet p^(-1) = refl_x$ and $p^(-1) bullet p = refl_y$
-  + $(p^(-1))^(-1) = p$
-  + $p bullet (q bullet r) = (p bullet q) bullet r$
+    + $p = p bullet refl_y$ and $p = refl_x bullet p$
+    + $p bullet p^(-1) = refl_x$ and $p^(-1) bullet p = refl_y$
+    + $(p^(-1))^(-1) = p$
+    + $p bullet (q bullet r) = (p bullet q) bullet r$
 
-  where these identities are second-level identities.
-]<lem:paths-inv-assoc>
-#proof[
-  All proofs use the induction principle (the $=$-Elim rule), and we work in an ambient
-  context containing $x, y, z, w, p, q, r$ as in the statement of the lemma.
+    where these identities are second-level identities.
+  ]<lem:paths-inv-assoc>
+  #proof[
+    All proofs use the induction principle (the $=$-Elim rule), and we work in an ambient
+    context containing $x, y, z, w, p, q, r$ as in the statement of the lemma.
 
-  + We consider the first case and put
-    $
-      C : product_(x : A) product_(y : A) (x = y) -> UU_i \
-      C(x, y, p) :peq (p = p bullet refl_y)
-    $
+    + We consider the first case and put
+      $
+        C : product_(x : A) product_(y : A) (x = y) -> UU_i \
+        C(x, y, p) :peq (p = p bullet refl_y)
+      $
 
-    We want to construct a function
-    $ c : product_(z : A) C(z, z, refl_z) $
-    and we compute $C(z, z, refl_z) peq (refl_z = refl_z bullet refl_z)$. By
-    @lemma:identity-symmetry, we know $refl_z bullet refl_z peq refl_z$, so we have
-    $C(z, z, refl_z) peq (refl_z = refl_z)$. Thus, we can put
-    $
-      c(z) :peq refl_(refl_z)
-    $
-    and by induction we get
-    $
-      ind_=(C, c, x, y, p) : p = p bullet refl_y
-    $
-    as required. The proof for the second case is similar.
+      We want to construct a function
+      $ c : product_(z : A) C(z, z, refl_z) $
+      and we compute $C(z, z, refl_z) peq (refl_z = refl_z bullet refl_z)$. By
+      @lemma:identity-symmetry, we know $refl_z bullet refl_z peq refl_z$, so we have
+      $C(z, z, refl_z) peq (refl_z = refl_z)$. Thus, we can put
+      $
+        c(z) :peq refl_(refl_z)
+      $
+      and by induction we get
+      $
+        ind_=(C, c, x, y, p) : p = p bullet refl_y
+      $
+      as required. The proof for the second case is similar.
 
-  + We again consider only the first case, with the second case being completely analogous.
-    This time, we put
-    $
-      C(x, y, p) :peq (p bullet p^(-1) = refl_x)
-    $
-    and compute, for a variable $z : A$,
-    $
-      C(z, z, refl_z) &peq (refl_z bullet refl_z^(-1) = refl_z) \
-      & peq (refl_z = refl_z) wide "by" #ref(<lemma:identity-symmetry>) "and" #ref(<lemma:identity-transitivity>).
-    $
-    Then, we again may put $c(z) :peq refl_refl_z$ to obtain
-    $
-      ind_=(C, c, x, y, p) : (p bullet p^(-1) = refl_x).
-    $
-  + For this case, we put $C(\_, \_, p) :peq (p^(-1))^(-1) = p$, and compute
-    $
-      C(z, z, refl_z) & peq (refl_z^(-1))^(-1) = refl_z \
-                      & peq refl_z = refl_z wide "by" #ref(<lemma:identity-symmetry>)
-    $
-    By again putting $c(z) :peq refl_refl_z$ we obtain
-    $
-      ind_=(C, c, x, y, p) : (p^(-1))^(-1) = p.
-    $
-  + For this case, we have two things to consider. Firstly, our usual variable name $z$ in
-    the $=$-Elim rule conflicts with the $z$ that we have in the context, and secondly we
-    are going to need use induction three times. We are running out of letters in the
-    alphabet! We therefore replace the $z$ in the $=$-Elim rule with $v_1, v_2, v_3$ for
-    each induction.
+    + We again consider only the first case, with the second case being completely
+      analogous. This time, we put
+      $
+        C(x, y, p) :peq (p bullet p^(-1) = refl_x)
+      $
+      and compute, for a variable $z : A$,
+      $
+        C(z, z, refl_z) &peq (refl_z bullet refl_z^(-1) = refl_z) \
+        & peq (refl_z = refl_z) wide "by" #ref(<lemma:identity-symmetry>) "and" #ref(<lemma:identity-transitivity>).
+      $
+      Then, we again may put $c(z) :peq refl_refl_z$ to obtain
+      $
+        ind_=(C, c, x, y, p) : (p bullet p^(-1) = refl_x).
+      $
+    + For this case, we put $C(\_, \_, p) :peq (p^(-1))^(-1) = p$, and compute
+      $
+        C(z, z, refl_z) & peq (refl_z^(-1))^(-1) = refl_z \
+                        & peq refl_z = refl_z wide "by" #ref(<lemma:identity-symmetry>)
+      $
+      By again putting $c(z) :peq refl_refl_z$ we obtain
+      $
+        ind_=(C, c, x, y, p) : (p^(-1))^(-1) = p.
+      $
+    + For this case, we have two things to consider. Firstly, our usual variable name $z$ in
+      the $=$-Elim rule conflicts with the $z$ that we have in the context, and secondly we
+      are going to need use induction three times. We are running out of letters in the
+      alphabet! We therefore replace the $z$ in the $=$-Elim rule with $v_1, v_2, v_3$ for
+      each induction.
 
-    For the first induction, put
-    $
-      C_1 (x, y, p) :peq product_(z : A) product_(q : y = z) product_(w : A) product_(r : z = w) p bullet (q bullet r) = (p bullet q) bullet r
-    $
-    so that, for $v_1 : A$, we have
-    $
-      C_1(v_1, v_1, refl_v_1) peq product_(z : A) product_(w : A) product_(q : v_1 = z) product_(r : z = w) refl_v_1 bullet (q bullet r) = (refl_v_1 bullet q) bullet r.
-    $
-    We want to construct an element of $C_1(v_1, v_1, refl_v_1)$, which leads us into the
-    second induction. Put
-    $
-      C_2 (x, z, q) :peq product_(w : A) product_(r : z = w) refl_x bullet (q bullet r) = (refl_x bullet q) bullet r \
-    $
-    so that for $v_2 : A$, we have
-    $
-      C_2(v_2, v_2, refl_v_2) peq product_(w : A) product_(r : v_2 = w) refl_v_2 bullet (refl_v_2 bullet r) = (refl_v_2 bullet refl_v_2) bullet r.
-    $
-    We want to construct an element of $C_2(v_2, v_2, refl_v_2)$, which leads us into the
-    third induction. Put
-    $
-      C_3 (x, w, r) :peq refl_x bullet (refl_x bullet r) = (refl_x bullet refl_x) bullet r
-    $
-    so that for $v_3 : A$, we have
-    $
-      C_3(v_3, v_3, refl_v_3) peq refl_v_3 bullet (refl_v_3 bullet refl_v_3) = (refl_v_3 bullet refl_v_3) bullet refl_v_3.
-    $
-    Applying @lemma:identity-transitivity, this reduces to
-    $
-      C_3(v_3, v_3, refl_v_3) peq refl_v_3 = refl_v_3
-    $
-    which is inhabited by
-    $
-      c_3(v_3) :peq refl_refl_v_3.
-    $
-    Going back up the chain of inductions, we put $c_2 (v_2) :peq ind_=(C_3, c_3, v_2)$ to
-    get
-    $
-      c_2(v_2) : product_(w : A) product_(r : v_2 = w) refl_v_2 bullet (refl_v_2 bullet r) = (refl_v_2 bullet refl_v_2) bullet r
-    $
-    and we put $c_1(v_1) :peq ind_=(C_2, c_2, v_1)$ to get
-    $
-      c_1(v_1) : product_(z : A) product_(q : v_1 = z) product_(w : A) product_(r : z = w) refl_v_1 bullet (q bullet r) = (refl_v_1 bullet q) bullet r.
-    $
-    Finally, we find
-    $
-      ind_=(C_1, c_1, x, y, p, z, q, w, r) : p bullet (q bullet r) = (p bullet q) bullet r
-    $
-    as required.#footnote([Phew!])
+      For the first induction, put
+      $
+        C_1 (x, y, p) :peq product_(z : A) product_(q : y = z) product_(w : A) product_(r : z = w) p bullet (q bullet r) = (p bullet q) bullet r
+      $
+      so that, for $v_1 : A$, we have
+      $
+        C_1(v_1, v_1, refl_v_1) peq product_(z : A) product_(w : A) product_(q : v_1 = z) product_(r : z = w) refl_v_1 bullet (q bullet r) = (refl_v_1 bullet q) bullet r.
+      $
+      We want to construct an element of $C_1(v_1, v_1, refl_v_1)$, which leads us into the
+      second induction. Put
+      $
+        C_2 (x, z, q) :peq product_(w : A) product_(r : z = w) refl_x bullet (q bullet r) = (refl_x bullet q) bullet r \
+      $
+      so that for $v_2 : A$, we have
+      $
+        C_2(v_2, v_2, refl_v_2) peq product_(w : A) product_(r : v_2 = w) refl_v_2 bullet (refl_v_2 bullet r) = (refl_v_2 bullet refl_v_2) bullet r.
+      $
+      We want to construct an element of $C_2(v_2, v_2, refl_v_2)$, which leads us into the
+      third induction. Put
+      $
+        C_3 (x, w, r) :peq refl_x bullet (refl_x bullet r) = (refl_x bullet refl_x) bullet r
+      $
+      so that for $v_3 : A$, we have
+      $
+        C_3(v_3, v_3, refl_v_3) peq refl_v_3 bullet (refl_v_3 bullet refl_v_3) = (refl_v_3 bullet refl_v_3) bullet refl_v_3.
+      $
+      Applying @lemma:identity-transitivity, this reduces to
+      $
+        C_3(v_3, v_3, refl_v_3) peq refl_v_3 = refl_v_3
+      $
+      which is inhabited by
+      $
+        c_3(v_3) :peq refl_refl_v_3.
+      $
+      Going back up the chain of inductions, we put $c_2 (v_2) :peq ind_=(C_3, c_3, v_2)$ to
+      get
+      $
+        c_2(v_2) : product_(w : A) product_(r : v_2 = w) refl_v_2 bullet (refl_v_2 bullet r) = (refl_v_2 bullet refl_v_2) bullet r
+      $
+      and we put $c_1(v_1) :peq ind_=(C_2, c_2, v_1)$ to get
+      $
+        c_1(v_1) : product_(z : A) product_(q : v_1 = z) product_(w : A) product_(r : z = w) refl_v_1 bullet (q bullet r) = (refl_v_1 bullet q) bullet r.
+      $
+      Finally, we find
+      $
+        ind_=(C_1, c_1, x, y, p, z, q, w, r) : p bullet (q bullet r) = (p bullet q) bullet r
+      $
+      as required.#footnote([Phew!])
+  ]
+
+  #remark[
+    The proofs in @lem:paths-inv-assoc were very explicit, noting each application of the
+    $=$-Elim rule with its associated named terms. In #cite(<hottbook>, form: "prose"), the
+    authors adopt the convention of writing such proofs much more tersely, using the
+    formulation "by induction it is sufficient to assume $p peq refl_x$," and then computing
+    the desired result. We, however, will adopt the more explicit form in all our proofs,
+    for the sake of clarity and demonstration of understanding. In any case, we will not
+    require such complex proofs involving multiple levels of induction for the remainder of
+    this work.
+    /*TODO talk about Agda? */
+  ]
+
+  #remark[
+    The proof of @lem:paths-inv-assoc establishes witnesses to the necessary laws (identity,
+    associativity) for the first level of a higher groupoid. To truly show that a type forms
+    an $infinity$-groupoid, it would be necessary to prove these laws at every level "up to
+    infinity". In #cite(<hottbook>, form: "prose"), the authors note that this can be
+    achieved "using the notion of a globular operad". However, for the remainder of this
+    work, we only require these coherence laws up to a finite level. By considering the type
+    $A$ in @lem:paths-inv-assoc itself as an identity type (and then as an identity between
+    identities, etc.), we can rely on these laws up to any finite level we desire.
+  ]
+
+  By this equivalence between witnesses to identities and paths in a homotopy space, we will
+  use the terms "path" and "witness" interchangably from now on.
 ]
-
-#remark[
-  The proofs in @lem:paths-inv-assoc were very explicit, noting each application of the
-  $=$-Elim rule with its associated named terms. In #cite(<hottbook>, form: "prose"), the
-  authors adopt the convention of writing such proofs much more tersely, using the
-  formulation "by induction it is sufficient to assume $p peq refl_x$," and then computing
-  the desired result. We, however, will adopt the more explicit form in all our proofs, for
-  the sake of clarity and demonstration of understanding. In any case, we will not require
-  such complex proofs involving multiple levels of induction for the remainder of this work.
-  /*TODO talk about Agda? */
-]
-
-#remark[
-  The proof of @lem:paths-inv-assoc establishes witnesses to the necessary laws (identity,
-  associativity) for the first level of a higher groupoid. To truly show that a type forms
-  an $infinity$-groupoid, it would be necessary to prove these laws at every level "up to
-  infinity". In #cite(<hottbook>, form: "prose"), the authors note that this can be achieved
-  "using the notion of a globular operad". However, for the remainder of this work, we only
-  require these coherence laws up to a finite level. By considering the type $A$ in
-  @lem:paths-inv-assoc itself as an identity type (and then as an identity between
-  identities, etc.), we can rely on these laws up to any finite level we desire.
-]
-
-By this equivalence between witnesses to identities and paths in a homotopy space, we will
-use the terms "path" and "witness" interchangably from now on.
 
 == Functions and functors<sec:functions-functors>
 
-For judgmental equalities, the rule $"Subst"_3$ allows us to move from an equality of
-function parameters to an equality of values of the function at those parameters. If we have
-$f : A -> B$ and $t peq t' : A$, then we can conclude that $f(t) peq f(t')$. In this
-subsection, we generalize this principle to propositional equalities. In order to do this,
-we make use of a function $ap_f$, which "applies" a function $f$ to both sides of an
-identity type.
+#new[
+  For judgmental equalities, the rule $"Subst"_3$ allows us to move from an equality of
+  function parameters to an equality of values of the function at those parameters. If we
+  have $f : A -> B$ and $t peq t' : A$, then we can conclude that $f(t) peq f(t')$. In this
+  subsection, we generalize this principle to propositional equalities. In order to do this,
+  we make use of a function $ap_f$, which "applies" a function $f$ to both sides of an
+  identity type.
+]
 
 #lemma([HoTT book Lemma 2.2.1])[For $f : A -> B$ a (non-dependent) function and $x : A$,
   $y : A$ elements, there is a function
@@ -2176,115 +2228,119 @@ identity type.
   as required.
 ]
 
-We also note that $ap_f$ has a functorial relationship with paths under composition and
-inverse. We will not prove this, as we will not make use of it, but it is worth stating
-anyway.
+#new[
+  We also note that $ap_f$ has a functorial relationship with paths under composition and
+  inverse. We will not prove this, as we will not make use of it, but it is worth stating
+  anyway.
 
-#lemma([HoTT Book 2.2.2])[
-  Let $f: A -> B$, $g : B -> C$ be functions, $x, y, z : A$ be variables and $p : x =_A y$,
-  $q : y =_A z$ be paths.
+  #lemma([HoTT Book 2.2.2])[
+    Let $f: A -> B$, $g : B -> C$ be functions, $x, y, z : A$ be variables and
+    $p : x =_A y$, $q : y =_A z$ be paths.
 
-  Then we have the following equalities:
-  + $ap_f (p bullet q) = ap_f (p) bullet ap_f (q)$
-  + $ap_f (p^(-1)) = ap_f (p)^(-1)$
-  + $ap_g (ap_f (p)) = ap_(g compose f) (p)$
-  + $ap_id_A (p) = p$
+    Then we have the following equalities:
+    + $ap_f (p bullet q) = ap_f (p) bullet ap_f (q)$
+    + $ap_f (p^(-1)) = ap_f (p)^(-1)$
+    + $ap_g (ap_f (p)) = ap_(g compose f) (p)$
+    + $ap_id_A (p) = p$
 
-]<lemma:ap-functoriality>
-#proof[Omitted]
+  ]<lemma:ap-functoriality>
+  #proof[Omitted]
 
-We have defined $ap_f$ in the case of $f : A -> B$ a non-dependent function. This makes
-sense for non-dependent functions, because $f$ has the same return type regardless of its
-input, and therefore we can form the type $f(x) =_B f(y)$. In the case of a dependent
-function, say $g : product_(x : A) B(x)$, the return type of $g$ varies with its parameter.
-We cannot form an identity type $g(x) = g(y)$ because these terms have different types. We
-overcome this by defining a "sibling" function to $ap$, called $apd$ ("apply dependently"),
-which uses $transport$ to resolve this problem.
+  We have defined $ap_f$ in the case of $f : A -> B$ a non-dependent function. This makes
+  sense for non-dependent functions, because $f$ has the same return type regardless of its
+  input, and therefore we can form the type $f(x) =_B f(y)$. In the case of a dependent
+  function, say $g : product_(x : A) B(x)$, the return type of $g$ varies with its
+  parameter. We cannot form an identity type $g(x) = g(y)$ because these terms have
+  different types. We overcome this by defining a "sibling" function to $ap$, called $apd$
+  ("apply dependently"), which uses $transport$ to resolve this problem.
 
-#lemma([HoTT Book 2.3.4])[
-  For a type family $B : A -> UU_i$, a dependent function $f : product_(x : A) B(x)$ and
-  elements $a, b : A$, there is a function
-  $
-    apd_f : product_(p : a = b) transport^B (p, f(a)) =_(B(b)) f(b)
-  $
-]
-#proof[
-  We proceed by path induction on $p$. We put
-  $
-    C : product_(x : A) product_(y : A) (x = y) -> UU_i \
-    C(x, y, p) :peq transport^B (p, f(x)) =_B(y) f(y).
-  $
-  We need to exhibit for all $z : A$ an element
-  $
-                & c(z) : C(z, z, refl_z) \
-    "i.e." wide & c(z) : transport^B (refl_z, f(z)) =_B(z) f(z).
-  $
-  Recalling that $transport^B (refl_z) peq id_B(z)$, we have
-  $ transport^B (refl_z, f(z)) peq f(z) $
-  so we put
-  $ c(z) :peq refl_f(z). $
+  #lemma([HoTT Book 2.3.4])[
+    For a type family $B : A -> UU_i$, a dependent function $f : product_(x : A) B(x)$ and
+    elements $a, b : A$, there is a function
+    $
+      apd_f : product_(p : a = b) transport^B (p, f(a)) =_(B(b)) f(b)
+    $
+  ]
+  #proof[
+    We proceed by path induction on $p$. We put
+    $
+      C : product_(x : A) product_(y : A) (x = y) -> UU_i \
+      C(x, y, p) :peq transport^B (p, f(x)) =_B(y) f(y).
+    $
+    We need to exhibit for all $z : A$ an element
+    $
+                  & c(z) : C(z, z, refl_z) \
+      "i.e." wide & c(z) : transport^B (refl_z, f(z)) =_B(z) f(z).
+    $
+    Recalling that $transport^B (refl_z) peq id_B(z)$, we have
+    $ transport^B (refl_z, f(z)) peq f(z) $
+    so we put
+    $ c(z) :peq refl_f(z). $
 
-  Then, by induction, we get
-  $
-    ind_= (C, c) : product_(x : A) product_(y : A) product_(p : x = y) C(x, y, p).
-  $
+    Then, by induction, we get
+    $
+      ind_= (C, c) : product_(x : A) product_(y : A) product_(p : x = y) C(x, y, p).
+    $
 
-  We then define $apd_f :peq ind_= (C, c, a, b)$ as required.
-]
+    We then define $apd_f :peq ind_= (C, c, a, b)$ as required.
+  ]
 
-By the existence of $ap$ and $apd$, we see that all functions in type theory "preserve"
-paths (identities) between their parameters. In topological terms, if there is a path from a
-point $x$ to a point $y$, there remains a path between the two points after function
-application. In this sense, we say that all functions in type theory are *continuous*.
+  By the existence of $ap$ and $apd$, we see that all functions in type theory "preserve"
+  paths (identities) between their parameters. In topological terms, if there is a path from
+  a point $x$ to a point $y$, there remains a path between the two points after function
+  application. In this sense, we say that all functions in type theory are *continuous*.
 
-The following lemma describes a useful interaction between $ap$ and $transport$.
+  The following lemma describes a useful interaction between $ap$ and $transport$.
 
-#lemma([HoTT 2.3.10])[For types $A$ and $B$, a type family $D: B -> UU_i$, a function
-  $f : A -> B$, elements $x, y : A$ and a witness $p : x = y$, we have
-  $
-    transport^D (ap_f (p)) = transport^(D compose f) (p).
-  $
-]<lem:transport-ap>
-#proof[
-  We proceed by path induction on $p$. We put
-  $
-    C : product_(x : A) product_(y : A) (x = y) -> UU_i \
-    C(x, y, p) :peq transport^D (ap_f (p)) = transport^(D compose f) (p).
-  $
-  For a variable $z : A$, we compute
-  $
-    C(z, z, refl_z) & peq transport^D (ap_f (refl_z)) = transport^(D compose f) (refl_z) \
-                    & peq transport^D (refl_f(z)) = transport^(D compose f) (refl_z) \
-                    & peq id_(D(f(z))) = id_(D(f(z)))
-  $
-  so we put
-  $
-    c : product_(z : A) C(z, z, refl_z) \
-    c(z) :peq refl_id_(D(f(z))).
-  $
+  #lemma([HoTT 2.3.10])[For types $A$ and $B$, a type family $D: B -> UU_i$, a function
+    $f : A -> B$, elements $x, y : A$ and a witness $p : x = y$, we have
+    $
+      transport^D (ap_f (p)) = transport^(D compose f) (p).
+    $
+  ]<lem:transport-ap>
+  #proof[
+    We proceed by path induction on $p$. We put
+    $
+      C : product_(x : A) product_(y : A) (x = y) -> UU_i \
+      C(x, y, p) :peq transport^D (ap_f (p)) = transport^(D compose f) (p).
+    $
+    For a variable $z : A$, we compute
+    $
+      C(z, z, refl_z) & peq transport^D (ap_f (refl_z)) = transport^(D compose f) (refl_z) \
+                      & peq transport^D (refl_f(z)) = transport^(D compose f) (refl_z) \
+                      & peq id_(D(f(z))) = id_(D(f(z)))
+    $
+    so we put
+    $
+      c : product_(z : A) C(z, z, refl_z) \
+      c(z) :peq refl_id_(D(f(z))).
+    $
 
-  By path induction, we have
-  $
-    ind_=(C, c, x, y, p) : transport^D (ap_f (p)) = transport^(D compose f) (p)
-  $
-  as required.
+    By path induction, we have
+    $
+      ind_=(C, c, x, y, p) : transport^D (ap_f (p)) = transport^(D compose f) (p)
+    $
+    as required.
+  ]
 ]
 
 == Homotopies and equivalences<sec:homotopies-and-equivalences>
 
-So far, we have dealt with identities between elements of types, which in the homotopical
-interpretation we consider as points in a topological space. Recalling that functions in
-type theory are simply elements of function types, and indeed types themselves are elements
-of universes, we can form identities between functions and types themselves. Over the next
-three sections, we will give ourselves the necessary tools to work with these kinds of
-identities.
+#new[
+  So far, we have dealt with identities between elements of types, which in the homotopical
+  interpretation we consider as points in a topological space. Recalling that functions in
+  type theory are simply elements of function types, and indeed types themselves are
+  elements of universes, we can form identities between functions and types themselves. Over
+  the next three sections, we will give ourselves the necessary tools to work with these
+  kinds of identities.
 
-We begin with a more type-theoretic definition of a homotopy, which is the definition we
-will use going forward. This definition says that a homotopy between functions $f$ and $g$
-is a function which generates witnesses to the pointwise equality of $f$ and $g$ at all
-points in their input type.
+  We begin with a more type-theoretic definition of a homotopy, which is the definition we
+  will use going forward. This definition says that a homotopy between functions $f$ and $g$
+  is a function which generates witnesses to the pointwise equality of $f$ and $g$ at all
+  points in their input type.
 
-FEEDBACK/TODO: in what sense is this the same as homotopy from earlier?
+  FEEDBACK/TODO: in what sense is this the same as homotopy from earlier?
+]
 
 #definition[For a type family $P : A -> UU_i$ and dependent functions
   $f, g : product_(x : A) P(x)$, a *homotopy* from $f$ to $g$ is a dependent function of
@@ -2310,7 +2366,7 @@ are well-behaved with respect to function composition.
   $
 ]<lemma:homotopy-equivalence>
 #proof[
-  (Left to reader in HoTT)
+  (TODO note left to reader in HoTT)
 
   Using the notation in @lemma:identity-symmetry and @lemma:identity-transitivity, we define
   $
@@ -2345,10 +2401,13 @@ are well-behaved with respect to function composition.
   as required.
 ]
 
-Having now constructed the concept of homotopies between functions, we put it to use in
-considering how to identify types with each other. An intuitive approach might be to
-consider, for types $A$ and $B$, whether we can move elements from $A$ to $B$ and back again
-(and vice versa) without loss of information. This is the notion of "quasi-inverses".
+#new[
+  Having now constructed the concept of homotopies between functions, we put it to use in
+  considering how to identify types with each other. An intuitive approach might be to
+  consider, for types $A$ and $B$, whether we can move elements from $A$ to $B$ and back
+  again (and vice versa) without loss of information. This is the notion of
+  "quasi-inverses".
+]
 
 #definition[For a function $f : A -> B$, a *quasi-inverse* of $f$ is a triple
   $(g, alpha, beta)$, where
@@ -2373,48 +2432,50 @@ consider, for types $A$ and $B$, whether we can move elements from $A$ to $B$ an
 
 - TODO some examples? Perhaps 2.4.8
 
-Quasi-inverses are a useful approach, but they present a problem: for types $A$ and $B$ and
-a function $f : A -> B$, the type $qinv(f)$ may have multiple non-equal inhabitants (hence
-"quasi"). It will turn out that this is problematic for constructing a notion of identity
-between types, as we will see later in @sec:univalence, so we construct a slightly different
-formulation: that of "equivalences".
+#new[
+  Quasi-inverses are a useful approach, but they present a problem: for types $A$ and $B$
+  and a function $f : A -> B$, the type $qinv(f)$ may have multiple non-equal inhabitants
+  (hence "quasi"). It will turn out that this is problematic for constructing a notion of
+  identity between types, as we will see later in @sec:univalence, so we construct a
+  slightly different formulation: that of "equivalences".
 
-#definition[
-  For a function $f : A -> B$, we say that $f$ is an *equivalence* if there are functions
-  $g : B -> A$ and $h : B -> A$ and homotopies
-  $
-    f compose g ~ id_B
-  $
-  and
-  $
-    h compose f ~ id_A.
-  $
-  This is represented formally by the function $isequiv$, defined as
-  $
-    isequiv & : (A -> B) ->UU_i \
-  $$
-    isequiv(f) &:peq (sum_(g : B -> A) (f compose g ~ id_B)) times (sum_(h : B -> A) h compose f ~ id_A)
-  $
+  #definition[
+    For a function $f : A -> B$, we say that $f$ is an *equivalence* if there are functions
+    $g : B -> A$ and $h : B -> A$ and homotopies
+    $
+      f compose g ~ id_B
+    $
+    and
+    $
+      h compose f ~ id_A.
+    $
+    This is represented formally by the function $isequiv$, defined as
+    $
+      isequiv & : (A -> B) ->UU_i \
+    $$
+      isequiv(f) &:peq (sum_(g : B -> A) (f compose g ~ id_B)) times (sum_(h : B -> A) h compose f ~ id_A)
+    $
 
-  When there exists such a function $f$, with an element of $isequiv(f)$, we say that $A$
-  and $B$ are *equivalent*. We form the type
-  $
-    A equiv B : UU_i
-  $
-  by defining
-  $
-    A equiv B :peq sum_(f : A -> B) isequiv(f).
-  $
-  That is, a witness to the type $A equiv B$ is a function $f$ together with a witness to
-  $isequiv(f)$.
+    When there exists such a function $f$, with an element of $isequiv(f)$, we say that $A$
+    and $B$ are *equivalent*. We form the type
+    $
+      A equiv B : UU_i
+    $
+    by defining
+    $
+      A equiv B :peq sum_(f : A -> B) isequiv(f).
+    $
+    That is, a witness to the type $A equiv B$ is a function $f$ together with a witness to
+    $isequiv(f)$.
+  ]
+
+  The definition of the type $isequiv$ overcomes the problem with $qinv$ in that
+  $isequiv(f)$ has at most one inhabitant: for any two elements $e_1, e_2 : isequiv(f)$, we
+  have $e_1 = e_2$. Unfortunately, the proof of this is beyond the scope of this work. We
+  will, however, prove the following important proposition about $isequiv$ and $qinv$,
+  namely that they are logically equivalent.
+
 ]
-
-The definition of the type $isequiv$ overcomes the problem with $qinv$ in that $isequiv(f)$
-has at most one inhabitant: for any two elements $e_1, e_2 : isequiv(f)$, we have
-$e_1 = e_2$. Unfortunately, the proof of this is beyond the scope of this work. We will,
-however, prove the following important proposition about $isequiv$ and $qinv$, namely that
-they are logically equivalent.
-
 #proposition[For each $f : A -> B$,
   + there is a function of type $qinv(f) -> isequiv(f)$; and
   + there is a function of type $isequiv(f) -> qinv(f)$.
@@ -2454,37 +2515,39 @@ they are logically equivalent.
 
 ]
 
-We explore the concept of equivalence using an example.
+#new[
+  We explore the concept of equivalence using an example.
 
-#example[
-  Let the type $two : UU_i$ be defined as $two :peq one + one$. We write the elements of
-  $two$, which are formally $inl(star)$ and $inr(star)$, as $0_two$ and $1_two$
-  respectively. Let the function $f : two -> two$ be defined by
-  $
-    & f(0_two) && :peq 1_two \
-    & f(1_two) && : peq 0_two.
-  $
+  #example[
+    Let the type $two : UU_i$ be defined as $two :peq one + one$. We write the elements of
+    $two$, which are formally $inl(star)$ and $inr(star)$, as $0_two$ and $1_two$
+    respectively. Let the function $f : two -> two$ be defined by
+    $
+      & f(0_two) && :peq 1_two \
+      & f(1_two) && : peq 0_two.
+    $
 
-  We show that $f$ is an equivalence, i.e. we have an element of $isequiv(f)$. We do this by
-  showing that $f$ is a quasi-inverse of itself, and relying on @prop:qinv-is-equiv.
+    We show that $f$ is an equivalence, i.e. we have an element of $isequiv(f)$. We do this
+    by showing that $f$ is a quasi-inverse of itself, and relying on @prop:qinv-is-equiv.
 
-  Since we are showing that $f$ is a quasi-inverse of itself, the two homotopies required in
-  $qinv(f)$ reduce to a single homotopy
-  $
-    alpha : f compose f ~ id_two.
-  $
-  That is, we need to construct
-  $
-    alpha : product_(x : two) f(f(x)) =_two x.
-  $
-  Clearly, we have $f(f(0_two)) peq 0_two$ and $f(f(1_two)) peq 1_two$, so we simply put
-  $
-    alpha(x) :peq refl_x.
-  $
+    Since we are showing that $f$ is a quasi-inverse of itself, the two homotopies required
+    in $qinv(f)$ reduce to a single homotopy
+    $
+      alpha : f compose f ~ id_two.
+    $
+    That is, we need to construct
+    $
+      alpha : product_(x : two) f(f(x)) =_two x.
+    $
+    Clearly, we have $f(f(0_two)) peq 0_two$ and $f(f(1_two)) peq 1_two$, so we simply put
+    $
+      alpha(x) :peq refl_x.
+    $
 
-  Formally then, we have $(f, alpha, alpha) : qinv(f)$ and hence an (unnamed) element of
-  $isequiv(f)$.
-]<example:two-equiv>
+    Formally then, we have $(f, alpha, alpha) : qinv(f)$ and hence an (unnamed) element of
+    $isequiv(f)$.
+  ]<example:two-equiv>
+]
 
 We will now use equivalence to show an interesting property of the singleton type $one$: not
 only does it have a single element, but indeed there is only a single witness to any
