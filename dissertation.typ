@@ -3476,4 +3476,29 @@ TODO text
 
 = Homotpy type theory in Agda
 
-TODO
+- Agda is a functional programming language with dependent types
+- Used in formal verification and other fields(?)
+- #cite(<HoTTAgda>, form: "prose") presents a formalization of the HoTT book in Agda
+- What will we do?
+
+Caveats:
+- Agda has a particular type theory built in to the language
+- Mostly compatible with MLTT as presented above, but
+- Must use `--without-K`, because conflicts with univalence; (explained in notes)
+- Dependent function syntax is different to ours
+- Lambda syntax slightly different
+- Function application syntax different
+- Has its own notion of identity types, not used in notes
+- Instead they construct their own identity types, using `＝`
+  - Show code
+  - Give example
+  - Mention about normal form and showing judgmental equalities
+- Also construct $Sigma$-types
+  - Show code, give example
+
+- Examples so far
+  - `add`
+  - `leq`
+  - `transport`
+  - `ap`
+  - Proof about ap and transport
