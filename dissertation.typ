@@ -3474,21 +3474,87 @@ TODO text
 - Unlike the law of double negation in general, this version is consistent with type theory.
   (cite)
 
-= Homotpy type theory in Agda
+= Homotopy type theory in Agda
 
-- Agda is a functional programming language with dependent types
-- Used in formal verification and other fields(?)
-- #cite(<HoTTAgda>, form: "prose") presents a formalization of the HoTT book in Agda
-- What will we do?
+Agda is a programming language whose type system is an extension of Martin-Löf type theory,
+as presented in @sec:type-theory. In programming languages commonly used for software
+engineering, the type system ranges from relatively weak (C, Go) to relatively powerful
+(Rust, Haskell), but even the more powerful type systems among these are not descriptive
+enough to capture Martin-Löf type theory (TODO why?). The languages which do, such as Agda,
+Rocq and Lean, may be used as proof assistants, allowing the algorithmic verification of
+propositions and their proofs. (TODO citations)
 
-Caveats:
-- Agda has a particular type theory built in to the language
-- Mostly compatible with MLTT as presented above, but
-- Must use `--without-K`, because conflicts with univalence; (explained in notes)
-- Dependent function syntax is different to ours
-- Lambda syntax slightly different
-- Function application syntax different
-- Has its own notion of identity types, not used in notes
+In #cite(<HoTTAgda>, form: "prose"), the authors present an in-depth formalization of #cite(
+  <hottbook>,
+  form: "prose",
+) in Agda. In this section, we will explore the first parts of this formalization and
+present some solutions to selected exercises.
+
+== Caveats
+
+There are certain differences between the type system used by Agda and the system we have
+presented in @sec:type-theory, which must be resolved in order to express our theory in
+Agda.
+
+In @sec:type-theory, we presented a type theory which uses inductors (the family of $ind$
+functions) to express elimination and computation rules, and we then defined pattern
+matching as a shorthand for using induction. In standard Agda, pattern matching is
+foundational, and while inductors can be derived from it, they are not generally used. The
+system for pattern matching in Agda is powerful enough to be able to deduce what is known as
+the *K axiom*, due to Streicher (TODO cite), which says that every identity type $x = y$
+contains at most one element. We have shown, using univalence in (TODO show it -- HoTT
+example 3.1.9), that not all types are sets, and therefore the K axiom is not compatible
+with univalence. Therefore, we must restrict Agda's pattern matching system by using the
+`--without-K` option. Furthermore, when we explore this work in Agda, we will define
+inductors for all our types. We will use pattern matching where it makes things clearer, but
+because it is built in to the core of the language, we note that it is not making use of our
+inductors "behind the scenes", as it is in our theoretical presentation above.
+
+Another difference from standard Agda in our approach is in identity types. In Agda,
+identity types are another built-in feature of the language, which are expressed using the
+syntax `x ≡ y`. Firstly, this conflicts with our use of $peq$ for judgmental equality, and
+secondly, we wish to construct identity types ourselves. The justification for this internal
+construction is to demonstrate that identity types are not special, exceptional types which
+the programming environment handles, but rather they are just another type like $zero$,
+$one$ or $NN$. To do this, we must choose a symbol other than `=`, which we have used for
+identity up to now. We choose the "full-width equals sign" (U+FF1D, `＝`), so an identity
+type between $x$ and $y$ is written `x ＝ y`. Close inspection will reveal this equals sign
+to be different to the normal equals sign (U+003D, `=`), which is reserved for definition of
+terms in Agda, in the form `t = s`.
+
+Further syntactic differences are in the construction of dependent functions ($Pi$-types),
+function application, $lambda$-terms, functions in "open form" and multi-parameter
+functions. We present a summary of these differences in the following table.
+
+#align(center)[
+  #table(
+    columns: (auto, auto, auto),
+    stroke: none,
+    table.header([*Concept*], [*Type theory*], [*Agda*]),
+    table.hline(),
+    [Definition],
+    $t :peq s$,
+    `t = s`,
+    [Identity type],
+    $x = y$,
+    `x ＝ y`,
+    [Dependent function type],
+    $product_(x : A) B(x)$,
+    `(x : A) → B(x)`,
+    [Function application],
+    $f(a)$,
+    `f a`,
+    [$lambda$-function],
+    $lambda (x : A) sd lambda (y : B(x)) sd t$,
+    `λ x y → t`,
+    [Open-form function],
+    $f(x, y) :peq t$,
+    `f x y = t`,
+  )
+]
+
+- Implicit parameters
+
 - Instead they construct their own identity types, using `＝`
   - Show code
   - Give example
