@@ -149,6 +149,8 @@
 
 #let sd = $thin . thin$
 #let UU = $cal(U)$
+#let VV = $cal(V)$
+#let WW = $cal(W)$
 #let peq = $equiv$
 #let equiv = $tilde.eq$
 #let rec = $sans("rec")$
@@ -1364,7 +1366,7 @@ number $n$, given $n$ itself and the value at $n$.
   $
 ]<example:fact>
 
-== Recursive pattern matching
+== Recursive pattern matching<sec:recursive-pattern-matching>
 
 We return to the concept of pattern matching discussed in @sec:pattern-matching-1. We want
 to apply this concept to defining functions out of $NN$, using $ind_NN$, as we did for
@@ -2207,7 +2209,7 @@ which uses $transport$ to resolve this problem.
   $
     apd_f : product_(p : a = b) transport^B (p, f(a)) =_(B(b)) f(b)
   $
-]
+]<lem:apd>
 #proof[
   We proceed by path induction on $p$. We put
   $
@@ -3490,7 +3492,7 @@ In #cite(<HoTTAgda>, form: "prose"), the authors present an in-depth formalizati
 ) in Agda. In this section, we will explore the first parts of this formalization and
 present some solutions to selected exercises.
 
-== Caveats
+== Preliminaries and caveats
 
 There are certain differences between the type system used by Agda and the system we have
 presented in @sec:type-theory, which must be resolved in order to express our theory in
@@ -3553,14 +3555,106 @@ functions. We present a summary of these differences in the following table.
   )
 ]
 
-- Implicit parameters
+#show quote: it => {
+  align(center, block(
+    above: 1em,
+    below: 1em,
+    stroke: (left: gray + 0.2em),
+    it,
+  ))
+}
 
-- Instead they construct their own identity types, using `＝`
-  - Show code
-  - Give example
-  - Mention about normal form and showing judgmental equalities
-- Also construct $Sigma$-types
-  - Show code, give example
+Another noteworthy aspect of the Agda presentation is the use of *implicit arguments* for
+some functions. For example, when we defined $transport$ in
+@thm:indiscernibility-of-identicals, we said #quote(block: true)[Let $A : UU_i$ be a type
+  and $D : A -> UU_i$ a type family. For every pair of elements $x : A$, $y : A$ there is a
+  function
+  $ transport^D : (x =_A y) -> D(x) -> D(y) $
+  such that...] In this definition, we are assuming that the variables $A$, $D$, $x$ and $y$
+(and indeed $UU_i$, which here actually refers to two potentially-distinct universes) are in
+the context. When we use $transport$ later, we rely on the reader to infer the meaning of
+these variables, i.e. to match them up to variables existing in the context at the site of
+the usage. Since the parameters to $transport$ refer indirectly to those variables, this is
+not so difficult to do. For example, in the construction of $apd$ (@lem:apd), we suppose a
+type family $B : A -> UU_i$, put
+$
+  C(x, y, p) :peq transport^B (p, f(x)) =_B(y) f(y)
+$
+and thus can infer that in this case $D$ refers to $B$, $A$ refers to $A$, $x$ refers to $x$
+and $y$ refers to $y$.
+
+In Agda, such implicit translations between variables in different contexts is achieved
+using *implicit arguments*, and their syntax in type declarations uses curly brackets. When
+invoking the function, Agda performs this matching-up process of implicit arguments, based
+on information available to it in the explicit arguments, exactly like we do as readers of
+the mathematical definition. Thus, the syntax of the type declaration of $transport$ (with
+some variables renamed for consistency) in the Agda presentation is
+#quote(block: true)[
+  ```
+  transport : {A : 𝓤 ̇ } (D : X → 𝓥 ̇ ) {x y : A}
+            → x ＝ y → D x → D y
+  ```
+]
+
+== Examples
+
+We show some examples of Agda code, so that we can become familiar with reading it. We will
+not be comprehensive in any of our code, rather we will select certain sections, which may
+have prerequisites, from #cite(<HoTTAgda>, form: "prose") and assume that if the reader
+wishes, they can read the code in full from the reference.
+
+We explore the definition of the inductor on coproduct types, which corresponds to our
+"$+$-Intr" and "$+$-Comp" rules.
+
+#quote(block: true)[
+  ```agda
+  +-induction : {X : 𝓤 ̇ } {Y : 𝓥 ̇ } (A : X + Y → 𝓦 ̇ )
+            → ((x : X) → A (inl x))
+            → ((y : Y) → A (inr y))
+            → (z : X + Y) → A z
+
+  +-induction A f g (inl x) = f x
+  +-induction A f g (inr y) = g y
+  ```
+]
+
+The first four lines form the type declaration of `+-induction`, which corresponds to our
+elimination rule. The type declaration says that `+-induction` is a function with implicit
+arguments `X` and `Y`, which are types in universes $UU$ and $VV$ respectively. Its first
+parameter, `A`, is the type family which we call $C$ in our version of the rules. It takes
+three more parameters, namely: a function of type `(x : X) → A (inl x)`, i.e.
+$product_(x : X) A(inl(x))$; a similar function on `Y`; and a value `z` of type `X + Y`. It
+returns a value of `A z`, i.e. the type family `A` applied at the parameter `z`. The
+definition forms the remaining two lines of code, and is equivalent to our computation rule.
+
+The case of the inductor on $NN$ is similar:
+#quote(block: true)[
+
+  ```agda
+  ℕ-induction : (A : ℕ → 𝓤 ̇ )
+            → A 0
+            → ((n : ℕ) → A n → A (succ n))
+            → (n : ℕ) → A n
+
+  ℕ-induction A a₀ f = h
+   where
+    h : (n : ℕ) → A n
+    h 0        = a₀
+    h (succ n) = f n (h n)
+  ```
+]
+The first four lines form the type declaration, which corresponds to our elimination rule,
+and the remaining lines form the definition. Where we use $c_0$, the code uses `a₀`, and
+where we use $c_s$, the code uses `f`. The definition does not correspond perfectly with our
+computation rules "$NN$-Comp-0" and "$NN$-Comp-$succ$". Rather, the names `A`, `a₀` and `f`
+are first bound, and then a utility function `h` is constructed. The function `h` uses
+pattern matching, which as mentioned is primitive in Agda, to perform the recursive call to
+itself in the last line. Note that as we mentioned in @sec:recursive-pattern-matching, the
+matching of `succ n` on the left-hand side, paired with the use only of `n` on the
+right-hand side guarantees termination.
+
+
+- Mention about normal form and showing judgmental equalities
 
 - Examples so far
   - `add`
