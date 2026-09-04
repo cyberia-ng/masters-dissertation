@@ -2371,7 +2371,7 @@ consider, for types $A$ and $B$, whether we can move elements from $A$ to $B$ an
        qinv & : (A -> B) -> UU_i \
     qinv(f) & :peq sum_(g : B -> A) (f compose g ~ id_B) times (g compose f ~ id_A).
   $
-]
+]<def:qinv>
 
 - TODO some examples? Perhaps 2.4.8
 
@@ -2409,7 +2409,7 @@ formulation: that of "equivalences".
   $
   That is, a witness to the type $A equiv B$ is a function $f$ together with a witness to
   $isequiv(f)$.
-]
+]<def:equivalence>
 
 The definition of the type $isequiv$ overcomes the problem with $qinv$ in that $isequiv(f)$
 has at most one inhabitant: for any two elements $e_1, e_2 : isequiv(f)$, we have
@@ -2492,7 +2492,7 @@ We will now use equivalence to show an interesting property of the singleton typ
 only does it have a single element, but indeed there is only a single witness to any
 equality between its elements.
 
-#theorem([HoTT 2.8.1])[For any $x, y : one$, we have $x = y equiv one$.]<thm:one-is-a-set>
+#theorem([HoTT 2.8.1])[For any $x, y : one$, we have $(x = y) equiv one$.]<thm:one-is-a-set>
 #proof[
   We construct a function $f : (x =_one y) -> one$ by setting $f(\_) :peq star$ and we aim
   to show that it has a quasi-inverse. We need a function $g : one -> (x =_one y)$. By the
@@ -2548,8 +2548,8 @@ equality between its elements.
   $
   Then we derive
   $
-           & beta :peq ind(C, c, x, y) : product_(p : x =_one y) g(f(p)) =_(x =_one y) p \
-    "i.e." & beta : g compose f ~ id_(x =_one y).
+    beta :peq ind(C, c, x, y) : product_(p : x =_one y) g(f(p)) =_(x =_one y) p \
+    "i.e." beta : g compose f ~ id_(x =_one y).
   $
 
   Therefore we have exhibited a quasi-inverse to $f$ as required.
@@ -2636,13 +2636,10 @@ $B$.
 #lemma([HoTT 2.9.4])[
   In a context consisting of
   $
-    & X   && : UU_i, \
-    & x_1 && : X, \
-    & x_2 && : X, \
-    & p   && : x_1 =_X x_2, \
-    & A   && : X -> UU_i, \
-    & B   && : X -> UU_i, \
-    & f   && : A(x_1) -> B(x_1), \
+    & X   && : UU_i,             && x_1 && : X, \
+    & x_2 && : X,                && p   && : x_1 =_X x_2, \
+    & A   && : X -> UU_i,        && B   && : X -> UU_i, \
+    & f   && : A(x_1) -> B(x_1),
   $
   we have
   $
@@ -2785,20 +2782,7 @@ the converse, so we must take it as an axiom. This is the axiom known as *unival
   $
     (A = B) equiv (A equiv B).
   $
-
-  We denote the(?) (FEEDBACK: how do we choose it?) quasi-inverse determined by this
-  equivalence as $ua$:
-  $
-    ua : (A equiv B) -> (A = B).
-  $
 ]<axiom:univalence>
-
-- FEEDBACK: the type of $isequiv(idtoequiv)$ is
-  $
-    (sum_(g : (A equiv B) -> (A = B)) isequiv compose g ~ id_(A equiv B)) times (sum_(h: (A equiv B) -> (A = B)) h compose isequiv ~ id_(A = B))
-  $
-  and we have stated that this has exactly one inhabitant. But do we choose $g$ or $h$ for
-  $ua$?
 
 #remark[In @sec:homotopies-and-equivalences we mentioned that we chose the definition of
   $isequiv$ over $qinv$ because of its property of having at most one inhabitant. The
@@ -2814,9 +2798,59 @@ the converse, so we must take it as an axiom. This is the axiom known as *unival
   )
 ]
 
-- TODO mention propositional computation rule; don't think I can until I understand $ua$
-  better.
+#lemma([Propositional rules])[
+  Using univalence, we can derive rules which are analogous to our data about types:
+  introduction, elimination, computation and uniqueness.
 
+  @axiom:univalence says that the type $isequiv(idtoequiv)$ is inhabited. Using
+  @prop:qinv-is-equiv, we get an element of $qinv(idtoequiv)$. Unfolding what this means
+  using @def:qinv, we get an element
+  $
+    (ua, alpha, beta) : sum_(ua : A equiv B -> A = B) (idtoequiv compose ua ~ id_(A equiv B)) times (ua compose idtoequiv ~ id_(A = B)).
+  $
+
+  The element $ua$ has type
+  $
+    ua : A equiv B -> A = B,
+  $
+  and we term this the *propositional introduction rule*: in order to construct an equality
+  between types, it is sufficient to give an equivalence.
+
+  For elimination, we simply take $idtoequiv$. We have
+  $
+    idtoequiv : (A = B) -> (A equiv B),
+  $
+  which we term the *propositional elimination rule*: in order to construct a function out
+  of an equality between types, it is sufficient to give a function out of an equivalence
+  between types, and post-compose it with $idtoequiv$.
+
+  For computation, we begin by unfolding the definition of an equivalence from
+  @def:equivalence. For an identity $p : A = B$, we have
+  $
+    idtoequiv(p) : sum_(f : A -> B) (sum_(g : B -> A) f compose g ~ id_B) times (sum_(h : B -> A) g compose f ~ id_A)
+  $
+  and in particular, by the definition of $idtoequiv$ we have
+  $ pi_0 (idtoequiv(p)) peq transport^(id_UU_i) (p) : A -> B $
+
+  From above application of $qinv$ to the univalence axiom, we have a homotopy
+  $
+           & alpha : idtoequiv compose ua ~ id_(A equiv B) \
+    "i.e." & alpha : product_(e : A equiv B) isequiv(ua(a)) = e.
+  $
+
+  Fixing an equivalence $e : A equiv B$ we get
+  $
+    ap_pi_0 (alpha(e)) : transport^(id_UU_i) (ua(e)) = pi_0 (e),
+  $
+  which we term the *propositional computation rule*.
+
+  For uniqueness, we consider the homotopy
+  $
+           & beta : ua compose idtoequiv ~ id_(A = B) \
+    "i.e." & beta : product_(p : A = B) ua(idtoequiv(p)) = p
+  $
+  which we term the *propositional uniqueness principle*.
+]<lem:propositional-rules>
 
 == Transport and coding
 
@@ -3431,8 +3465,8 @@ as $¬(A) :peq A -> zero$. We begin with a lemma.
     p' : transport^(id_UU_i) (p, f(two, u)) = f(two, u).
   $
 
-  Now, by the propositional computation rule (TODO mention it), we have an element $q'$ of
-  type
+  Now, by the propositional computation rule (@lem:propositional-rules), we have an element
+  $q'$ of type
   $
     q' : transport^(id_UU_i) (ua((e, q)), f(two, u)) = e(f(two, u))
   $
