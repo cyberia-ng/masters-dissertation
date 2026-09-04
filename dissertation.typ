@@ -2895,7 +2895,7 @@ statement about $x$ and $y$ when they are equal. This is best illustrated with a
 Now that we are familiar with the coding method, we can use it in the following proof about
 natural numbers. We wish to show a property similar to @thm:one-is-a-set, but for the
 natural numbers, i.e. that for natural numbers $n : NN$ and $m : NN$, we have
-$n = m equiv one$ if $n = m$ is inhabited, and $n = m equiv zero$ otherwise. We use the
+$(n = m) equiv one$ if $n = m$ is inhabited, and $(n = m) equiv zero$ otherwise. We use the
 coding method, and introduce the type family $code : NN -> NN -> UU_i$, defined by
 doubly-recursive pattern matching:
 
