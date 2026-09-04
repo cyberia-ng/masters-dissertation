@@ -1223,7 +1223,7 @@ number $n$, given $n$ itself and the value at $n$.
   argument (the value of our target function at the predecessor value) are useful for
   defining "accumulator" functions such as sum and product. More complex functions which
   require knowledge of $n$ itself, such as the factorial, may then be constructed out of
-  these more basic functions.]
+  these more basic functions.]<remark:NN-step-function>
 
 #let add = $sans("add")$
 #example(add)[
@@ -1905,7 +1905,7 @@ these laws for identity types.
 #proof[We have reflexivity axiomatically by the "$=$-Intr" rule. We have symmetry by
   @lemma:identity-symmetry and transitivity is by @lemma:identity-transitivity.]
 
-= Homotopy
+= Homotopy Type Theory<sec:homotopy-type-theory>
 
 In this section we will explore the relationship between the type theory we have defined so
 far and a concept from the field of algebraic topology, namely *homotopies*. It will turn
@@ -3555,12 +3555,21 @@ functions. We present a summary of these differences in the following table.
   )
 ]
 
-#show quote: it => {
+#let theircode = it => {
   align(center, block(
     above: 1em,
     below: 1em,
-    stroke: (left: gray + 0.2em),
-    it,
+    stroke: (left: (paint: rgb("#a0a0ff"), thickness: 0.15em, dash: "densely-dashed")),
+    align(left, quote(block: true, it)),
+  ))
+}
+
+#let ourcode = it => {
+  align(center, block(
+    above: 1em,
+    below: 1em,
+    stroke: (left: (paint: rgb("#a0a0ff"), thickness: 0.2em)),
+    align(left, quote(block: true, it)),
   ))
 }
 
@@ -3589,7 +3598,7 @@ invoking the function, Agda performs this matching-up process of implicit argume
 on information available to it in the explicit arguments, exactly like we do as readers of
 the mathematical definition. Thus, the syntax of the type declaration of $transport$ (with
 some variables renamed for consistency) in the Agda presentation is
-#quote(block: true)[
+#theircode[
   ```
   transport : {A : 𝓤 ̇ } (D : X → 𝓥 ̇ ) {x y : A}
             → x ＝ y → D x → D y
@@ -3606,8 +3615,8 @@ wishes, they can read the code in full from the reference.
 We explore the definition of the inductor on coproduct types, which corresponds to our
 "$+$-Intr" and "$+$-Comp" rules.
 
-#quote(block: true)[
-  ```agda
+#theircode[
+  ```
   +-induction : {X : 𝓤 ̇ } {Y : 𝓥 ̇ } (A : X + Y → 𝓦 ̇ )
             → ((x : X) → A (inl x))
             → ((y : Y) → A (inr y))
@@ -3628,9 +3637,8 @@ returns a value of `A z`, i.e. the type family `A` applied at the parameter `z`.
 definition forms the remaining two lines of code, and is equivalent to our computation rule.
 
 The case of the inductor on $NN$ is similar:
-#quote(block: true)[
-
-  ```agda
+#theircode[
+  ```
   ℕ-induction : (A : ℕ → 𝓤 ̇ )
             → A 0
             → ((n : ℕ) → A n → A (succ n))
@@ -3653,12 +3661,149 @@ itself in the last line. Note that as we mentioned in @sec:recursive-pattern-mat
 matching of `succ n` on the left-hand side, paired with the use only of `n` on the
 right-hand side guarantees termination.
 
+== Own code (TODO naming)
 
-- Mention about normal form and showing judgmental equalities
+We now replicate some of the examples and proofs presented in @sec:type-theory and
+@sec:homotopy-type-theory in Agda. While #cite(<HoTTAgda>, form: "prose") presents a
+formulation of #cite(<hottbook>, form: "prose") by constructing functions and witnesses
+following the text, some of the proofs differ. As well as translating some of our own
+examples into Agda, we will also explore these differences.
 
-- Examples so far
-  - `add`
-  - `leq`
-  - `transport`
-  - `ap`
-  - Proof about ap and transport
+#example([following @example:add])[We define an addition function on the natural numbers in
+  Agda and show a proof that $1 + 1 peq 2$.
+
+  In #cite(<HoTTAgda>), addition is constructed twice for pedagogical reasons. The first
+  construction uses pattern matching:
+  #theircode[
+    ```
+    _+_ : ℕ → ℕ → ℕ
+
+    x + 0      = x
+    x + succ y = succ (x + y)
+
+    ```
+  ]
+  while the second uses a function called `ℕ-iteration`:
+  #theircode[
+    ```
+    _+_ : ℕ → ℕ → ℕ
+
+    x + y = h y
+     where
+      h : ℕ → ℕ
+      h = ℕ-iteration ℕ x succ
+    ```
+  ]
+  The function `ℕ-iteration` is a specialized version of the inductor `ℕ-induction`, in
+  which the step function is modified so that it does not receive the recursion counter as
+  the first parameter (consistent with @remark:NN-step-function), and the return type is not
+  dependent on the input.
+
+  We give a direct translation of our construction in the earlier example, using the
+  inductor explicitly:
+  #ourcode[
+    ```
+    _+_ : ℕ → ℕ → ℕ
+    m + n = ℕ-induction (λ _ → ℕ) m (λ _ → λ p → succ p) n
+    ```
+  ]
+  For showing that $1 + 1 peq 2$, any of these definitions of `_+_` will do.
+
+  In Agda, we cannot directly prove a chain of judgmental equalities as we did in
+  @example:add, since such computation is performed internally by the compiler as soon as we
+  write the expression `1 + 1`. Instead, we show a propositional equality using `refl`,
+  which allows us to conclude that the terms are judgmentally equal:
+  #ourcode[
+    ```
+    proof1plus1 : 1 + 1 ＝ 2
+    proof1plus1 = refl 2
+    ```
+  ]
+]<ex:oneplusone-agda>
+
+- Something about transport
+
+#example[In this example we will show how function extensionality is constructed and used in
+  the Agda presentation. In the Agda presentation, the function `funext` is different to our
+  function $funext$ from @ax:function-extensionality. When we write in Agda code, we use
+  `funext` as defined there, and when we write in mathematical terms, we use $funext$ as we
+  defined previously.
+
+  We mentioned in @ex:oneplusone-agda that it did not matter which definition of addition we
+  chose. We will now show that these definitions are equal. If we name the first definition
+  (which uses pattern matching) $add_1$, and the second definition (which uses the
+  specialized inductor) $add_2$, we want to show an equality
+  $ add_1 = add_2. $
+
+  Since this an equality between functions, we will need to first show a pointwise equality,
+  and then use function extensionality to show an equality of functions. Furthermore, since
+  functions take two parameters (i.e. they are functions of functions), we will need to
+  apply function extensionality twice. We could alternatively "uncurry" these functions so
+  that they had the type
+  $
+    NN times NN -> NN,
+  $
+  in which case we would only need to apply function extensionality once. However, for a
+  more interesting example, we will choose not to do this.
+
+  We begin with showing pointwise equality, which we do by pattern matching:
+  #ourcode[
+    ```
+    add1_eq_add2_pw : (m n : ℕ) → add1 m n ＝ add2 m n
+    add1_eq_add2_pw 0 0 = refl 0
+    add1_eq_add2_pw (succ m) 0 = refl (succ m)
+    add1_eq_add2_pw 0 (succ n) = ap succ (add1_eq_add2_pw 0 n)
+    add1_eq_add2_pw (succ m) (succ n) =
+      ap succ (add1_eq_add2_pw (succ m) n)
+    ```
+  ]
+  The pattern-matching cases are asymmetric: the first two cases are straightforward
+  applications of `refl`, while the latter two involve a use of `ap succ` (which we denote
+  as $ap_succ$). The reason for this is that the definitions of `add1` and `add2` recurse
+  first on their second parameter and then on their first.
+
+  In mathematical terms, we have constructed a function
+  $
+    f : product_(m : NN) product_(n : NN) add_1(m, n) = add_2(m, n).
+  $
+
+  Now that we have shown a pointwise equality, we move on to the function extensionality
+  aspect. In the Agda presentation, function extensionality is constructed as
+  #theircode[
+    ```
+    funext : ∀ 𝓤 𝓥 → (𝓤 ⊔ 𝓥)⁺ ̇
+    funext 𝓤 𝓥 = {X : 𝓤 ̇ } {Y : 𝓥 ̇ } {f g : X → Y} → f ∼ g → f ＝ g
+    ```
+  ]
+  That is, `funext` is a function which takes two universes ($UU$ and $VV$) and produces a
+  type in their least upper bound universe ($UU union.sq VV$). This differs from our earlier
+  presentation, in that we defined $funext$ in @ax:function-extensionality as a function _of
+  this type_. The way this is used in the Agda presentation is to make all constructions
+  which use function extensionality take an argument of type `funext 𝓤 𝓥`, which has the
+  type `f ∼ g → f ＝ g`. That is, constructions which use function extensionality must
+  explicitly assume that it is given to them, for the universes that they require.
+
+  From the way that $NN$ is constructed, it falls in the universe $UU_0$. Therefore, we only
+  need to assume a function of type `funext 𝓤₀ 𝓤₀`, and our proof to show that
+  $add_1 = add_2$ looks like this:
+  #ourcode[
+    ```
+    add1_eq_add2 : funext 𝓤₀ 𝓤₀ → add1 ＝ add2
+    add1_eq_add2 fe = fe (λ m → fe (add1_eq_add2_pw m))
+    ```
+  ]
+  Here, the parameter `fe` is a function of type `funext 𝓤₀ 𝓤₀`. That is to say, `fe`
+  corresponds to the function that we called $funext$ in @ax:function-extensionality. What
+  we have done here, in mathematical terms, is to say for a variable $m : NN$, we have
+  $
+    funext(f(m)) : add_1(m) = add_2(m),
+  $
+  and hence by a $beta$-reduction
+  $
+    lambda (m : NN) sd funext(f(m)) : product_(m : NN ) add_1(m) = add_2(m).
+  $
+  We then apply function extensionality again on this $lambda$-function to get
+  $
+    funext(lambda (m : NN) sd funext(f(m))) : add_1 = add_2.
+  $
+]
