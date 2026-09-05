@@ -84,9 +84,9 @@
 
 // Citations
 // #let citation-style = "harvard-cite-them-right"
-// #let citation-style = "./american-mathematical-society-label.csl"
+#let citation-style = "./american-mathematical-society-label.csl"
 // #let citation-style = "./american-mathematical-society-numeric.csl"
-#let citation-style = "ieee"
+// #let citation-style = "ieee"
 #set cite(style: citation-style)
 
 // Template parameters
@@ -460,7 +460,6 @@ proofs using them explicitly is rather tedious, and therefore we will use them i
 going forward. A demonstration of a proof using the structural rules for simply-typed lambda
 calculus may be found in #cite(
   <mainproject>,
-  // form: "prose",
   supplement: [Proposition 3.4.2],
 ).
 
@@ -2161,12 +2160,12 @@ witnesses to equalities as paths.
 
 #remark[
   The proofs in @lem:paths-inv-assoc were very explicit, noting each application of the
-  $=$-Elim rule with its associated named terms. In #cite(<hottbook>, form: "prose"), the
-  authors adopt the convention of writing such proofs much more tersely, using the
-  formulation "by induction it is sufficient to assume $p peq refl_x$," and then computing
-  the desired result. We, however, will adopt the more explicit form in all our proofs, for
-  the sake of clarity and demonstration of understanding. In any case, we will not require
-  such complex proofs involving multiple levels of induction for the remainder of this work.
+  $=$-Elim rule with its associated named terms. In #cite(<hottbook>), the authors adopt the
+  convention of writing such proofs much more tersely, using the formulation "by induction
+  it is sufficient to assume $p peq refl_x$," and then computing the desired result. We,
+  however, will adopt the more explicit form in all our proofs, for the sake of clarity and
+  demonstration of understanding. In any case, we will not require such complex proofs
+  involving multiple levels of induction for the remainder of this work.
   /*TODO talk about Agda? */
 ]
 
@@ -2174,9 +2173,9 @@ witnesses to equalities as paths.
   The proof of @lem:paths-inv-assoc establishes witnesses to the necessary laws (identity,
   associativity) for the first level of a higher groupoid. To truly show that a type forms
   an $infinity$-groupoid, it would be necessary to prove these laws at every level "up to
-  infinity". In #cite(<hottbook>, form: "prose"), the authors note that this can be achieved
-  "using the notion of a globular operad". However, for the remainder of this work, we only
-  require these coherence laws up to a finite level. By considering the type $A$ in
+  infinity". In #cite(<hottbook>), the authors note that this can be achieved "using the
+  notion of a globular operad". However, for the remainder of this work, we only require
+  these coherence laws up to a finite level. By considering the type $A$ in
   @lem:paths-inv-assoc itself as an identity type (and then as an identity between
   identities, etc.), we can rely on these laws up to any finite level we desire.
 ]
@@ -3573,7 +3572,6 @@ propositions and their proofs. (TODO citations)
 
 In #cite(<HoTTAgda>, form: "prose"), the authors present an in-depth formalization of #cite(
   <hottbook>,
-  form: "prose",
 ) in Agda. In this section, we will explore the first parts of this formalization and
 present some solutions to selected exercises.
 
@@ -3694,8 +3692,8 @@ some variables renamed for consistency) in the Agda presentation is
 
 We show some examples of Agda code, so that we can become familiar with reading it. We will
 not be comprehensive in any of our code, rather we will select certain sections, which may
-have prerequisites, from #cite(<HoTTAgda>, form: "prose") and assume that if the reader
-wishes, they can read the code in full from the reference.
+have prerequisites, from #cite(<HoTTAgda>) and assume that if the reader wishes, they can
+read the code in full from the reference.
 
 We explore the definition of the inductor on coproduct types, which corresponds to our
 "$+$-Intr" and "$+$-Comp" rules.
@@ -3749,10 +3747,11 @@ right-hand side guarantees termination.
 == Own code (TODO naming)
 
 We now replicate some of the examples and proofs presented in @sec:type-theory and
-@sec:homotopy-type-theory in Agda. While #cite(<HoTTAgda>, form: "prose") presents a
-formulation of #cite(<hottbook>, form: "prose") by constructing functions and witnesses
-following the text, some of the proofs differ. As well as translating some of our own
-examples into Agda, we will also explore these differences.
+@sec:homotopy-type-theory in Agda. While #cite(<HoTTAgda>) presents a formulation of #cite(
+  <hottbook>,
+) by constructing functions and witnesses following the text, some of the proofs differ. As
+well as translating some of our own examples into Agda, we will also explore these
+differences.
 
 #example([following @example:add])[We define an addition function on the natural numbers in
   Agda and show a proof that $1 + 1 peq 2$.
