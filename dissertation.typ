@@ -461,6 +461,35 @@ calculus may be found in #cite(
   supplement: [Proposition 3.4.2],
 ).
 
+== Notation of definitions
+
+It will be necessary when we work through proofs to make definitions for various terms, in
+order to save ourselves writing out potentially long or complex terms in full. The style we
+will use will be familiar to mathematicians and computer scientists, where we first declare
+the type of something, and then make its definition. This has the following form:
+$
+  f : A \
+  f :peq t
+$
+where $t$ may be some long or complex term. Where the type of $f$ that we intend is obvious,
+we will sometimes omit the type declaration and give only the definition.
+
+In formal terms, supposing we are working in a context $Gamma$, what we mean by this is that
+we introduce a defined constant $c_f$ and rules
+#pt(
+  rule-set(
+    prooftree(
+      rule($Gamma tack c_f : A$),
+    ),
+    prooftree(
+      rule($Gamma tack c_f peq t : A$),
+    ),
+  ),
+)
+
+When we then use the name $f$ (really $c_f$) in other terms, what we are really talking
+about is $t$, and by the rules of substitution this is sound.
+
 == Data for types
 
 The first part of this chapter will deal with introducing some useful types, which we will
