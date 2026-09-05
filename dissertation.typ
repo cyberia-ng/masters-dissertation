@@ -1591,14 +1591,14 @@ $
 We may use the fact that we are working in dependent type theory to move from propositional
 to predicate logic by considering a type family $P : A -> UU_i$ as a predicate and
 translating
-- "for all $x$, $P(x)$" to $product_(x : A) P(x)$, and
-- "there exists an $x$ such that $P(x)$" to $sum_(x : A) P(x)$.
+- "for all $x$ in $A$, $P(x)$ holds" to $product_(x : A) P(x)$, and
+- "there exists an $x$ in $A$ such that $P(x)$" to $sum_(x : A) P(x)$.
 
 We explore this correspondence with some further examples.
 
 #example[The statement
-  #block(inset: (left: 2em, right: 2em))[#align(center)[if for all $x : A$, $P(x)$ and
-    $Q(x)$, then for all $x : A$, $P(x)$ and for all $x : A$, $Q(x)$]]
+  #block(inset: (left: 2em, right: 2em))[#align(center)[if for all $x : A$, $P(x)$ holds and
+    $Q(x)$ holds, then for all $x : A$, $P(x)$ holds and for all $x : A$, $Q(x)$ holds]]
   translates to the type
   $
     (product_(x : A) P(x) times Q(x)) -> (product_(x : A) P(x)) times (product_(x : A) Q(x))
@@ -1620,7 +1620,7 @@ We explore this correspondence with some further examples.
   $
   or in closed form
   $
-    leq :peq lambda (n : NN) sd lambda (m : NN) sd sum_(p : NN) n + p =_N m.
+    leq :peq lambda (n : NN) sd lambda (m : NN) sd sum_(p : NN) n + p =_NN m.
   $
 
   We are jumping the gun here by using the identity type $=_NN$, which will be introduced in
