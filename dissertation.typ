@@ -162,6 +162,9 @@
 #let inl = $sans("inl")$
 #let inr = $sans("inr")$
 #let succ = $sans("succ")$
+#let add = $sans("add")$
+#let prod = $sans("prod")$
+#let fact = $sans("fact")$
 #let refl = $sans("refl")$
 #let qinv = $sans("qinv")$
 #let isequiv = $sans("isequiv")$
@@ -1257,7 +1260,6 @@ number $n$, given $n$ itself and the value at $n$.
   require knowledge of $n$ itself, such as the factorial, may then be constructed out of
   these more basic functions.]<remark:NN-step-function>
 
-#let add = $sans("add")$
 #example(add)[
   In this example, we use the inductor on $NN$ to construct an addition function.
 
@@ -1267,12 +1269,15 @@ number $n$, given $n$ itself and the value at $n$.
   defining $add$, we will fix the first parameter, calling it $a : NN$ and then define the
   function $add(a) : NN -> NN$ using the inductor.
 
-  Supposing we have $a : NN$ in context, then, we make the following intermediate
+  Supposing then that we have $a : NN$ in context, we make the following intermediate
   definitions:
-  - $C(\_) :peq NN$, i.e. $C$ is a constant type family always returning $NN$;
-  - $c_0 :peq a$,
-  - $c_s (\_, p) :peq succ(p)$, i.e. at every step, $c_s$ returns the successor of the value
-    at the previous step.
+  $
+          C(\_) & :peq NN \
+            c_0 & :peq a \
+    c_s (\_, p) & :peq succ(p),
+  $
+  i.e. $C$ is a constant type family always returning $NN$, and $c_s$ is a function which at
+  every step returns the successor of the value at the previous step.
 
   In the context including $a : NN$, we can therefore form the term
   $
@@ -1295,18 +1300,22 @@ number $n$, given $n$ itself and the value at $n$.
   $
 
   Using the conventional notation of $1$ for $succ(0)$, $2$ for $succ(1)$, etc., let us
-  compute the value of $add(1, 1)$. (TODO note about moving $C$, $c_s$ into stronger context
-  since they do not contain $a$ freely.)
+  compute the value of $add(1, 1)$. We will omit the verification that $add$ does indeed
+  have the type $NN -> NN -> NN$, but this can be shown easily using the "$->$-Elim" and
+  "$NN$-Elim" rules.
 
-  Since we have $0 : NN$, we have $1 : NN$ by rule "$NN$-Intro-$succ$", so the antecedent
-  $a : NN$ is satisfied. Then using the definition rule for $add$, we have the following
-  judgment for $add(1, 1)$:
+  From the definition of $add$, we use substitution to derive the judgmental equality
   $
     add(1, 1) peq ind_NN (C, 1, c_s, 1).
   $
+  (Note that although we defined the terms $C$ and $c_s$ in a context containing a variable
+  $a : NN$, their definitions do not contain free occurrences of $a$, so they remain valid
+  in this context without $a$.)
+
   Unwrapping the second occurrence of $1$ as $succ(0)$, we then use the rule
-  "$NN$-Comp-$succ$". (We omit the verification that our $C$ and $c_s$ terms satisfy the
-  necessary antecedents.) We obtain
+  "$NN$-Comp-$succ$". We omit the verification that our $C$ and $c_s$ terms satisfy the
+  necessary antecedents of the rule, but again this is easy to show using the elimination
+  rules. We obtain
   $
     add(1, 1) peq c_s (0, ind_NN (C, 1, c_s, 0)).
   $
@@ -1319,83 +1328,37 @@ number $n$, given $n$ itself and the value at $n$.
     add(1, 1) peq (lambda (\_ : NN) sd lambda (p : NN) sd succ(p)) (0, 1).
   $
 
-  Using the rule "$->$-Comp" (the $beta$ rule) twice to perform the function application, we
+  Using the rule "$->$-Comp" (the $beta$-rule) twice to perform the function application, we
   get
   $
     add(1, 1) peq succ(1) peq 2.
   $
 ]<example:add>
 
-#let prod = $sans("prod")$
-#example(prod)[
-  $ prod : NN -> NN -> NN $
-  Similarly to $add$, we introduce a defined constant $prod$ and define it using the
-  inductor, where
-  - $C(\_) :peq NN$
-  - $c_0 :peq 0$
-  - $c_s (\_, p) :peq add(a, p)$, where $a$ will be the first parameter to $prod$.
 
-  These amount to the following definition rule:
-  #pt(prooftree(rule(
-    $Gamma tack a : NN$,
-    $prod(a) peq ind_NN (lambda (\_ : NN) sd NN, 0, lambda (\_ : NN) sd lambda (p: NN) sd add(p, a))$,
-  )))
-
-  Let us again compute an example product, $prod(3, 2)$, following the convention of
-  @example:add.
-
-  We apply the definition rule to obtain
-  $
-    prod(3, 2) peq ind_NN (C, 0, c_s, 3, 2).
-  $
-
-  Then, unwrapping $2$ as $succ(1)$, we apply $NN$-Comp-$succ$ to obtain
-  $
-    prod(3, 2) peq c_s (1, ind_NN (C, 0, c_s, 1)).
-  $
-
-  Using the $beta$-rule to apply $c_s$, we get
-  $
-    prod(3, 2) peq add(3, ind_NN (C, 0, c_s, 1)).
-  $
-
-  By another application of $NN$-Comp-$succ$ and the $beta$-rule on the inner $ind$ term, we
-  obtain
-  $
-    prod(3, 2) peq add(3, add(3, ind_NN (C, 0, c_s, 0))).
-  $
-
-  Now, by applying $NN$-Comp-0 to the inner $ind$ term, we obtain
-  $
-    prod(3, 2) peq add(3, add(3, 0)).
-  $
-
-  Finally, by computing the resulting expression using the process in @example:add, we
-  arrive at
-  $
-    prod(3, 2) peq 6.
-  $
-]<example:prod>
-
-#let fact = $sans("fact")$
 #example(fact)[
-  Both @example:add and @example:prod used a step function $c_s$ which ignored its first
-  parameter, i.e. the recursion counter. We now demonstrate a function, namely the factorial
-  function, which uses this value.
+  In @example:add, we used a step function $c_s$ which ignored its first parameter, i.e. the
+  recursion counter. We now demonstrate a function, namely the factorial function, which
+  uses this value. In order to do this, we will assume that we have a function
+  $prod : NN -> NN -> NN$, which computes the product of its arguments.
 
+  We make the type declaration
   $ fact : NN -> NN $
+  and we will use $NN$-induction to define it. We write
+  $
+          C(n) & :peq NN \
+           c_0 & :peq 1 \
+    c_s (s, p) & :peq prod(succ(s), p)
+  $
+  and define
+  $ fact :peq ind_NN (C, c_0, c_s). $
 
-  We introduce a defined constant $fact$ and define it using the inductor, where
-  - $C(n) :peq NN$
-  - $c_0 :peq 1$
-  - $c_s (s, p) :peq prod(succ(s), p)$
+  By substitution, this amounts to
+  $
+    fact peq ind_NN (lambda (\_ : NN) sd NN, 1, lambda (s : NN) sd lambda (p : NN) sd prod(s, p)).
+  $
 
-  These amount to the following definition rule:
-  #pt(prooftree(rule(
-    $fact peq ind_NN (lambda (\_ : NN) sd NN, 1, lambda (s : NN) sd lambda (p : NN) sd prod(s, p))$,
-  )))
-
-  For a demonstration, we compute $fact(3)$. We apply the definition rule to obtain
+  For a demonstration, we compute $fact(3)$. We apply the definition to obtain
   $
     fact(3) peq ind_NN (C, 1, c_s, 3),
   $
@@ -1411,9 +1374,9 @@ number $n$, given $n$ itself and the value at $n$.
   $
   Then, we apply $NN$-Comp-0 to the remaining $ind$ term to get
   $
-    fact(3) peq prod(3, prod(2, prod(1, 1)))
+    fact(3) peq prod(3, prod(2, prod(1, 1))),
   $
-  and applying the process in @example:prod we arrive at
+  and by the assumption of the function $prod$, we arrive at
   $
     fact(3) peq 6.
   $
@@ -1428,10 +1391,9 @@ functions out of pair and coproduct types. This raises some issues, however.
 Computer scientists are familiar with the concept of recursion as "a function which calls
 itself". An example of a recursive function from computer science might be
 $
-  & fact : && NN -> NN \
-$$
-  & fact(0)       && :peq 1 \
-  & fact(succ(n)) && :peq succ(n) times fact(n) \
+           fact & : NN -> NN \
+        fact(0) & :peq 1 \
+  fact(succ(n)) & :peq succ(n) times fact(n) \
 $
 (where $times$ here denotes multiplication). Here we see that in the third line, the term
 $fact(n)$ appears both on the left- and the right-hand side of the definition. This is
@@ -1452,10 +1414,9 @@ numbers, we must provide an initial value $c_0$, and a step function $c_s$, whic
 evaluated each time (in the $NN$-Comp rule) at decreasing values. When we define functions
 out of $NN$ by pattern matching, therefore, we use syntax like that of $fact$ above:
 $
-  & f : && NN -> A \
-$$
-  & f(0)       && :peq t \
-  & f(succ(n)) && :peq s
+      f : NN & -> A \
+        f(0) & :peq t \
+  f(succ(n)) & :peq s
 $
 where $t :A$ is a term and $s : A$ is a term with a free variable $n : NN$, but may only
 recursively call $f$ in the form $f(n)$. In dependent type theory, the recursive function
@@ -1464,6 +1425,42 @@ translates directly by pattern matching to the explicit version using the induct
 @example:fact.
 
 TODO: talk about double recursion, use Giacomo's notes.
+
+#example(prod)[
+  In @example:fact, we assumed the existence of a function $prod : NN -> NN -> NN$ which
+  computes the product of its arguments. In this example, we construct this function using
+  recursive pattern matching on the second parameter.
+
+  We write
+  $
+           prod : NN & -> NN -> NN \
+          prod(m, 0) & :peq 0 \
+    prod(m, succ(n)) & :peq add(m, prod(m, n)).
+  $
+
+  Translated into the a definition using the inductor, this amounts to
+  $
+    prod peq lambda (m : NN) sd ind_NN (lambda (\_ : NN) sd NN, 0, lambda (\_ : NN) sd lambda (n: NN) sd add(m, n)).
+  $
+
+  Hopefully the reader agrees that the definition using pattern matching is clearer.
+
+  Let us again compute an example product, $prod(3, 2)$, this time using the pattern
+  matching definition. We have
+  $
+    prod(3, 2) & peq prod(3, succ(1)) \
+               & peq add(3, prod(3, 1)) \
+               & peq add(3, prod(3, succ(0))) \
+               & peq add(3, add(3, prod(3, 0))) \
+               & peq add(3, add(3, 0))
+  $
+
+  By computing the resulting expression involving $add$ using the process in @example:add,
+  we arrive at
+  $
+    prod(3, 2) peq 6.
+  $
+]<example:prod>
 
 == Finite types
 
