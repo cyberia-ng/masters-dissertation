@@ -238,7 +238,7 @@ any defined constant.
 The distinction between primitive and defined constants is that primitive constants are used
 to encode new syntax, and will not be able to be reduced by some definition, while defined
 constants are taken to be equivalent to some term (by a judgmental equality, which we will
-introduce in the next subsection) and thus able to be eliminated or reduced.
+introduce in the next subsection) and thus are able to be eliminated or reduced.
 
 The third term-forming rule, $t(t')$, represents function application, and we take the
 convention that it associates to the left, i.e. $t_1(t_2)(t_3)$ means $(t_1(t_2))(t_3)$. We
@@ -298,7 +298,7 @@ different universes, the cumulative property guarantees that we can always find 
 in which all our types are present.
 
 #note[
-  Here, the indexes of the heirarchy of universes are the ordinary (metatheoretic) natural
+  Here, the indexes of the hierarchy of universes are the ordinary (metatheoretic) natural
   numbers. It may be tempting to desire a "top" universe, which contains all (infinitely
   many) prior universes, perhaps denoted $UU_omega$ or $UU_infinity$. However, this is
   precisely the situation that would allow us to derive a paradox -- that every type is
@@ -325,8 +325,8 @@ $cal(J)$ contains variables and types declared in the context $Gamma$. In #cite(
   <mainproject>,
 ), we explore the relationship between variables, contexts and judgments in the context of
 encoding (simple) type theory in category theory. In particular, we observe that when
-presented categorically, named variables become unnecessary. However in this work we will
-work exclusively in logical terms, using named variables in our contexts and judgments.
+presented categorically, named variables become unnecessary. However in this presentation we
+will work exclusively in logical terms, using named variables in our contexts and judgments.
 
 We have the following rules for universes and contexts.
 
@@ -344,7 +344,7 @@ When working with formal constructions of type theory, there are (at least) two 
 thought regarding contexts. One formulation #cite(<hottbook>, supplement: [Appendix A.2])
 makes heavy use of explicit contexts and variable substitution, which change frequently from
 deduction to deduction; the other formulation #cite(<hottbook>, supplement: [Appendix A.1])
-keeps contexts fixed at the beginning of the proof, prefering the mechanics of function
+keeps contexts fixed at the beginning of the proof, preferring the mechanics of function
 application instead of variable substitution.
 
 We proceed with the latter, since it is more familiar to dependently-typed programming
@@ -558,7 +558,7 @@ The data for function types and terms are given by the following rules:
 ))
 
 The $->$-Comp and $->$-Uniq rules are respectively also known as the $beta$ and $eta$ rules
-in $lambda$-calculus. (In #cite(<mainproject>), we focussed on function types and the
+in $lambda$-calculus. (In #cite(<mainproject>), we focused on function types and the
 associated $beta$- and $eta$- rules in the context of cartesian-closed categories.)
 
 == Type families<sec:type-families>
@@ -668,7 +668,7 @@ $
   f :peq lambda (x : A) sd t.
 $
 For simple functions such as this one, this form is straightforward, however when
-considering functiosn of multiple arguments, the syntax quickly becomes unwieldy. Consider
+considering functions of multiple arguments, the syntax quickly becomes unwieldy. Consider
 the definition
 $
   g :peq lambda (C : A -> UU_i) sd lambda (x : A) sd lambda (y : C(x)) sd t.
@@ -734,7 +734,7 @@ Comparing with the $->$-Intr rule,
 )
 we see that this is just a rewriting of $product_(x : A) B'$ as $A -> B$. The application to
 the other rules is similar, and in this way we see that a $Pi$-type over $x : A$ which has
-no free occurences of $x$ is equivalent to a plain function type. By this equivalence, we
+no free occurrences of $x$ is equivalent to a plain function type. By this equivalence, we
 refer to the function types from @sec:function-types as *non-dependent* function types. This
 is also the reason that there is no ambiguity in using the $lambda$-syntax for function
 notation for both dependent functions.
