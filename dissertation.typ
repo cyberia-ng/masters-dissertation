@@ -461,6 +461,9 @@ calculus may be found in #cite(
   supplement: [Proposition 3.4.2],
 ).
 
+- TODO: what about "strengthening": removing a variable from the context when it does not
+  occur freely in a term?
+
 == Notation of definitions
 
 It will be necessary when we work through proofs to make definitions for various terms, in
@@ -1256,23 +1259,44 @@ number $n$, given $n$ itself and the value at $n$.
 
 #let add = $sans("add")$
 #example(add)[
+  In this example, we use the inductor on $NN$ to construct an addition function.
+
+  We make the type declaration
   $ add : NN -> NN -> NN $
-  We introduce a defined constant $add$, and define it using the inductor, where
+  so $add$ is a multi-parameter function of natural numbers into a natural number. In
+  defining $add$, we will fix the first parameter, calling it $a : NN$ and then define the
+  function $add(a) : NN -> NN$ using the inductor.
+
+  Supposing we have $a : NN$ in context, then, we make the following intermediate
+  definitions:
   - $C(\_) :peq NN$, i.e. $C$ is a constant type family always returning $NN$;
-  - $c_0 :peq a$, where $a$ will be the first parameter to $add$; and
+  - $c_0 :peq a$,
   - $c_s (\_, p) :peq succ(p)$, i.e. at every step, $c_s$ returns the successor of the value
     at the previous step.
 
-  These amount to the following definition rule (taking $C$ and $c_s$ in their closed-form
-  equivalents):
-  #pt(rule-set(prooftree(rule(
-    $Gamma tack a : NN$,
-    $Gamma tack add(a) peq ind_NN (lambda (\_ : NN) sd NN, a, lambda (\_: NN) sd lambda (p : NN)) sd succ(p))$,
-  ))))
+  In the context including $a : NN$, we can therefore form the term
+  $
+    ind_NN (C, c_0, c_s)
+  $
+  to which we then apply the "$->$-Intr" rule to get a term
+  $
+    lambda (a : NN) sd ind_NN (C, c_0, c_s).
+  $
+  removing $a : NN$ from the context.
+
+  This $lambda$-term will be our definition of $add$. In open form, we define
+  $
+    add(a) :peq ind_NN (C, c_0, c_s).
+  $
+  By substitution and conversion of $C$ and $c_s$ to their closed-form equivalents, this
+  amounts to
+  $
+    add(a) peq ind_NN (lambda (\_ : NN) sd NN, a, lambda (\_: NN) sd lambda (p : NN)) sd succ(p)).
+  $
 
   Using the conventional notation of $1$ for $succ(0)$, $2$ for $succ(1)$, etc., let us
-  compute the value of $add(1, 1)$. In this computation we will use $C$ and $c_s$ to refer
-  to the terms defined above.
+  compute the value of $add(1, 1)$. (TODO note about moving $C$, $c_s$ into stronger context
+  since they do not contain $a$ freely.)
 
   Since we have $0 : NN$, we have $1 : NN$ by rule "$NN$-Intro-$succ$", so the antecedent
   $a : NN$ is satisfied. Then using the definition rule for $add$, we have the following
