@@ -2795,7 +2795,7 @@ It is easy enough to go the other way:
     alpha : f compose g ~ id_B.
   $
   The construction for $beta$ is similar, so we have an equivalence $A equiv B$. By a
-  $beta$-reduction on $p$, we have the function
+  function introduction ("$->$-Intr") on $p$, we have the function
   $
     idtoequiv : (A =_UU_i B) -> (A equiv B)
   $
@@ -3319,10 +3319,11 @@ also an $(n+1)$-type.
     caption: [A visualization of contexts used in this proof. Black arrows represent context
       inclusion (e.g. $Delta$ includes $Gamma$) and blue arrows denote the movement as we go
       through the proof. Blue arrows marked with an asterisk denote that the move involves a
-      $beta$-reduction. FEEDBACK: is this useful or confusing? necessary or superfluous?],
+      function introduction ("$Pi$-Intr"). FEEDBACK: is this useful or confusing? necessary
+      or superfluous?],
   )
   Let the context $Gamma$ consist of $A : UU_i, f : isSet(A)$. We aim to exhibit an element
-  $g' : is1Type(A)$, and hence by $beta$-reduction an element $g$ such that
+  $g' : is1Type(A)$, and hence by function introduction an element $g$ such that
   $ A : UU_i tack g : isSet(A) -> is1Type(A). $
 
   In the context $Delta :peq (Gamma, x : A, y : A, p : x = y)$, we define a function $g$ by
@@ -3349,7 +3350,7 @@ also an $(n+1)$-type.
   $
     t^(-1) bullet apd_g(r) : g(q) bullet r = g(q').
   $
-  Applying $beta$-reduction over the variables introduced in context $Delta'$, we get a
+  Applying function introduction over the variables introduced in context $Delta'$, we get a
   function $h$ in context $Delta$ such that
   $
     Delta tack h : product_(q : x=y) product_(q' : x = y) product_(r : q = q') g(q) bullet r = g(q').
@@ -3369,13 +3370,13 @@ also an $(n+1)$-type.
     => quad && ap_(g(p)^(-1) bullet -)(h(p, q, r) bullet h(p, q, s)^(-1) ) &: r = s.
   $
 
-  Then applying $beta$-reduction over the variables in $Gamma'$, we get a function in
+  Then applying function introduction over the variables in $Gamma'$, we get a function in
   $Gamma$,
   $
     &Gamma tack g' : product_(x : A) product_(y : A) product_(p : x = y) product_(q : x = y) product_(r : p = q) product_(s : p = q) r = s \
     "i.e." quad &Gamma tack g' : is1Type(A).
   $
-  Finally, applying a further $beta$-reduction over $f : isSet(A)$ in $Gamma$, we get
+  Finally, applying a further function introduction over $f : isSet(A)$ in $Gamma$, we get
   $
     A : UU_i tack g : isSet(A) -> is1Type(A)
   $
@@ -3405,7 +3406,7 @@ as $¬(A) :peq A -> zero$. We begin with a lemma.
   $
     ind_zero (lambda (\_ : zero) sd u(x) = v(x), u(x)) : u(x) = v(x)
   $
-  Applying $beta$-reduction over $x$, we have a function
+  Applying function introduction over $x$, we have a function
   $
     f : product_(x : ¬two) u(x) = v(x)
   $
@@ -3861,7 +3862,7 @@ examples into Agda, we will also explore these differences.
   $
     funext(f(m)) : add_1(m) = add_2(m),
   $
-  and hence by a $beta$-reduction
+  and hence by function introduction
   $
     lambda (m : NN) sd funext(f(m)) : product_(m : NN ) add_1(m) = add_2(m).
   $
