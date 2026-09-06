@@ -3244,13 +3244,13 @@ classical mathematician, who is used to the axiom of choice being independent of
 Zermelo-Fraenkel set theory, this is unusual. Moreover, in this section we will present a
 theorem that the *law of the excluded middle*, i.e. that for any proposition $A$, we have
 $A or ¬A$, does not hold in general in type theory. To this end, we wish to explore exactly
-how much of classical logic we can recover using the type-theoretic foundation.
+how much of classical logic we can recover using a type-theoretic foundation.
 
 == Sets<sec:sets>
 
 We begin with the concept of a set, in type-theoretic terms. In first-order logic, we are
-familiar with the idea of equality between mathematical objects. In set theory, an equality
-in contains no further information than that the elements being identified are equal. In our
+familiar with the idea of equality between mathematical objects. There, an equality in
+contains no further information than that the elements being identified are equal. In our
 case, however, identity types consist of _witnesses_ to equality, and therefore encode more
 information. This motivates the following definition of a set in type theory.
 
@@ -3265,7 +3265,7 @@ information. This motivates the following definition of a set in type theory.
 ]
 
 In this definition, we consider a type to be a set when the identity types between its
-elements are inhabited by exactly one element (up to identity at the next level up). This
+elements are inhabited by exactly one element (up to identity at the next level). This
 captures the idea of equalities containing no further information than whether they hold or
 not.
 
@@ -3275,9 +3275,9 @@ $zero$-Elim rule. A natural question to ask at this point is whether there are t
 are _not_ sets. It can be shown, using univalence, that universes $UU_i$ are not sets #cite(
   <hottbook>,
   supplement: [Example 3.1.9],
-). However, and we will not show this, it turns out that the existence of types which are
-not sets is precisely a consequence of univalence. Without univalence, it is consistent to
-assume that all types are sets, and this is known as *Axiom K* #cite(
+). However, it turns out that the existence of types which are not sets is precisely a
+consequence of univalence: without univalence, it is consistent to assume that all types are
+sets, and this is known as *Axiom K* #cite(
   <hottbook>,
   supplement: [Chapter 7 notes],
 ).
@@ -3438,7 +3438,7 @@ also an $(n+1)$-type.
     caption: [A visualization of contexts used in this proof. Black arrows represent context
       inclusion (e.g. $Delta$ includes $Gamma$) and blue arrows denote the movement as we go
       through the proof. Blue arrows marked with an asterisk denote that the move involves a
-      function introduction ("$Pi$-Intr"), while the rest involve weakening.
+      function introduction ("$Pi$-Intr"), while the others involve weakening.
     ],
   )<fig:context-vis-1type>
 ]
