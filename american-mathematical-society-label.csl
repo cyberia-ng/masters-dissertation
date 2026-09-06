@@ -91,11 +91,9 @@
           <text variable="collection-title"/>
         </group>
       </else-if>
-      <else>
-        <label variable="locator" form="short"/>
-        <text variable="locator"/>
-      </else>
     </choose>
+    <label variable="locator" form="short"/>
+    <text variable="locator"/>
   </macro>
   <citation collapse="citation-number">
     <sort>

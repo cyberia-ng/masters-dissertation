@@ -3232,11 +3232,25 @@ $
   $
   TODO: I don't know if this is worth it
 ]
+
 = Sets and logic
 
-TODO/FEEDBACK motivation
+In classical set-theoretic mathematics, we make statements in the language of first-order
+logic about elements of sets. We have seen, in @sec:propositions-as-types, how we can
+translate some of first-order logic into type theory, but this is not the full story. In
+#cite(<hottbook>, supplement: [Theorem 2.15.7]), a theorem is presented which is equivalent
+to the classical *axiom of choice*, and is a logical consequence of type theory. For the
+classical mathematician, who is used to the axiom of choice being independent of
+Zermelo-Fraenkel set theory, this is unusual. Moreover, in this section we will present a
+theorem that the *law of the excluded middle*, i.e. that for any proposition $A$, we have
+$A or ¬A$, does not hold in general in type theory. To this end, we wish to explore exactly
+how much of classical logic we can recover using the type-theoretic foundation.
 
-- Sets are types where witnesses are unique
+We begin with the concept of a set, in type-theoretic terms. In first-order logic, we are
+familiar with the idea of equality between mathematical objects. In set theory, an equality
+in contains no further information than that the elements being identified are equal. In our
+case, however, identity types consist of _witnesses_ to equality, and therefore encode more
+information. This motivates the following definition of a set in type theory.
 
 #definition[We say that a type $A$ is a *set* if for all $x, y : A$ and all paths
   $p, q : x =_A y$, we have a path $r : p =_(x =_A y) q$.
@@ -3247,6 +3261,11 @@ TODO/FEEDBACK motivation
     isSet(A) :peq product_(x : A) product_(y : A) product_(p : x = y) product_(q : x = y) p = q.
   $
 ]
+
+In this definition, we consider a type to be a set when the identity types between its
+elements are inhabited by exactly one element (up to identity at the next level up). This
+captures the idea of equalities containing no further information than whether they hold or
+not.
 
 In @thm:one-is-a-set and @thm:n-is-set, we saw that the types $one$ and $NN$ are sets in
 this sense. Furthermore, it is easy to show that $zero$ is a set by an application of the
@@ -3274,6 +3293,9 @@ where equalities form a 2-type is called a 3-type, and so on.
 We will show that these classes of types are upward closed: that is, all sets are 1-types,
 all 1-types are 2-types, and so on. Before we do so, however, we require another lemma about
 $transport$.
+
+In this lemma and the following proposition, we adopt the syntax $x |-> t$ to mean
+$lambda (x : A) sd t$, allowing us to elide the type of $x$ for brevity.
 
 #lemma[For $A : UU_i$, $a, x, y : A$ and $p : x =_A y$, we have
   $
@@ -3313,35 +3335,10 @@ also an $(n+1)$-type.
   $ g : isSet(A) -> is1Type(A). $
 ]
 #proof[
-  #figure(
-    diagram({
-      let A = (0, 0)
-      let gm = (0, 1)
-      let dlt = (0, 2)
-      let gmp = (-1, 3)
-      let dltp = (1, 3)
-      node(A, $A : UU_i$)
-      node(gm, $Gamma$)
-      node(dlt, $Delta$)
-      node(dltp, $Delta'$)
-      node(gmp, $Gamma'$)
-      edge(gm, A, "->")
-      edge(dlt, gm, "->")
-      edge(gmp, dlt, "->")
-      edge(dltp, dlt, "->")
+  This proof will involve a lot of moving between contexts, using the weakening rule to add
+  variables and function introduction to remove them. A diagram of the movement between
+  contexts is presented in @fig:context-vis-1type.
 
-      edge(dlt, dltp, "->", stroke: blue, bend: -30deg, label: text(blue)[$1$])
-      edge(dltp, dlt, "->", stroke: blue, bend: -30deg, label: text(blue)[$2^*$])
-      edge(dlt, gmp, "->", stroke: blue, bend: 30deg, label: text(blue)[$3$])
-      edge(gmp, gm, "->", stroke: blue, bend: 30deg, label: text(blue)[$4^*$])
-      edge(gm, A, "->", stroke: blue, bend: 30deg, label: text(blue)[$5^*$])
-    }),
-    caption: [A visualization of contexts used in this proof. Black arrows represent context
-      inclusion (e.g. $Delta$ includes $Gamma$) and blue arrows denote the movement as we go
-      through the proof. Blue arrows marked with an asterisk denote that the move involves a
-      function introduction ("$Pi$-Intr"). FEEDBACK: is this useful or confusing? necessary
-      or superfluous?],
-  )
   Let the context $Gamma$ consist of $A : UU_i, f : isSet(A)$. We aim to exhibit an element
   $g' : is1Type(A)$, and hence by function introduction an element $g$ such that
   $ A : UU_i tack g : isSet(A) -> is1Type(A). $
@@ -3354,11 +3351,9 @@ also an $(n+1)$-type.
 
   Then, in the context
   $ Delta' :peq Delta, q : x = y, q' : x = y, r : q = q', $
-  we compute $apd_g (r)$. Recall that ... TODO facts about $apd$ ..., so we have
-  $
-    transport^(x |-> p = x) (r, g(q)) : p = q'.
-  $
-  and
+  we compute $apd_g (r)$. In the definition of $apd_g$, our type family $B$ will be the
+  family $x |-> (p = x)$, here reusing $x$ as a bound variable in this function, so that we
+  have
   $
     apd_g (r) : transport^(x |-> p = x) (r, g(q)) = g(q').
   $
@@ -3368,7 +3363,7 @@ also an $(n+1)$-type.
   $
   so by path composition we get
   $
-    t^(-1) bullet apd_g(r) : g(q) bullet r = g(q').
+    t^(-1) bullet apd_g (r) : g(q) bullet r = g(q').
   $
   Applying function introduction over the variables introduced in context $Delta'$, we get a
   function $h$ in context $Delta$ such that
@@ -3402,21 +3397,48 @@ also an $(n+1)$-type.
   $
   as required.
   - TODO remark about contexts not being explicit in HoTT book
+
+  #figure(
+    diagram({
+      let A = (0, 0)
+      let gm = (0, 1)
+      let dlt = (0, 2)
+      let gmp = (-1, 3)
+      let dltp = (1, 3)
+      node(A, $A : UU_i$)
+      node(gm, $Gamma$)
+      node(dlt, $Delta$)
+      node(dltp, $Delta'$)
+      node(gmp, $Gamma'$)
+      edge(gm, A, "->")
+      edge(dlt, gm, "->")
+      edge(gmp, dlt, "->")
+      edge(dltp, dlt, "->")
+
+      edge(gm, dlt, "->", stroke: blue, bend: 30deg, label: text(blue)[$1$])
+      edge(dlt, dltp, "->", stroke: blue, bend: -30deg, label: text(blue)[$2$])
+      edge(dltp, dlt, "->", stroke: blue, bend: -30deg, label: text(blue)[$3^*$])
+      edge(dlt, gmp, "->", stroke: blue, bend: 30deg, label: text(blue)[$4$])
+      edge(gmp, gm, "->", stroke: blue, bend: 30deg, label: text(blue)[$5^*$])
+      edge(gm, A, "->", stroke: blue, bend: 30deg, label: text(blue)[$6^*$])
+    }),
+    caption: [A visualization of contexts used in this proof. Black arrows represent context
+      inclusion (e.g. $Delta$ includes $Gamma$) and blue arrows denote the movement as we go
+      through the proof. Blue arrows marked with an asterisk denote that the move involves a
+      function introduction ("$Pi$-Intr"), while the rest involve weakening.
+    ],
+  )<fig:context-vis-1type>
 ]
 
-== Propositions
+== Double negation and the law of the excluded middle
 
-We discussed in @sec:propositions-as-types how we could translate between first-order logic
-and type theory, using the Curry-Howard correspondence. Propositions are types, logical
-connectives are type formers and predicates are dependent functions or pairs. However, some
-rules which classical mathematicians or logicians may be familiar with do not hold in type
-theory. For example, the "law of double negation", which states that for a proposition $A$,
-we have $¬¬A -> A$. The next theorem shows that this does not hold in general in type
-theory.
+We mentioned at the start of this section that the law of the excluded middle, that is for a
+proposition $A$, we have either $A$ or $¬A$, does not hold in type theoretic logic. We first
+show that the law of double negation does not hold. That is, if we have $¬¬A$, we cannot
+always conclude $A$.
 
 In keeping with the Curry-Howard correspondence, we define the function $¬ : UU_i -> UU_i$
 as $¬(A) :peq A -> zero$. We begin with a lemma.
-
 
 #lemma[Using the type $two$ from @example:two-equiv, let $u, v : ¬¬two$. Then we have
   $u = v$.]<lem:two-double-negation-is-set>
@@ -3437,7 +3459,8 @@ as $¬(A) :peq A -> zero$. We begin with a lemma.
   as required.
 ]
 
-#theorem([HoTT 3.2.2])[It is not the case that for all $A : UU_i$ we have $¬¬A -> A$.]
+#theorem([HoTT 3.2.2])[It is not the case that for all $A : UU_i$ we have
+  $¬¬A -> A$.]<thm:no-double-negation>
 #proof[
   We suppose that for all universes $UU_i$, we have we have a function
   $ f : product_(A : UU_i) ¬¬A -> A, $
@@ -3538,9 +3561,41 @@ as $¬(A) :peq A -> zero$. We begin with a lemma.
   $ g(f(two, u), p'^(-1) bullet q') : zero $
 ]
 
+#corollary([HoTT 2.3.7])[It is not the case that for all $A : UU_i$, we have
+  $
+    A + (¬A)
+  $
+]
+#proof[
+  Fixing $A : UU_i$ in context, we suppose that we have an element
+  $
+    p : A + (¬A).
+  $
+  We aim to construct a function $g : ¬¬A -> A$ and hence apply @thm:no-double-negation to
+  construct an element of $zero$.
+
+  Fix a variable $u : ¬¬A$, i.e. $u : (A -> zero) -> zero$. Then we define
+  $
+        g' : A & + (¬A) -> A \
+    g'(inl(a)) & :peq a \
+    g'(inr(h)) & :peq ind_zero (lambda (\_: zero) sd A, u(h)).
+  $
+  That is to say, if the argument to $g$ is $inl(a)$, we can return $a : A$, while if the
+  argument is $inr(h)$ for some $h : ¬A$, we can apply $u$ to construct an element of
+  $zero$, from which we can construct a term of type $A$ using $zero$-Elim.
+
+  Hence, by function introduction over $u$, we have a function
+  $
+    g : ¬¬A -> A,
+  $
+  as required.
+]
+
 == Mere propositions
 
-TODO text
+Having shown that the law of the excluded middle over all types is not consistent with type
+theory, we may ask the question: are there types such that the law does hold? As it turns
+out, we cannot prove this either, but we can show something weaker.
 
 #definition[A type $A$ is a *mere proposition* if for all $x, y : A$ we have $x = y$.
 
@@ -3550,15 +3605,22 @@ TODO text
   $
 ]
 
+We defined sets as types whose equalities were unique, and 1-types as types whose equalities
+form sets. Using this intuition, we could consider sets as "0-types". The definition of a
+mere proposition then corresponds to the idea of a "$(-1)$-type".
+
+It can be shown that mere propositions are precisely the types for which we may assume the
+law of the excluded middle. Although as mentioned, one cannot prove the following axiom, it
+can be shown that it is consistent with type theory #cite(<hottbook>, supplement: [Section
+  3.4]).
+
 #axiom[
-  The law of double negation holds for mere propositions
+  The law of the excluded middle holds for mere propositions
   $
-    product_(A : UU_i) isProp(A) -> ¬¬A -> A
+    product_(A : UU_i) isProp(A) -> (A + ¬A)
   $
 ]
 
-- Unlike the law of double negation in general, this version is consistent with type theory.
-  (cite)
 
 = Homotopy type theory in Agda
 
