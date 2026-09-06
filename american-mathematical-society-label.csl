@@ -92,8 +92,6 @@
         </group>
       </else-if>
     </choose>
-    <label variable="locator" form="short"/>
-    <text variable="locator"/>
   </macro>
   <citation collapse="citation-number">
     <sort>
@@ -102,7 +100,8 @@
     <layout prefix="[" suffix="]">
       <group delimiter=", ">
         <text variable="citation-label"/>
-        <text macro="locators"/>
+    <label variable="locator" form="short"/>
+    <text variable="locator"/>
       </group>
     </layout>
   </citation>

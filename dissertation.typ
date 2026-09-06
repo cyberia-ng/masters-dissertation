@@ -3246,6 +3246,8 @@ theorem that the *law of the excluded middle*, i.e. that for any proposition $A$
 $A or ¬A$, does not hold in general in type theory. To this end, we wish to explore exactly
 how much of classical logic we can recover using the type-theoretic foundation.
 
+== Sets<sec:sets>
+
 We begin with the concept of a set, in type-theoretic terms. In first-order logic, we are
 familiar with the idea of equality between mathematical objects. In set theory, an equality
 in contains no further information than that the elements being identified are equal. In our
@@ -3269,7 +3271,18 @@ not.
 
 In @thm:one-is-a-set and @thm:n-is-set, we saw that the types $one$ and $NN$ are sets in
 this sense. Furthermore, it is easy to show that $zero$ is a set by an application of the
-$zero$-Elim rule.
+$zero$-Elim rule. A natural question to ask at this point is whether there are types which
+are _not_ sets. It can be shown, using univalence, that universes $UU_i$ are not sets #cite(
+  <hottbook>,
+  supplement: [Example 3.1.9],
+). However, and we will not show this, it turns out that the existence of types which are
+not sets is precisely a consequence of univalence. Without univalence, it is consistent to
+assume that all types are sets, and this is known as *Axiom K* #cite(
+  <hottbook>,
+  supplement: [Chapter 7 notes],
+).
+
+== $n$-types
 
 Since we are working in type-theory and identity types are themselves types, we can move up
 a level and consider whether the type $x =_A y$ is a set -- that is, witnesses to $x = y$
@@ -3624,6 +3637,24 @@ can be shown that it is consistent with type theory #cite(<hottbook>, supplement
 
 = Homotopy type theory in Agda
 
+#let theircode = it => {
+  align(center, block(
+    above: 1em,
+    below: 1em,
+    stroke: (left: (paint: rgb("#a0a0ff"), thickness: 0.15em, dash: "densely-dashed")),
+    align(left, quote(block: true, it)),
+  ))
+}
+
+#let ourcode = it => {
+  align(center, block(
+    above: 1em,
+    below: 1em,
+    stroke: (left: (paint: rgb("#a0a0ff"), thickness: 0.2em)),
+    align(left, quote(block: true, it)),
+  ))
+}
+
 Agda is a programming language whose type system is an extension of Martin-Löf type theory,
 as presented in @sec:type-theory. In programming languages commonly used for software
 engineering, the type system ranges from relatively weak (C, Go) to relatively powerful
@@ -3637,6 +3668,21 @@ In #cite(<HoTTAgda>, form: "prose"), the authors present an in-depth formalizati
 ) in Agda. In this section, we will explore the first parts of this formalization and
 present some solutions to selected exercises.
 
+#note[
+  When we show code listings in this section, we indicate its origin by the use of a
+  vertical line to the left. Code which is quoted from #cite(<HoTTAgda>) will have a dashed
+  line, for example:
+  #theircode(```
+  𝟙-induction : (A : 𝟙 → 𝓤 ̇ ) → A ⋆ → (x : 𝟙) → A x
+  𝟙-induction A a ⋆ = a
+  ```)
+  while code that we have written will have a solid line, for example:
+  #ourcode(```
+  _+_ : ℕ → ℕ → ℕ
+  m + n = ℕ-induction (λ _ → ℕ) m (λ _ → λ p → succ p) n
+  ```)
+]
+
 == Preliminaries and caveats
 
 There are certain differences between the type system used by Agda and the system we have
@@ -3647,17 +3693,15 @@ In @sec:type-theory, we presented a type theory which uses inductors (the family
 functions) to express elimination and computation rules, and we then defined pattern
 matching as a shorthand for using induction. In standard Agda, pattern matching is
 foundational, and while inductors can be derived from it, they are not generally used. The
-system for pattern matching in Agda is powerful enough to be able to deduce what is known as
-the *K axiom*, due to Streicher (TODO cite), which says that every identity type $x = y$
-contains at most one element. We have shown, using univalence in (TODO show it -- HoTT
-example 3.1.9), that not all types are sets, and therefore the K axiom is not compatible
-with univalence. Therefore, we must restrict Agda's pattern matching system by using the
-`--without-K` option. Furthermore, when we explore this work in Agda, we will define
-inductors for all our types. We will use pattern matching where it makes things clearer, but
-because it is built in to the core of the language, we note that it is not making use of our
-inductors "behind the scenes", as it is in our theoretical presentation above.
+system for pattern matching in Agda is powerful enough to be able to deduce "Axiom K" (TODO
+cite), which we mentioned in @sec:sets, and which is not compatible with univalence.
+Therefore, we must restrict Agda's pattern matching system by using the `--without-K`
+option. Furthermore, when we explore this work in Agda, we will use pattern matching where
+it makes things clearer, but because it is built in to the core of the language, we note
+that it is not making use of inductors "behind the scenes", as it is in our theoretical
+presentation above.
 
-Another difference from standard Agda in our approach is in identity types. In Agda,
+Another difference from standard Agda in our approach is to do with identity types. In Agda,
 identity types are another built-in feature of the language, which are expressed using the
 syntax `x ≡ y`. Firstly, this conflicts with our use of $peq$ for judgmental equality, and
 secondly, we wish to construct identity types ourselves. The justification for this internal
@@ -3700,24 +3744,6 @@ functions. We present a summary of these differences in the following table.
   )
 ]
 
-#let theircode = it => {
-  align(center, block(
-    above: 1em,
-    below: 1em,
-    stroke: (left: (paint: rgb("#a0a0ff"), thickness: 0.15em, dash: "densely-dashed")),
-    align(left, quote(block: true, it)),
-  ))
-}
-
-#let ourcode = it => {
-  align(center, block(
-    above: 1em,
-    below: 1em,
-    stroke: (left: (paint: rgb("#a0a0ff"), thickness: 0.2em)),
-    align(left, quote(block: true, it)),
-  ))
-}
-
 Another noteworthy aspect of the Agda presentation is the use of *implicit arguments* for
 some functions. For example, when we defined $transport$ in
 @thm:indiscernibility-of-identicals, we said #quote(block: true)[Let $A : UU_i$ be a type
@@ -3752,10 +3778,11 @@ some variables renamed for consistency) in the Agda presentation is
 
 == Examples
 
-We show some examples of Agda code, so that we can become familiar with reading it. We will
-not be comprehensive in any of our code, rather we will select certain sections, which may
-have prerequisites, from #cite(<HoTTAgda>) and assume that if the reader wishes, they can
-read the code in full from the reference.
+We show some examples of Agda code from #cite(<HoTTAgda>), so that we can become familiar
+with reading it. Since that presentation is built up step-by-step, the examples we present
+will depend on functions defined previously in their text. We select examples where the
+meaning of these undefined prerequisites will hopefully be obvious. In any case, the full
+code can be found in #cite(<HoTTAgda>).
 
 We explore the definition of the inductor on coproduct types, which corresponds to our
 "$+$-Intr" and "$+$-Comp" rules.
