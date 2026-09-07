@@ -91,8 +91,8 @@
 
 // Template parameters
 #show: ams-article.with(
-  title: [
-    A title],
+  title: [Types, Homotopies and Proofs: Foundations of Constructive Mathematics with
+    Examples in Agda],
   authors: (
     (
       name: "Jo MacMahon",
@@ -144,6 +144,8 @@
 }
 
 #pagebreak()
+
+#outline(depth: 2)
 
 // Body
 

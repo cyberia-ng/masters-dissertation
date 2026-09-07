@@ -70,7 +70,7 @@
     header: context {
       let i = counter(page).get().first()
       if i == 1 { return }
-      set text(size: script-size)
+      set text(size: script-size, hyphenate: false)
       grid(
         columns: (6em, 1fr, 6em),
         align: (start, center, end),
