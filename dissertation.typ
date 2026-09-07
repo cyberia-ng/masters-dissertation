@@ -3834,7 +3834,7 @@ itself in the last line. Note that as we mentioned in @sec:recursive-pattern-mat
 matching of `succ n` on the left-hand side, paired with the use only of `n` on the
 right-hand side guarantees termination.
 
-== Own code (TODO naming)
+== Own code (TODO/FEEDBACK naming)
 
 We now replicate some of the examples and proofs presented in @sec:type-theory and
 @sec:homotopy-type-theory in Agda. While #cite(<HoTTAgda>) presents a formulation of #cite(
