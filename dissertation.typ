@@ -469,7 +469,7 @@ calculus may be found in #cite(
 - TODO: what about "strengthening": removing a variable from the context when it does not
   occur freely in a term?
 
-== Notation of definitions
+=== Notation of definitions
 
 It will be necessary when we work through proofs to make definitions for various terms, in
 order to save ourselves writing out potentially long or complex terms in full. The style we
@@ -1595,6 +1595,8 @@ to predicate logic by considering a type family $P : A -> UU_i$ as a predicate a
 translating
 - "for all $x$ in $A$, $P(x)$ holds" to $product_(x : A) P(x)$, and
 - "there exists an $x$ in $A$ such that $P(x)$" to $sum_(x : A) P(x)$.
+
+TODO make these a table
 
 We explore this correspondence with some further examples.
 
