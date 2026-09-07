@@ -311,6 +311,7 @@ in which all our types are present.
   ).
 ]
 
+- TODO remark about how we will write $UU_i$ all the time
 
 A *context* is a (possibly empty) ordered list of distinct variables and their types, for
 example $x_1 : A_1, x_2 : A_2$. Since types are terms, each type may use variables occurring
