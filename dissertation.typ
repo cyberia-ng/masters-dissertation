@@ -214,6 +214,28 @@
   v(0.5em)
 }
 
+= Introduction
+
+- History of type theory and lambda calculus; mention Martin-Löf
+- Type theory is a logical system which is useful for proof-relevant mathematics
+- Set theory and first-order logic, known in this field as "classical mathematics", leaves
+  proofs at the meta level
+  - Type theory allows us to consider proofs as mathematical objects themselves
+- In constructive mathematics, we claim (as a philosophy) that proofs must construct a
+  mathematical object in order to show that it exists
+  - Considering proofs as mathematical objects, to prove a proposition we must construct a
+    witness to its truth
+  - Proofs by contradiction are therefore not valid
+  - (Proof of a negative is not proof by contradiction)
+- How much of classical mathematics can we recover using type theory as a foundation?
+  - Law of excluded middle is inconsistent in general
+  - But we can prove something a bit like the axiom of choice
+- Forms of logic which hold to this constructive principle include intuitionism, among
+  others (finitism)
+
+- Section by section overview
+- Point to 1-2 proofs we want to showcase
+
 = Type theory<sec:type-theory>
 
 Type theory is a logical system, encoding *types* and *terms*, which is used as a foundation
