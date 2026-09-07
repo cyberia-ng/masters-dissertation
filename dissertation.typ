@@ -347,8 +347,8 @@ When working with formal constructions of type theory, there are (at least) two 
 thought regarding contexts. One formulation #cite(<hottbook>, supplement: [Appendix A.2])
 makes heavy use of explicit contexts and variable substitution, which change frequently from
 deduction to deduction; the other formulation #cite(<hottbook>, supplement: [Appendix A.1])
-keeps contexts fixed at the beginning of the proof, preferring the mechanics of function
-application instead of variable substitution.
+tends to keep contexts more fixed, preferring the mechanics of function application instead
+of variable substitution.
 
 We proceed with the latter, since it is more familiar to dependently-typed programming
 language theory. As a result, we will often leave contexts fairly implicit, using language
@@ -563,8 +563,8 @@ The data for function types and terms are given by the following rules:
 ))
 
 The $->$-Comp and $->$-Uniq rules are respectively also known as the $beta$ and $eta$ rules
-in $lambda$-calculus. (In #cite(<mainproject>), we focused on function types and the
-associated $beta$- and $eta$- rules in the context of cartesian-closed categories.)
+in $lambda$-calculus. In #cite(<mainproject>), we focused on function types and the
+associated $beta$- and $eta$- rules in the context of cartesian-closed categories.
 
 == Type families<sec:type-families>
 
@@ -737,12 +737,12 @@ Comparing with the $->$-Intr rule,
     name: [$->$-Intr],
   )),
 )
-we see that this is just a rewriting of $product_(x : A) B'$ as $A -> B$. The application to
-the other rules is similar, and in this way we see that a $Pi$-type over $x : A$ which has
-no free occurrences of $x$ is equivalent to a plain function type. By this equivalence, we
-refer to the function types from @sec:function-types as *non-dependent* function types. This
-is also the reason that there is no ambiguity in using the $lambda$-syntax for function
-notation for both dependent functions.
+we see that this is just a rewriting of $product_(x : A) B'$ as $A -> B'$. The application
+to the other rules is similar, and in this way we see that a $Pi$-type over $x : A$ which
+has no free occurrences of $x$ is equivalent to a plain function type. By this equivalence,
+we refer to the function types from @sec:function-types as *non-dependent* function types.
+This is also the reason that there is no ambiguity in using the $lambda$-syntax for function
+notation for both dependent and non-dependent functions.
 
 One advantage of the context-driven approach mentioned in @sec:universes-and-contexts is
 that it would allow us to define dependent functions first, and then consider non-dependent
@@ -783,8 +783,8 @@ as in $f : product_(x : A) product_(y : B(x)) C(x, y)$, then we could not constr
 using the given $lambda$ syntax, since in the term
 $lambda (y : B(x)) sd lambda (x : A) sd f(x, y)$ we have a free occurrence of $x$.
 
-#note[In #cite(<hottbook>, form: "prose"), the authors frequently make use this equivalence
-  of parameter ordering, using syntax such as
+#note[In #cite(<hottbook>), the authors frequently make use this equivalence of parameter
+  ordering, using syntax such as
   $
     product_(x : A, y : B) C(x, y),
   $
@@ -836,7 +836,7 @@ inductor is to convert dependent functions of two variables into functions on de
 pairs. Our rules say that in order to define a (dependent) function out of a pair type, it
 is sufficient to provide a (dependent) function in two variables, which is applied to the
 first element of the pair and then the second. For the non-dependent case, this corresponds
-to the equivalence between functions $A times B -> C$ and functions $A -> B -> C$.
+to the adjunction between functions $A times B -> C$ and functions $A -> B -> C$.
 
 #remark[The name "inductor" in this context is somewhat confusing, since no induction is
   being performed. However, it is a concept which will be generalized to the other types we
@@ -1282,11 +1282,11 @@ number $n$, given $n$ itself and the value at $n$.
   $
     ind_NN (C, c_0, c_s)
   $
-  to which we then apply the "$->$-Intr" rule to get a term
+  to which we then apply the "$->$-Intr" rule to remove $a : NN$ from the context and get a
+  term
   $
     lambda (a : NN) sd ind_NN (C, c_0, c_s).
   $
-  removing $a : NN$ from the context.
 
   This $lambda$-term will be our definition of $add$. In open form, we define
   $
@@ -1345,7 +1345,7 @@ number $n$, given $n$ itself and the value at $n$.
   $ fact : NN -> NN $
   and we will use $NN$-induction to define it. We write
   $
-          C(n) & :peq NN \
+         C(\_) & :peq NN \
            c_0 & :peq 1 \
     c_s (s, p) & :peq prod(succ(s), p)
   $
@@ -1375,7 +1375,7 @@ number $n$, given $n$ itself and the value at $n$.
   $
     fact(3) peq prod(3, prod(2, prod(1, 1))),
   $
-  and by the assumption of the function $prod$, we arrive at
+  and by the assumption of the behaviour of the function $prod$, we arrive at
   $
     fact(3) peq 6.
   $
@@ -1395,7 +1395,7 @@ $
   fact(succ(n)) & :peq succ(n) times fact(n) \
 $
 (where $times$ here denotes multiplication). Here we see that in the third line, the term
-$fact(n)$ appears both on the left- and the right-hand side of the definition. This is
+$fact$ appears both on the left- and the right-hand side of the definition. This is
 dangerous! It might allow us to write such "functions" as
 #let never = $sans("never")$
 $
