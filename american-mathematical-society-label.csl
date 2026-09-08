@@ -106,6 +106,9 @@
     </layout>
   </citation>
   <bibliography entry-spacing="0" second-field-align="flush">
+    <sort>
+      <key variable="citation-label"/>
+    </sort>
     <layout suffix=".">
       <text variable="citation-label" prefix="[" suffix="] "/>
       <group delimiter=", ">

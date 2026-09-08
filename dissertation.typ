@@ -237,16 +237,23 @@ only as existing if constructed by a mathematician. #cite(
 
 In the early 20th century, Bertrand Russell, responding to the same foundational crisis and
 in particular his own paradox in the set theory of Cantor, formulated a theory of types
+#cite(<RussellTypes>)
 #cite(
   <SEPTypeTheory>,
-). Russell's original formulation was presented elegantly by Alonzo Church many years later,
-in the form of a simply-typed $lambda$-calculus #cite(<ChurchTypeTheory1940>), and in the
-1970s, Per Martin-Löf formulated a synthesis of these positions in Intuitionistic Type
-Theory #cite(<MartinLöfITT>).
+). Russell's original formulation was presented elegantly by Alonzo Church some years later,
+in the form of a simply-typed $lambda$-calculus #cite(<ChurchTypeTheory1940>). Church's
+$lambda$-calculus remained "a somewhat obscure formalism" until the 1960s, when it was taken
+up by linguists studying the semantics of natural language #cite(<SEPLambdaCalculus>). In
+the 1970s, Per Martin-Löf formulated a synthesis of $lambda$-calculus and Russell's type
+theory in Intuitionistic Type Theory #cite(<MartinLöfHauptsatz>) #cite(<MartinLöfITT>),
+which has had wide applicability in computer science #cite(<MartinLöfProgramming>) #cite(
+  <NordstromProgramming>,
+).
 
-Also of note is the work by Haskell Curry and Alvin Howard between 1936 and 1980, which
-established a correspondence between logical propositions and types known as the
-Curry-Howard correspondence #cite(
+In his type theory, now known as dependent, constructive, intuitinistic or Martin-Löf type
+theory, Martin-Löf drew on the work by Haskell Curry and William Howard between 1934 and
+1980 #cite(<Curry1934>) #cite(<Howard1980>), which established a correspondence between
+logical propositions and types, known as the Curry-Howard correspondence #cite(
   <WadlerPropositions>,
 ). In Martin-Löf's type theory, a proof is simply an object in a type: since by
 Curry-Howard, types can be regarded as propositions, an element of a type is a witness to
@@ -262,9 +269,7 @@ computer science. The application of $lambda$-calculus to computing formed the d
 of of "functional" programming languages, in which programs are expressed in mathematical
 terms using functions and types #cite(
   <Landin1965>,
-) #cite(
-  <SICP1984>,
-) #cite(<Barendregt1990Functional>) #cite(<PeytonJones1987>). In this family, languages such
+) #cite(<PeytonJones1987>) #cite(<Barendregt1990Functional>). In this family, languages such
 as Agda, Idris and Rocq, which are based on Martin-Löf type theory, may be used to
 algorithmically represent proofs in constructive terms #cite(<WhatIsAgda>) #cite(<WhyRocq>)
 #cite(
@@ -286,7 +291,7 @@ Moreover, there is the problem of holding that isomorphic structures are equal, 
 "mathematicians have happily been using on workdays, despite its incompatibility with the
 'official' doctrines of conventional foundations" #cite(<hottbook>).
 
-In recent years, there has been substantial progress made on this issue by the _Univalent
+In recent years, substantial progress has been made on this issue by the _Univalent
 Foundations Program_ by formulating *Homotopy Type Theory*. In this theory, ideas are
 borrowed from algebraic topology and applied to type theory. Where two objects might be
 considered as points in a topological space, a witness to their equality corresponds to a
