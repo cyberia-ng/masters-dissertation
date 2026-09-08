@@ -4108,9 +4108,10 @@ differences.
   type in their least upper bound universe ($UU union.sq VV$). This differs from our earlier
   presentation, in that we defined $funext$ in @ax:function-extensionality as a function _of
   this type_. The way this is used in the Agda presentation is to make all constructions
-  which use function extensionality take an argument of type `funext 𝓤 𝓥`, which has the
-  type `f ∼ g → f ＝ g`. That is, constructions which use function extensionality must
-  explicitly assume that it is given to them, for the universes that they require.
+  which use function extensionality take an argument of type `funext 𝓤 𝓥`, i.e. an argument
+  of type `f ∼ g → f ＝ g`, for `f` and `g` in the appropriate universes. That is,
+  constructions which use function extensionality must explicitly assume that it is given to
+  them, for the universes that they require.
 
   From the way that $NN$ is constructed, it falls in the universe $UU_0$. Therefore, we only
   need to assume a function of type `funext 𝓤₀ 𝓤₀`, and our proof to show that
