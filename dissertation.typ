@@ -301,9 +301,63 @@ Of particular note is that, although we "lose" such useful tools as the law of t
 middle by working in homotopy type theory, we gain a theorem which closely resembles the
 axiom of choice.
 
+== General structure and section overview
+
+In this work, our primary reference will be _Homotopy Type Theory: Univalent Foundations of
+Mathematics_ #cite(<hottbook>). We will explore sections from the first three chapters of
+this book in detail. In the type theory defined in #cite(<hottbook>), the text is quite
+discursive, with two alternative formal presentations given in appendices. We base our
+exposition of type theory on a synthesis of the discursive and formal presentations in the
+main text and both appendices, hoping to achieve a detailed account which is faithful to all
+three. Similarly, in the later sections of #cite(<hottbook>), which are more proof based and
+less definitional, the proofs given are sometimes relatively terse and in some cases left to
+the reader. We expand on these terse proofs, sometimes greatly so, and where we use their
+results which are left to the reader, we give our own proofs. We conclude by discussing the
+formulation of the entirety of #cite(<hottbook>) in the programming language Agda, given in
+#cite(<HoTTAgda>).
+
 == Section overview
 
-- Point to 1-2 proofs we want to showcase
+In @sec:type-theory, we give a detailed exposition of a variant of Martin-Löf type theory,
+beginning with the syntax of $lambda$-calculus and its structural rules of deduction. We
+introduce all of the types and type combinators we are to use, with formal rules for their
+introduction and elimination. We outline various syntactic abbreviations we will use and
+justify why they are sound, in particular that of recursive pattern matching, which, if not
+defined with appropriate restrictions, may lead to non-terminating functions. We explore the
+Curry-Howard correspondence between types and propositions, and show two of de Morgan's
+laws. With the exception of the section on the Curry-Howard correspondence, the earlier
+parts of the section are mostly definitional, since the main ingredient for proofs, namely
+the identity type, is introduced at the end. After introducing identity types, we conclude
+the section by showing a number of proofs about the types previously defined.
+
+In @sec:homotopy-type-theory, we present the homotopical interpretation of type theory,
+beginning with a discursive outline of classical (set-theoretic) homotopy theory. We touch
+on the topic of $infinity$-groupoids, which are objects from category theory which abstract
+just enough structure from homotopy theory to capture identity types. We discuss the
+interaction of functions with identities: under what circumstances equalities hold after
+application of a function to both sides; how to move from an equality of functions to a
+pointwise equality for all elements of the domain; and how to move in the other direction
+using the axiom of function extensionality. We define what it means for types to be
+equivalent -- loosely, that elements may be transported between them without loss of
+information -- and introduce the univalence axiom which allows us to conclude that
+equivalent types are equal. We conclude the section by discussing a technique of proof known
+as coding, and present some proofs using it. We highlight in particular the proof of
+@thm:n-is-set, which is a significant expansion of the proof in #cite(<hottbook>), and
+@ex:finite-types, which is entirely our own work, showing that finite types as constructed
+in @sec:finite-types are equivalent to finite subtypes of $NN$.
+
+In @sec:sets-and-logic, we explore just how much of classical mathematics we can recover
+using the type-theoretic foundation. We define sets, which are types that behave like
+set-theoretic sets in certain useful ways, and we show a generalization of the idea of a set
+in type theory, namely $n$-types. We prove that the law of double negation (and hence the
+law of the excluded middle) is in general inconsistent with type theory, but we define a
+kind of type for which we may consistenly assume that law.
+
+In @sec:agda, we depart from the strictly mathematical focus of the previous 4 sections and
+work through some sections of #cite(<HoTTAgda>) in the Agda programming language. We give an
+introduction to Agda, aimed at a reader who has a little experience with programming but not
+(necessarily) with functional programming or dependently-typed languages. We present some
+examples of code taken directly from #cite(<HoTTAgda>) and give some examples of our own.
 
 = Type theory<sec:type-theory>
 
@@ -665,7 +719,7 @@ associated $beta$- and $eta$- rules in the context of cartesian-closed categorie
 A *type family* is an element of a function type $A -> UU_i$, i.e. it is a function which
 takes some parameter (of type $A$) and returns a type. In this way, we can construct types
 which depend on values, which is central to dependent type theory. An example (which we will
-return to later) is the type family of finite sets, $Fin : NN -> UU_i$. We have not yet
+return to later) is the type family of finite types, $Fin : NN -> UU_i$. We have not yet
 introduced the type $NN$ of natural numbers, but (we hope) readers will nevertheless be
 familiar with the natural numbers and may therefore have some intuition about this type. The
 type $Fin(0)$ has 0 elements, the type $Fin(1)$ has exactly 1 element, and so on. We will
@@ -1555,7 +1609,7 @@ TODO: talk about double recursion, use Giacomo's notes.
   $
 ]<example:prod>
 
-== Finite types
+== Finite types<sec:finite-types>
 
 Now that we have the singleton type $one$, the empty type $zero$ and the coproduct
 type-former $+$, we can construct the previously-mentioned example of finite sets, from
@@ -3327,9 +3381,9 @@ $
     alpha(0, (succ(n'), (p, q))) :peq ...
   $
   TODO: I don't know if this is worth it
-]
+]<ex:finite-types>
 
-= Sets and logic
+= Sets and logic<sec:sets-and-logic>
 
 - TODO add table with Curry-Howard correspondence
 
@@ -3734,7 +3788,7 @@ can be shown that it is consistent with type theory #cite(<hottbook>, supplement
 ]
 
 
-= Homotopy type theory in Agda
+= Homotopy type theory in Agda<sec:agda>
 
 #let theircode = it => {
   align(center, block(
