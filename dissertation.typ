@@ -295,7 +295,7 @@ paths, and witnesses can be unified by applying continuous maps which deform one
 another. Furthermore, the idea of identity of isomorphic structures is captured by the
 *Univalence Axiom*, which states exactly this. #cite(
   <hottbook>,
-).
+)
 
 Of particular note is that, although we "lose" such useful tools as the law of the excluded
 middle by working in homotopy type theory, we gain a theorem which closely resembles the
@@ -316,8 +316,6 @@ results which are left to the reader, we give our own proofs. We conclude by dis
 formulation of the entirety of #cite(<hottbook>) in the programming language Agda, given in
 #cite(<HoTTAgda>).
 
-== Section overview
-
 In @sec:type-theory, we give a detailed exposition of a variant of Martin-Löf type theory,
 beginning with the syntax of $lambda$-calculus and its structural rules of deduction. We
 introduce all of the types and type combinators we are to use, with formal rules for their
@@ -325,16 +323,16 @@ introduction and elimination. We outline various syntactic abbreviations we will
 justify why they are sound, in particular that of recursive pattern matching, which, if not
 defined with appropriate restrictions, may lead to non-terminating functions. We explore the
 Curry-Howard correspondence between types and propositions, and show two of de Morgan's
-laws. With the exception of the section on the Curry-Howard correspondence, the earlier
-parts of the section are mostly definitional, since the main ingredient for proofs, namely
-the identity type, is introduced at the end. After introducing identity types, we conclude
-the section by showing a number of proofs about the types previously defined.
+laws. With the exception of the subsection on the Curry-Howard correspondence, the earlier
+parts of @sec:type-theory are mostly definitional, since the main ingredient for proofs,
+namely the identity type, is introduced at the end. After introducing identity types, we
+conclude by showing a number of proofs about the types previously defined.
 
 In @sec:homotopy-type-theory, we present the homotopical interpretation of type theory,
 beginning with a discursive outline of classical (set-theoretic) homotopy theory. We touch
 on the topic of $infinity$-groupoids, which are objects from category theory which abstract
 just enough structure from homotopy theory to capture identity types. We discuss the
-interaction of functions with identities: under what circumstances equalities hold after
+interaction of functions with identities: under what circumstances identities hold after
 application of a function to both sides; how to move from an equality of functions to a
 pointwise equality for all elements of the domain; and how to move in the other direction
 using the axiom of function extensionality. We define what it means for types to be
@@ -351,10 +349,10 @@ using the type-theoretic foundation. We define sets, which are types that behave
 set-theoretic sets in certain useful ways, and we show a generalization of the idea of a set
 in type theory, namely $n$-types. We prove that the law of double negation (and hence the
 law of the excluded middle) is in general inconsistent with type theory, but we define a
-kind of type for which we may consistenly assume that law.
+kind of type for which we may consistently assume that law.
 
-In @sec:agda, we depart from the strictly mathematical focus of the previous 4 sections and
-work through some sections of #cite(<HoTTAgda>) in the Agda programming language. We give an
+In @sec:agda, we depart from the strictly mathematical focus of the previous sections and
+work through some parts of #cite(<HoTTAgda>) in the Agda programming language. We give an
 introduction to Agda, aimed at a reader who has a little experience with programming but not
 (necessarily) with functional programming or dependently-typed languages. We present some
 examples of code taken directly from #cite(<HoTTAgda>) and give some examples of our own.
