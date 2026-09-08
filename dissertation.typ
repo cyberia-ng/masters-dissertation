@@ -3262,16 +3262,19 @@ $
 
 = Sets and logic
 
+- TODO add table with Curry-Howard correspondence
+
 In classical set-theoretic mathematics, we make statements in the language of first-order
 logic about elements of sets. We have seen, in @sec:propositions-as-types, how we can
 translate some of first-order logic into type theory, but this is not the full story. In
 #cite(<hottbook>, supplement: [Theorem 2.15.7]), a theorem is presented which is equivalent
-to the classical *axiom of choice*, and is a logical consequence of type theory. For the
-classical mathematician, who is used to the axiom of choice being independent of
-Zermelo-Fraenkel set theory, this is unusual. Moreover, in this section we will present a
-theorem that the *law of the excluded middle*, i.e. that for any proposition $A$, we have
-$A or ¬A$, does not hold in general in type theory. To this end, we wish to explore exactly
-how much of classical logic we can recover using a type-theoretic foundation.
+(TODO better word: see comments on 2.15.7) to the classical *axiom of choice*, and is a
+logical consequence of type theory. For the classical mathematician, who is used to the
+axiom of choice being independent of Zermelo-Fraenkel set theory, this is unusual. Moreover,
+in this section we will present a theorem that the *law of the excluded middle*, i.e. that
+for any proposition $A$, we have $A or ¬A$, does not hold in general in type theory. To this
+end, we wish to explore exactly how much of classical logic we can recover using a
+type-theoretic foundation.
 
 == Sets<sec:sets>
 
