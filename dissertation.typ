@@ -85,6 +85,7 @@
 // Citations
 // #let citation-style = "harvard-cite-them-right"
 #let citation-style = "./american-mathematical-society-label.csl"
+// #let citation-style = "./american-mathematical-society-label-orig.csl"
 // #let citation-style = "./american-mathematical-society-numeric.csl"
 // #let citation-style = "ieee"
 #set cite(style: citation-style)
@@ -146,6 +147,8 @@
 #pagebreak()
 
 #outline(depth: 2)
+
+#pagebreak()
 
 // Body
 
@@ -216,24 +219,90 @@
 
 = Introduction
 
-- History of type theory and lambda calculus; mention Martin-Löf
-- Type theory is a logical system which is useful for proof-relevant mathematics
-- Set theory and first-order logic, known in this field as "classical mathematics", leaves
-  proofs at the meta level
-  - Type theory allows us to consider proofs as mathematical objects themselves
-- In constructive mathematics, we claim (as a philosophy) that proofs must construct a
-  mathematical object in order to show that it exists
-  - Considering proofs as mathematical objects, to prove a proposition we must construct a
-    witness to its truth
-  - Proofs by contradiction are therefore not valid
-  - (Proof of a negative is not proof by contradiction)
-- How much of classical mathematics can we recover using type theory as a foundation?
-  - Law of excluded middle is inconsistent in general
-  - But we can prove something a bit like the axiom of choice
-- Forms of logic which hold to this constructive principle include intuitionism, among
-  others (finitism)
+== Background
 
-- Section by section overview
+As mathematics developed into the 20th century, it faced a foundational crisis, brought on
+by paradoxes in set theory due to Russell and questions over the validity of certain proofs
+by Weierstrass, Cantor and Hilbert #cite(<RobičFoundational>) #cite(<KleeneMeta>). This gave
+rise to a number of schools of thought in philosophy of mathematics, among which is the
+philosophy of intuitionism, first formulated by L. E. J. Brouwer and later continued by
+Heyting and Weyl. Intuitionism is a constructive philosophy of mathematics, which holds that
+in order to prove the existence of a mathematical object, it is not sufficient to simply
+refute its non-existence; rather, a proof of existence must actually show how to construct
+such an object. Where classical mathematics asserts that either an object exists or it does
+not (the law of the excluded middle), constructivist mathematics views mathematical objects
+only as existing if constructed by a mathematician. #cite(
+  <IEPConstructive>,
+) #cite(<ShapiroThinking>)
+
+In the early 20th century, Bertrand Russell, responding to the same foundational crisis and
+in particular his own paradox in the set theory of Cantor, formulated a theory of types
+#cite(
+  <SEPTypeTheory>,
+). Russell's original formulation was presented elegantly by Alonzo Church many years later,
+in the form of a simply-typed $lambda$-calculus #cite(<ChurchTypeTheory1940>), and in the
+1970s, Per Martin-Löf formulated a synthesis of these positions in Intuitionistic Type
+Theory #cite(<MartinLöfITT>).
+
+Also of note is the work by Haskell Curry and Alvin Howard between 1936 and 1980, which
+established a correspondence between logical propositions and types known as the
+Curry-Howard correspondence #cite(
+  <WadlerPropositions>,
+). In Martin-Löf's type theory, a proof is simply an object in a type: since by
+Curry-Howard, types can be regarded as propositions, an element of a type is a witness to
+the truth of a proposition. Hence, Martin-Löf's type theory satisfies the constructivist
+position of the intuitionists by requiring that a proof be expressed constructively as a
+term in $lambda$-calculus.
+
+== Modern motivation
+
+While modern mathematics is typically founded on classical first-order logic and ZFC set
+theory, Martin-Löf type theory has become increasingly relevant in light of developments in
+computer science. The application of $lambda$-calculus to computing formed the development
+of of "functional" programming languages, in which programs are expressed in mathematical
+terms using functions and types #cite(
+  <Landin1965>,
+) #cite(
+  <SICP1984>,
+) #cite(<Barendregt1990Functional>) #cite(<PeytonJones1987>). In this family, languages such
+as Agda, Idris and Rocq, which are based on Martin-Löf type theory, may be used to
+algorithmically represent proofs in constructive terms #cite(<WhatIsAgda>) #cite(<WhyRocq>)
+#cite(
+  <Idris>,
+).
+
+== Homotopy and Univalence
+
+Difficulty arises in trying to reconcile the approach of Martin-Löf type theory with the
+classical set-theoretic approach to mathematics. Types are unlike sets in "ways which have
+been hard to make precise" #cite(<hottbook>), for example, set theory allows the
+construction of inhomogenous sets consisting of many disparate "kinds" of objects, while
+objects in type theory are confined to the type they exist in. Furthermore, in first-order
+logic, equality of mathematical objects is binary -- either objects are equal or they are
+not -- whereas in Martin-Löf type theory it is possible to construct _different_ witnesses
+to the equality of two objects, so objects may be equal in different "ways".
+
+Moreover, there is the problem of holding that isomorphic structures are equal, which
+"mathematicians have happily been using on workdays, despite its incompatibility with the
+'official' doctrines of conventional foundations" #cite(<hottbook>).
+
+In recent years, there has been substantial progress made on this issue by the _Univalent
+Foundations Program_ by formulating *Homotopy Type Theory*. In this theory, ideas are
+borrowed from algebraic topology and applied to type theory. Where two objects might be
+considered as points in a topological space, a witness to their equality corresponds to a
+path between them. The concept of different proofs of equality is then captured by differing
+paths, and witnesses can be unified by applying continuous maps which deform one path into
+another. Furthermore, the idea of identity of isomorphic structures is captured by the
+*Univalence Axiom*, which states exactly this. #cite(
+  <hottbook>,
+).
+
+Of particular note is that, although we "lose" such useful tools as the law of the excluded
+middle by working in homotopy type theory, we gain a theorem which closely resembles the
+axiom of choice.
+
+== Section overview
+
 - Point to 1-2 proofs we want to showcase
 
 = Type theory<sec:type-theory>
@@ -4010,3 +4079,5 @@ differences.
     funext(lambda (m : NN) sd funext(f(m))) : add_1 = add_2.
   $
 ]
+
+#pagebreak()
