@@ -156,6 +156,7 @@
 #let UU = $cal(U)$
 #let VV = $cal(V)$
 #let WW = $cal(W)$
+#let lub = $union.sq$
 #let peq = $equiv$
 #let equiv = $tilde.eq$
 #let rec = $sans("rec")$
@@ -461,7 +462,22 @@ in which all our types are present.
   ).
 ]
 
-- TODO remark about how we will write $UU_i$ all the time
+When working with statements about types in arbitrary universes, we will use variables $UU$,
+$VV$ and $WW$ to refer to universes. We refer to the least upper bound universe of $UU$ and
+$VV$ as $UU lub VV$. This amounts to taking the "higher" of the two universes, so for $UU_i$
+and $UU_j$, we have that the least upper bound $UU_i lub UU_j$ is $UU_(max(i, j))$.
+
+#remark[
+  In the literature on Martin-Löf type theory, and in particular in #cite(<hottbook>), the
+  authors will often use a variable $UU_i$ as a shorthand for "some universe", and write
+  statements like "let $A : UU_i$ and $B : UU_i$ be types" without concern as to the
+  potential ambiguity about whether these must be the same universe or could be different.
+  In the Agda implementation presented in #cite(<HoTTAgda>), great care is taken to be more
+  specific about universes, because programming environments are in general less forgiving
+  of such misuses of notation than mathematicians. We will follow the example of #cite(
+    <HoTTAgda>,
+  ) and be specific about our universes.
+]
 
 A *context* is a (possibly empty) ordered list of distinct variables and their types, for
 example $x_1 : A_1, x_2 : A_2$. Since types are terms, each type may use variables occurring
@@ -662,6 +678,36 @@ new type we introduce, we give the following data:
     by declaring certain elements to be equivalent under given conditions.
 ]
 
+To avoid clutter in our type rules, we will sometimes omit antecedents that say that a
+certain type is in a certain universe, and rely on the reader to infer that types used in
+the rule are valid in the context. For example, in the "$->$-Intr" rule which we give below,
+we write
+#pt(prooftree(rule(
+  $Gamma, x : A tack t : B$,
+  $Gamma tack lambda(x : A) sd t : A -> B$,
+  name: [$->$-Intr],
+)))
+
+The fully-explicit version of this rule is really
+#pt(prooftree(rule(
+  $Gamma tack A : UU$,
+  $Gamma tack B : VV$,
+  $Gamma, x : A tack t : B$,
+  $Gamma tack lambda(x : A) sd t : A -> B$,
+  name: [$->$-Intr\*],
+)))
+but from the fact that $x : A$ and $t : B$ are mentioned in the third antecedent, the reader
+can infer that the first two antecedents are required.
+
+An alternative approach may be to require, in the abbreviated form of the rule, that $Gamma$
+contains $X : UU$ and $Y : VV$ as variables, and then at every site that the rule is
+applied, we make variable substitutions of terms $A$ for $X$ and $B$ for $Y$, and in this
+case the abbreviated form would be completely rigorous. However, we feel that simply stating
+the rule in the abbreviated form achieves a balance of rigor and clarity.
+
+In formation rules, we will always be explicit about the universes, since the consequent in
+those rules require an expression of their least upper bound.
+
 == Function types<sec:function-types>
 
 The first type we will introduce is the (non-dependent) *function type*. We introduce a
@@ -683,9 +729,9 @@ The data for function types and terms are given by the following rules:
 
 #pt(rule-set(
   prooftree(rule(
-    $Gamma tack A : UU_i$,
-    $Gamma tack B : UU_i$,
-    $Gamma tack A -> B : UU_i$,
+    $Gamma tack A : UU$,
+    $Gamma tack B : VV$,
+    $Gamma tack A -> B : UU lub VV$,
     name: [$->$-Form],
   )),
   prooftree(rule(
@@ -700,7 +746,6 @@ The data for function types and terms are given by the following rules:
     name: [$->$-Elim],
   )),
   prooftree(rule(
-    $Gamma tack B : UU_i$,
     $Gamma, x : A tack t : B$,
     $Gamma tack s : A$,
     $Gamma tack (lambda (x : A) sd t)(s) peq t[s slash x] : B$,
@@ -756,9 +801,9 @@ function types correspond closely with their counterparts for non-dependent func
 
 #pt(rule-set(
   prooftree(rule(
-    $Gamma tack A : UU_i$,
-    $Gamma tack B : A -> UU_i$,
-    $Gamma tack product_(x : A) B(x) : UU_i$,
+    $Gamma tack A : UU$,
+    $Gamma tack B : A -> VV$,
+    $Gamma tack product_(x : A) B(x) : UU lub VV$,
     name: [$Pi$-Form],
   )),
   prooftree(bigrule(
@@ -964,13 +1009,12 @@ $(a, b)$.
 These are the rules for formation and introduction of dependent pair types:
 #pt(rule-set(
   prooftree(rule(
-    $Gamma tack A : UU_i$,
-    $Gamma tack B : A -> UU_i$,
-    $Gamma tack sum_(x : A) B(x) : UU_i$,
+    $Gamma tack A : UU$,
+    $Gamma tack B : A -> VV$,
+    $Gamma tack sum_(x : A) B(x) : UU lub VV$,
     name: [$Sigma$-Form],
   )),
   prooftree(rule(
-    $Gamma tack B : A -> UU_i$,
     $Gamma tack a : A$,
     $Gamma tack b : B(a)$,
     $Gamma tack (a, b) : sum_(x : A) B(x)$,
@@ -1002,24 +1046,24 @@ The action of transforming binary functions into functions on pair types is capt
 following type of $ind_(sum_(x : A) B(x))$.
 
 $
-  ind_(sum_(x: A) B(x)) : product_(C : (sum_(x: A) B(x)) -> UU_i) ((product_(x: A) product_(y:B(x))
+  ind_(sum_(x: A) B(x)) : product_(C : (sum_(x: A) B(x)) -> UU) ((product_(x: A) product_(y:B(x))
       C((x, y))) -> product_(p : sum_(x: A) B(x)) C(p))
 $
 
 The formal elimination and computation rules are as follows:
 #pt(rule-set(
   prooftree(bigrule(
-    $Gamma tack C : (sum_(x : A) B(x)) -> UU_i$,
+    $Gamma tack C : (sum_(x : A) B(x)) -> UU$,
     $Gamma tack g : product_(x : A) product_(y : B(x)) C((x, y))$,
     $Gamma tack ind_(sum_(x : A) B(x)) (C, g) : product_(p : sum_(x : A) B(x)) C(p)$,
     name: [$Sigma$-Elim],
   )),
   prooftree(bigrule(
-    $Gamma tack C : (sum_(x : A) B(x)) -> UU_i$,
+    $Gamma tack C : (sum_(x : A) B(x)) -> UU$,
     $Gamma tack g : product_(x : A) product_(y : B(x)) C((x, y))$,
     $Gamma tack a : A$,
     $Gamma tack b : B(a)$,
-    $Gamma tack ind_(sum_(x : A) B(x)) (C, g, (a, b)) peq g(a, b)$,
+    $Gamma tack ind_(sum_(x : A) B(x)) (C, g, (a, b)) peq g(a, b) : C((a, b))$,
     name: [$Sigma$-Comp],
   )),
 ))
@@ -1119,7 +1163,7 @@ using the $Sigma$-Elim rule. What can we achieve with the $Sigma$-Comp rule? The
 proposition will be useful later, as part of the proof that all elements of pair types are
 indeed pairs.
 
-#proposition[For a type $A : UU_i$ and a type family $B : A -> UU_i$ and elements $x : A$,
+#proposition[For a type $A : UU$ and a type family $B : A -> VV$ and elements $x : A$,
   $y : B(x)$, we have
   $ pi_0((x, y)) peq x $
   and
@@ -1166,21 +1210,19 @@ are:
 
 #pt(rule-set(
   prooftree(rule(
-    $Gamma tack A : UU_i$,
-    $Gamma tack B : UU_i$,
-    $Gamma tack A + B : UU_i$,
+    $Gamma tack A : UU$,
+    $Gamma tack B : VV$,
+    $Gamma tack A + B : UU lub VV$,
     name: [$+$-Form],
   )),
   prooftree(rule(
-    $Gamma tack A : UU_i$,
-    $Gamma tack B : UU_i$,
     $Gamma tack a : A$,
+    $Gamma tack B : VV$,
     $Gamma tack inl(a) : A + B$,
     name: [$+$-Intr-L],
   )),
   prooftree(rule(
-    $Gamma tack A : UU_i$,
-    $Gamma tack B : UU_i$,
+    $Gamma tack A : UU$,
     $Gamma tack b : B$,
     $Gamma tack inr(b) : A + B$,
     name: [$+$-Intr-R],
@@ -1204,14 +1246,14 @@ inductor:
 #pt(
   rule-set(
     prooftree(bigrule(
-      $Gamma tack C : A + B -> UU_i$,
+      $Gamma tack C : A + B -> UU$,
       $Gamma tack f : product_(x : A) C(inl(x))$,
       $Gamma tack g : product_(x : B) C(inr(x))$,
       $Gamma tack ind_(A+B) (C, f, g) : product_(x:A) C(x)$,
       name: [$+$-Elim],
     )),
     prooftree(bigrule(
-      $Gamma tack C : A + B -> UU_i$,
+      $Gamma tack C : A + B -> UU$,
       $Gamma tack f : product_(x : A) C(inl(x))$,
       $Gamma tack g : product_(x : B) C(inr(x))$,
       $Gamma tack a : A$,
@@ -1219,7 +1261,7 @@ inductor:
       name: [$+$-Comp-L],
     )),
     prooftree(bigrule(
-      $Gamma tack C : A + B -> UU_i$,
+      $Gamma tack C : A + B -> UU$,
       $Gamma tack f : product_(x : A) C(inl(x))$,
       $Gamma tack g : product_(x : B) C(inr(x))$,
       $Gamma tack b : B$,
@@ -1302,25 +1344,25 @@ When defining the elimination and computation rules for $one$, using the inducto
 assume that $one$ has exactly one element. Indeed, the introduction rule states only that
 there is at least one element of type $one$, making no restrictions on the possibility of
 other elements. As a consequence of this, the inductor must be generic over a type family
-$C : one -> UU_i$, rather than a particular type $C' : UU_i$, even though we know
-intuitively that each such family $C$ can only identify one type in $UU_i$.
+$C : one -> UU$, rather than a particular type $C' : UU$, even though we know intuitively
+that each such family $C$ can only identify one type in $UU$.
 
 The type of the inductor is therefore
 $
-  ind_one : product_(C : one -> UU_i) (C(star) -> product_(a : one) C(a)).
+  ind_one : product_(C : one -> UU) (C(star) -> product_(a : one) C(a)).
 $
 
 The elimination and computation rules for $one$ are as follows:
 
 #pt(rule-set(
   prooftree(rule(
-    $Gamma tack C : one -> UU_i$,
+    $Gamma tack C : one -> UU$,
     $Gamma tack c : C(star)$,
     $Gamma tack ind_one (C, c) : product_(a : one) C(a)$,
     name: [$one$-Elim],
   )),
   prooftree(rule(
-    $Gamma tack C : one -> UU_i$,
+    $Gamma tack C : one -> UU$,
     $Gamma tack c : C(star)$,
     $Gamma tack ind_one (C, c, star) peq c$,
     name: [$one$-Comp],
@@ -1343,9 +1385,9 @@ which diverge (i.e. either do not terminate or crash the program).
 
 #pt(
   rule-set(
-    prooftree(rule($zero : UU_i$, name: [$zero$-Form])),
+    prooftree(rule($zero : UU_0$, name: [$zero$-Form])),
     prooftree(rule(
-      $Gamma tack C : zero -> UU_i$,
+      $Gamma tack C : zero -> UU$,
       $Gamma tack ind_zero (C) : product_(a : zero) C(a)$,
       name: [$zero$-Elim],
     )),
@@ -1358,7 +1400,7 @@ We are now ready to introduce the type of natural numbers, $NN$. We first declar
 is a natural number 0, and from there say that every natural number has a successor.
 
 #pt(rule-set(
-  prooftree(rule($Gamma tack NN : UU_i$, name: [$NN$-Form])),
+  prooftree(rule($Gamma tack NN : UU_0$, name: [$NN$-Form])),
   prooftree(rule(
     $Gamma tack 0 : NN$,
     name: [$NN$-Intro-0],
@@ -1377,21 +1419,21 @@ number $n$, given $n$ itself and the value at $n$.
 
 #pt(rule-set(
   prooftree(bigrule(
-    $Gamma tack C : NN -> UU_i$,
+    $Gamma tack C : NN -> UU$,
     $Gamma tack c_0 : C(0)$,
     $Gamma tack c_s : product_(n : NN) (C(n) -> C(succ(n)))$,
     $Gamma tack ind_NN (C, c_0, c_s) : product_(n : NN) C(n)$,
     name: [$NN$-Elim],
   )),
   prooftree(bigrule(
-    $Gamma tack C : NN -> UU_i$,
+    $Gamma tack C : NN -> UU$,
     $Gamma tack c_0 : C(0)$,
     $Gamma tack c_s : product_(n : NN) (C(n) -> C(succ(n)))$,
     $Gamma tack ind_NN (C, c_0, c_s, 0) peq c_0$,
     name: [$NN$-Comp-0],
   )),
   prooftree(bigrule(
-    $Gamma tack C : NN -> UU_i$,
+    $Gamma tack C : NN -> UU$,
     $Gamma tack c_0 : C(0)$,
     $Gamma tack c_s : product_(n : NN) (C(n) -> C(succ(n)))$,
     $Gamma tack n : NN$,
@@ -1624,18 +1666,18 @@ type-former $+$, we can construct the previously-mentioned example of finite set
 
 We define the type family $Fin$ by recursive pattern matching:
 $
-  Fin : NN -> UU_i
+  Fin : NN -> UU_0
 $
 $
-  & Fin(0)       && :peq zero \
-  & Fin(succ(n)) && :peq one + Fin(n).
+        Fin(0) & :peq zero \
+  Fin(succ(n)) & :peq one + Fin(n).
 $
 
 For the sake of being explicit, this translates into the form
 $
   &&         c_0 & :peq zero \
   && c_s (\_, T) & :peq one + T \
-  &&         Fin & :peq ind_NN (lambda (\_ : NN) sd UU_i, c_0, c_s).
+  &&         Fin & :peq ind_NN (lambda (\_ : NN) sd UU_0, c_0, c_s).
 $
 
 By applying the $NN$-Comp rules, we see for example that
@@ -1811,14 +1853,14 @@ formation and introduction rules are:
 
 #pt(rule-set(
   prooftree(rule(
-    $Gamma tack A : UU_i$,
+    $Gamma tack A : UU$,
     $Gamma tack a : A$,
     $Gamma tack b : B$,
-    $Gamma tack a =_A b : UU_i$,
+    $Gamma tack a =_A b : UU$,
     name: [=-Form],
   )),
   prooftree(rule(
-    $Gamma tack A : UU_i$,
+    $Gamma tack A : UU$,
     $Gamma tack a : A$,
     $Gamma tack refl_a : a =_A a$,
     name: [=-Intr],
@@ -1831,16 +1873,16 @@ rules first, and then examine their meaning using examples.
 
 #pt(rule-set(
   prooftree(bigrule(
-    $Gamma tack A : UU_i$,
-    $Gamma tack C : product_(x : A) product_(y : A) (x =_A y) -> UU_i$,
+    $Gamma tack A : UU$,
+    $Gamma tack C : product_(x : A) product_(y : A) (x =_A y) -> VV$,
     $Gamma tack c : product_(z : A) C(z, z, refl_z)$,
-    $Gamma tack ind_=_A (C, c) : product_(a : A) product_(b : A) product_(p : a =_A b) C(a, b, p)$,
+    $Gamma tack ind_=_A (C, c) : product_(x : A) product_(y : A) product_(p : x =_A y) C(x, y, p)$,
 
     name: [=-Elim],
   )),
   prooftree(bigrule(
-    $Gamma tack A : UU_i$,
-    $Gamma tack C : product_(x : A) product_(y : A) (x =_A y) -> UU_i$,
+    $Gamma tack A : UU$,
+    $Gamma tack C : product_(x : A) product_(y : A) (x =_A y) -> VV$,
     $Gamma tack c : product_(z : A) C(z, z, refl_z)$,
     $Gamma tack a : A$,
     $Gamma tack ind_=_A (C, c, a, a, refl_a) peq c(a)$,
@@ -1855,8 +1897,8 @@ of a type $C(y)$. Translated to the language of type families as predicates, it 
 predicates which are satisfied by some element remain satisfied by any equal element, i.e.
 that equal terms may be substituted for each other.
 
-#theorem([Indiscernibility of identicals])[Let $A : UU_i$ be a type and $D : A -> UU_i$ a
-  type family. For every pair of elements $x : A$, $y : A$, there is a function
+#theorem([Indiscernibility of identicals])[Let $A : UU$ be a type and $D : A -> VV$ a type
+  family. For every pair of elements $x : A$, $y : A$, there is a function
   $
     transport^D : (x =_A y) -> D(x) -> D(y)
   $
@@ -2014,7 +2056,7 @@ are in some sense equal, we must at least know that identity forms an equivalenc
 That is, it obeys the laws of reflexivity, symmetry and transitivity. This section proves
 these laws for identity types.
 
-#lemma[For a type $A : UU_i$ and elements $x : A$, $y : A$, there is a function
+#lemma[For a type $A : UU$ and elements $x : A$, $y : A$, there is a function
   $ (-)^(-1) : (x =_A y) -> (y =_A x). $
   That is to say, any element $p : x =_A y$ can be transformed into an element
   $p^(-1) : y =_A x$, so the identity type is symmetric.
@@ -2023,10 +2065,12 @@ these laws for identity types.
 ]<lemma:identity-symmetry>
 #proof[
   We use the computation and elimination rules for identity types. For
-  $C : product_(x : A) product_(y : A) (x =_A y) -> UU_i$, we put
+  $C : product_(x : A) product_(y : A) (x =_A y) -> VV$, we put
   $
-    C(x, y, \_) :peq y =_A x.
+    C(x, y, \_) :peq y =_A x,
   $
+  here noting that $VV peq UU$.
+
   For a variable $z : A$, we have $C(z, z, refl_z) peq z =_A z$, so the natural fit for $c$
   is
   $
@@ -2050,7 +2094,7 @@ these laws for identity types.
   as required.
 ]
 
-#lemma[For a type $A : UU_i$ and elements $x : A$, $y : A$, $z : A$, there is a function
+#lemma[For a type $A : UU$ and elements $x : A$, $y : A$, $z : A$, there is a function
   $
     (- bullet -) : (x =_A y) -> (y =_A z) -> (x =_A z).
   $
@@ -2095,7 +2139,7 @@ these laws for identity types.
   as required.
 ]
 
-#proposition[The identity type over a type $A : UU_i$ forms an equivalence relation, in the
+#proposition[The identity type over a type $A : UU$ forms an equivalence relation, in the
   sense that:
   - (Reflexivity) For all $x : A$, there is an element of (i.e. a witness to) the type
     $x = x$;
@@ -2198,8 +2242,8 @@ We need, however, to show that the laws of inverses and associativity hold when 
 witnesses to equalities as paths.
 
 #lemma([HoTT 2.1.4])[
-  For a type $A : UU_i$, elements $x, y, z, w : A$ and witnesses $p : x =_A y$,
-  $q : y =_A z$ and $r : z =_A w$, the following statements hold:
+  For a type $A : UU$, elements $x, y, z, w : A$ and witnesses $p : x =_A y$, $q : y =_A z$
+  and $r : z =_A w$, the following statements hold:
 
   + $p = p bullet refl_y$ and $p = refl_x bullet p$
   + $p bullet p^(-1) = refl_x$ and $p^(-1) bullet p = refl_y$
@@ -2214,7 +2258,7 @@ witnesses to equalities as paths.
 
   + We consider the first case and put
     $
-      C : product_(x : A) product_(y : A) (x = y) -> UU_i \
+      C : product_(x : A) product_(y : A) (x = y) -> UU \
       C(x, y, p) :peq (p = p bullet refl_y)
     $
 
@@ -2358,7 +2402,7 @@ identity type.
 #proof[
   Put
   $
-    C : product_(x : A) product_(y : A) (x =_A y) -> UU_i \
+    C : product_(x : A) product_(y : A) (x =_A y) -> UU \
     C(x, y, \_) :peq f(x) =_B f(y)
   $
   and
@@ -2406,8 +2450,8 @@ overcome this by defining a "sibling" function to $ap$, called $apd$ ("apply dep
 which uses $transport$ to resolve this problem.
 
 #lemma([HoTT Book 2.3.4])[
-  For a type family $B : A -> UU_i$, a dependent function $f : product_(x : A) B(x)$ and
-  elements $a, b : A$, there is a function
+  For a type $A : UU$, a type family $B : A -> VV$, a dependent function
+  $f : product_(x : A) B(x)$ and elements $a, b : A$, there is a function
   $
     apd_f : product_(p : a = b) transport^B (p, f(a)) =_(B(b)) f(b)
   $
@@ -2415,7 +2459,7 @@ which uses $transport$ to resolve this problem.
 #proof[
   We proceed by path induction on $p$. We put
   $
-    C : product_(x : A) product_(y : A) (x = y) -> UU_i \
+    C : product_(x : A) product_(y : A) (x = y) -> VV \
     C(x, y, p) :peq transport^B (p, f(x)) =_B(y) f(y).
   $
   We need to exhibit for all $z : A$ an element
@@ -2443,8 +2487,8 @@ application. In this sense, we say that all functions in type theory are *contin
 
 The following lemma describes a useful interaction between $ap$ and $transport$.
 
-#lemma([HoTT 2.3.10])[For types $A$ and $B$, a type family $D: B -> UU_i$, a function
-  $f : A -> B$, elements $x, y : A$ and a witness $p : x = y$, we have
+#lemma([HoTT 2.3.10])[For types $A : UU$ and $B : VV$, a type family $D: B -> WW$, a
+  function $f : A -> B$, elements $x, y : A$ and a witness $p : x = y$, we have
   $
     transport^D (ap_f (p)) = transport^(D compose f) (p).
   $
@@ -2452,7 +2496,7 @@ The following lemma describes a useful interaction between $ap$ and $transport$.
 #proof[
   We proceed by path induction on $p$. We put
   $
-    C : product_(x : A) product_(y : A) (x = y) -> UU_i \
+    C : product_(x : A) product_(y : A) (x = y) -> WW \
     C(x, y, p) :peq transport^D (ap_f (p)) = transport^(D compose f) (p).
   $
   For a variable $z : A$, we compute
@@ -2490,9 +2534,9 @@ points in their input type.
 
 FEEDBACK/TODO: in what sense is this the same as homotopy from earlier?
 
-#definition[For a type family $P : A -> UU_i$ and dependent functions
+#definition[For a type $A : UU$, a type family $P : A -> VV$ and dependent functions
   $f, g : product_(x : A) P(x)$, a *homotopy* from $f$ to $g$ is a dependent function of
-  type $f ~ g : UU_i$, where we define
+  type $f ~ g : VV$, where we define
   $
     f ~ g & :peq product_(x : A) f(x) =_(P(x)) g(x)
   $
@@ -2502,8 +2546,8 @@ We now prove two useful properties of homotopies: firstly, that they form an equ
 relation (which is suggested by our use of the notation $(- ~ -)$), and secondly, that they
 are well-behaved with respect to function composition.
 
-#lemma([HoTT book 2.4.2])[For a type family $P : A -> UU_i$, homotopy is an equivalence
-  relation on each dependent function type $product_(x : A) P(x)$.
+#lemma([HoTT book 2.4.2])[For a type $A : UU$ and a type family $P : A -> VV$, homotopy is
+  an equivalence relation on each dependent function type $product_(x : A) P(x)$.
 
   We state this formally using the shorthand $F :peq product_(x : A) P(x)$. We claim the
   following functions exist:
@@ -2554,8 +2598,8 @@ considering how to identify types with each other. An intuitive approach might b
 consider, for types $A$ and $B$, whether we can move elements from $A$ to $B$ and back again
 (and vice versa) without loss of information. This is the notion of "quasi-inverses".
 
-#definition[For a function $f : A -> B$, a *quasi-inverse* of $f$ is a triple
-  $(g, alpha, beta)$, where
+#definition[For types $A : UU$, $B : VV$ and a function $f : A -> B$, a *quasi-inverse* of
+  $f$ is a triple $(g, alpha, beta)$, where
   $
     g : B -> A
   $
@@ -2570,7 +2614,7 @@ consider, for types $A$ and $B$, whether we can move elements from $A$ to $B$ an
 
   We denote the type of quasi-inverses of $f$ as $qinv(f)$:
   $
-       qinv & : (A -> B) -> UU_i \
+       qinv & : (A -> B) -> UU lub VV \
     qinv(f) & :peq sum_(g : B -> A) (f compose g ~ id_B) times (g compose f ~ id_A).
   $
 ]<def:qinv>
@@ -2584,8 +2628,8 @@ between types, as we will see later in @sec:univalence, so we construct a slight
 formulation: that of "equivalences".
 
 #definition[
-  For a function $f : A -> B$, we say that $f$ is an *equivalence* if there are functions
-  $g : B -> A$ and $h : B -> A$ and homotopies
+  For types $A : UU$, $B : VV$ and a function $f : A -> B$, we say that $f$ is an
+  *equivalence* if there are functions $g : B -> A$ and $h : B -> A$ and homotopies
   $
     f compose g ~ id_B
   $
@@ -2595,7 +2639,7 @@ formulation: that of "equivalences".
   $
   This is represented formally by the function $isequiv$, defined as
   $
-    isequiv & : (A -> B) ->UU_i \
+    isequiv & : (A -> B) -> UU lub VV \
   $$
     isequiv(f) &:peq (sum_(g : B -> A) (f compose g ~ id_B)) times (sum_(h : B -> A) h compose f ~ id_A)
   $
@@ -2780,7 +2824,7 @@ We want to translate these rules into the language of propositional equalities, 
 by constructing an analogous principle to the $"Subst"_2$ rule.
 
 
-#lemma[For a type $A$, a type family $B : A -> UU_i$ and functions
+#lemma[For a type $A : UU$, a type family $B : A -> VV$ and functions
   $f, g : product_(x : A) B(x)$, there is a function
   $
     happly : (f = g) -> product_(x : A) f(x) = g(x).
@@ -2815,8 +2859,8 @@ given in @sec:type-theory, there is no way to do this. As a consequence, we must
 an axiom.
 
 #axiom([Function extensionality])[
-  For a type $A$, a type family $B : A -> UU_i$ and functions $f, g: product_(x : A) B(x)$,
-  the function
+  For a type $A : UU$, a type family $B : A -> VV$ and functions
+  $f, g: product_(x : A) B(x)$, the function
   $
     happly : (f = g) -> product_(x : A) f(x) = g(x)
   $
@@ -2838,9 +2882,9 @@ $B$.
 #lemma([HoTT 2.9.4])[
   In a context consisting of
   $
-    & X   && : UU_i,             && x_1 && : X, \
+    & X   && : UU,               && x_1 && : X, \
     & x_2 && : X,                && p   && : x_1 =_X x_2, \
-    & A   && : X -> UU_i,        && B   && : X -> UU_i, \
+    & A   && : X -> VV,          && B   && : X -> WW, \
     & f   && : A(x_1) -> B(x_1),
   $
   we have
@@ -2915,17 +2959,17 @@ $B$.
 == Univalence<sec:univalence>
 
 In this section we consider the idea of identity types within a universe. Recall that
-universes form the types of types, so for types $A : UU_i$ and $B : UU_i$, we can form the
-type $A =_UU_i B$. How can we construct elements of this type? Certainly we have
-$refl_A : A =_UU_i A$, but in @sec:homotopies-and-equivalences we also introduced the idea
-of an equivalence between types. It would be nice if we could derive an identity, i.e. a
-path $p : A =_UU_i B$, from an equivalence $A equiv B$.
+universes form the types of types, so for types $A : UU$ and $B : UU$, we can form the type
+$A =_UU B$. How can we construct elements of this type? Certainly we have
+$refl_A : A =_UU A$, but in @sec:homotopies-and-equivalences we also introduced the idea of
+an equivalence between types. It would be nice if we could derive an identity, i.e. a path
+$p : A =_UU B$, from an equivalence $A equiv B$.
 
 It is easy enough to go the other way:
 
-#lemma[For types $A : UU_i$, $B : UU_i$, there is a function
+#lemma[For types $A : UU$, $B : UU$, there is a function
   $
-    idtoequiv : (A =_UU_i B) -> (A equiv B).
+    idtoequiv : (A =_UU B) -> (A equiv B).
   $
 ]
 #proof[
@@ -2936,9 +2980,8 @@ It is easy enough to go the other way:
     & alpha : f compose g & ~ id_B \
     & beta : g compose f  & ~ id_A
   $
-  For $f$, we consider the identity function on $UU_i$ as a type family:
-  $id_UU_i : UU_i -> UU_i$, and transport an element $a : A$ across $p$ to obtain an element
-  of $B$. Formally, we put
+  For $f$, we consider the identity function on $UU$ as a type family: $id_UU : UU -> UU$,
+  and transport an element $a : A$ across $p$ to obtain an element of $B$. Formally, we put
   $
     f(a) :peq transport^id (p, a) : B.
   $
@@ -2954,7 +2997,7 @@ It is easy enough to go the other way:
   $
     C(A, B, p) :peq product_(b : B) transport^id (p, transport^id (p^(-1), b)) = b,
   $
-  and for a (type) variable $Z : UU_i$, we have
+  and for a (type) variable $Z : UU$, we have
   $
     C(Z, Z, refl_Z) &peq product_(b : B) transport^id (refl_Z, transport^id (refl_Z^(-1), b)) = b \
     &peq product_(b : B) b = b
@@ -2970,7 +3013,7 @@ It is easy enough to go the other way:
   The construction for $beta$ is similar, so we have an equivalence $A equiv B$. By a
   function introduction ("$->$-Intr") on $p$, we have the function
   $
-    idtoequiv : (A =_UU_i B) -> (A equiv B)
+    idtoequiv : (A =_UU B) -> (A equiv B)
   $
   as required.
 ]
@@ -2979,8 +3022,8 @@ As it turns out #cite(<hottbook>, supplement: [Section 2.10]), it is not possibl
 the converse, so we must take it as an axiom. This is the axiom known as *univalence*.
 
 #axiom([HoTT 2.10.3, Univalence])[
-  For types $A : UU_i$ and $B: UU_i$, the function $idtoequiv$ is an equivalence. That is,
-  there is a witness to the type $isequiv(idtoequiv)$, so we have
+  For types $A : UU$ and $B: UU$, the function $idtoequiv$ is an equivalence. That is, there
+  is a witness to the type $isequiv(idtoequiv)$, so we have
   $
     (A = B) equiv (A equiv B).
   $
@@ -3032,7 +3075,7 @@ the converse, so we must take it as an axiom. This is the axiom known as *unival
     idtoequiv(p) : sum_(f : A -> B) (sum_(g : B -> A) f compose g ~ id_B) times (sum_(h : B -> A) g compose f ~ id_A)
   $
   and in particular, by the definition of $idtoequiv$ we have
-  $ pi_0 (idtoequiv(p)) peq transport^(id_UU_i) (p) : A -> B $
+  $ pi_0 (idtoequiv(p)) peq transport^(id_UU) (p) : A -> B $
 
   From above application of $qinv$ to the univalence axiom, we have a homotopy
   $
@@ -3042,7 +3085,7 @@ the converse, so we must take it as an axiom. This is the axiom known as *unival
 
   Fixing an equivalence $e : A equiv B$ we get
   $
-    ap_pi_0 (alpha(e)) : transport^(id_UU_i) (ua(e)) = pi_0 (e),
+    ap_pi_0 (alpha(e)) : transport^(id_UU) (ua(e)) = pi_0 (e),
   $
   which we term the *propositional computation rule*.
 
@@ -3057,10 +3100,11 @@ the converse, so we must take it as an axiom. This is the axiom known as *unival
 == Transport and coding
 
 One of the uses of the $transport$ function is when it is combined with a method of proof
-called "coding". When we use coding, we define a type family $code : A -> UU_i$, which turns
-an element of $A$ into some type which we find useful. Given an equality $p : x =_A y$, we
-transport a value of $code(x)$ into a value of $code(y)$, which we then use to make some
-statement about $x$ and $y$ when they are equal. This is best illustrated with an example.
+called "coding". When we use coding, we suppose a type $A : UU$ and define a type family
+$code : A -> VV$, which turns an element of $A$ into some type which we find useful. Given
+an equality $p : x =_A y$, we transport a value of $code(x)$ into a value of $code(y)$,
+which we then use to make some statement about $x$ and $y$ when they are equal. This is best
+illustrated with an example.
 
 #example[
   We consider the coproduct type $A + B$ for types $A$ and $B$ and show that for all $a : A$
@@ -3074,7 +3118,7 @@ statement about $x$ and $y$ when they are equal. This is best illustrated with a
 
   To do this, we use the coding method. We define, by pattern matching,
   $
-    code : A + B -> UU_i
+    code : A + B -> UU_0
   $$
     & code(inl(\_)) :peq one \
     & code(inr(\_)) :peq zero.
@@ -3098,7 +3142,7 @@ Now that we are familiar with the coding method, we can use it in the following 
 natural numbers. We wish to show a property similar to @thm:one-is-a-set, but for the
 natural numbers, i.e. that for natural numbers $n : NN$ and $m : NN$, we have
 $(n = m) equiv one$ if $n = m$ is inhabited, and $(n = m) equiv zero$ otherwise. We use the
-coding method, and introduce the type family $code : NN -> NN -> UU_i$, defined by
+coding method, and introduce the type family $code : NN -> NN -> UU_0$, defined by
 doubly-recursive pattern matching:
 
 $
@@ -3288,7 +3332,7 @@ $
     n <= m :peq sum_(p : NN) n + p = m
   $
 
-  We define a type family $B : NN -> UU_i$ as
+  We define a type family $B : NN -> UU_0$ as
   $
     B(n) :peq sum_(k : NN) (succ(k) <= n).
   $
@@ -3335,7 +3379,7 @@ $
   $
   but recalling that $Fin(0) peq zero$, this means we must construct an element of $zero$
   given $k : NN$, $p : NN$ and $q : succ(k) + p = 0$. To do this, we introduce a type family
-  $code : NN -> UU_i$ defined by
+  $code : NN -> UU_0$ defined by
   $
     & code(0) :peq zero \
     & code(succ(\_)) :peq one
@@ -3410,12 +3454,12 @@ contains no further information than that the elements being identified are equa
 case, however, identity types consist of _witnesses_ to equality, and therefore encode more
 information. This motivates the following definition of a set in type theory.
 
-#definition[We say that a type $A$ is a *set* if for all $x, y : A$ and all paths
+#definition[We say that a type $A : UU$ is a *set* if for all $x, y : A$ and all paths
   $p, q : x =_A y$, we have a path $r : p =_(x =_A y) q$.
 
   Formally, we define a type family $isSet$ by
   $
-    isSet : A -> UU_i \
+    isSet : A -> UU \
     isSet(A) :peq product_(x : A) product_(y : A) product_(p : x = y) product_(q : x = y) p = q.
   $
 ]
@@ -3446,11 +3490,11 @@ may not be unique, but witnesses to an equality between witnesses are. If this i
 we call $A$ a "1-type".
 
 #definition[
-  A type $A$ is a *1-type* if, for each pair of elements $x, y : A$ and pair of witnesses
-  $p, q : x = y$, we have $p = q$. Equivalently, $A$ is a 1-type if for all $x, y : A$, the
-  type $x =_A y$ is a set.
+  A type $A : UU$ is a *1-type* if, for each pair of elements $x, y : A$ and pair of
+  witnesses $p, q : x = y$, we have $p = q$. Equivalently, $A$ is a 1-type if for all
+  $x, y : A$, the type $x =_A y$ is a set.
   $
-    is1Type : A -> UU_i \
+    is1Type : A -> UU \
     is1Type(A) :peq product_(x : A) product_(y : A) isSet(x =_A y)
   $
 ]
@@ -3466,7 +3510,7 @@ $transport$.
 In this lemma and the following proposition, we adopt the syntax $x |-> t$ to mean
 $lambda (x : A) sd t$, allowing us to elide the type of $x$ for brevity.
 
-#lemma[For $A : UU_i$, $a, x, y : A$ and $p : x =_A y$, we have
+#lemma[For a type $A : UU$, elements $a, x, y : A$ and $p : x =_A y$, we have
   $
     &transport^(x |-> a = x) (p, q) &&=_(a = y) q bullet p quad &&"for" q : a = x \
     &transport^(x |-> x = a) (p, q) &&=_(y = a) p^(-1) bullet q quad &&"for" q : x = a \
@@ -3508,9 +3552,9 @@ also an $(n+1)$-type.
   variables and function introduction to remove them. A diagram of the movement between
   contexts is presented in @fig:context-vis-1type.
 
-  Let the context $Gamma$ consist of $A : UU_i, f : isSet(A)$. We aim to exhibit an element
+  Let the context $Gamma$ consist of $A : UU, f : isSet(A)$. We aim to exhibit an element
   $g' : is1Type(A)$, and hence by function introduction an element $g$ such that
-  $ A : UU_i tack g : isSet(A) -> is1Type(A). $
+  $ A : UU tack g : isSet(A) -> is1Type(A). $
 
   In the context $Delta :peq (Gamma, x : A, y : A, p : x = y)$, we define a function $g$ by
   $
@@ -3562,7 +3606,7 @@ also an $(n+1)$-type.
   $
   Finally, applying a further function introduction over $f : isSet(A)$ in $Gamma$, we get
   $
-    A : UU_i tack g : isSet(A) -> is1Type(A)
+    A : UU tack g : isSet(A) -> is1Type(A)
   $
   as required.
   - TODO remark about contexts not being explicit in HoTT book
@@ -3574,7 +3618,7 @@ also an $(n+1)$-type.
       let dlt = (0, 2)
       let gmp = (-1, 3)
       let dltp = (1, 3)
-      node(A, $A : UU_i$)
+      node(A, $A : UU$)
       node(gm, $Gamma$)
       node(dlt, $Delta$)
       node(dltp, $Delta'$)
@@ -3606,8 +3650,8 @@ proposition $A$, we have either $A$ or $¬A$, does not hold in type theoretic lo
 show that the law of double negation does not hold. That is, if we have $¬¬A$, we cannot
 always conclude $A$.
 
-In keeping with the Curry-Howard correspondence, we define the function $¬ : UU_i -> UU_i$
-as $¬(A) :peq A -> zero$. We begin with a lemma.
+In keeping with the Curry-Howard correspondence, we define the function $¬ : UU -> UU$ as
+$¬(A) :peq A -> zero$. We begin with a lemma.
 
 #lemma[Using the type $two$ from @example:two-equiv, let $u, v : ¬¬two$. Then we have
   $u = v$.]<lem:two-double-negation-is-set>
@@ -3628,11 +3672,11 @@ as $¬(A) :peq A -> zero$. We begin with a lemma.
   as required.
 ]
 
-#theorem([HoTT 3.2.2])[It is not the case that for all $A : UU_i$ we have
+#theorem([HoTT 3.2.2])[It is not the case that for all $A : UU$ we have
   $¬¬A -> A$.]<thm:no-double-negation>
 #proof[
-  We suppose that for all universes $UU_i$, we have we have a function
-  $ f : product_(A : UU_i) ¬¬A -> A, $
+  We suppose that for every universe $UU$, we have we have a function
+  $ f : product_(A : UU) ¬¬A -> A, $
   and we aim to derive an element of $zero$.
 
   We borrow from @example:two-equiv the equivalence
@@ -3647,22 +3691,21 @@ as $¬(A) :peq A -> zero$. We begin with a lemma.
   $
   We now begin a long process of manipulating this identity using $transport$, $apd$ and
   $happly$, so readers are invited to familiarize themselves with these functions if
-  necessary. For shorthand, we define the type family $D: UU_i -> UU_i$ as $D(A) :peq ¬¬A$,
-  and the type family $B : UU_i -> UU_i$ as $B(A) :peq ¬¬A -> A$, so that the type of $f$
-  becomes
+  necessary. For shorthand, we define the type family $D: UU -> UU$ as $D(A) :peq ¬¬A$, and
+  the type family $B : UU -> UU$ as $B(A) :peq ¬¬A -> A$, so that the type of $f$ becomes
   $
-    f : product_(A : UU_i) B(A).
+    f : product_(A : UU) B(A).
   $
 
   We apply the function $f$ across the identity $p$ using $apd_f$ to derive
   $
     apd_f (p) : transport^B (p, f(two)) = f(two).
   $
-  We now use @lem:function-transport. We note that $B(A) peq D(A) -> id_UU_i (A)$, so we get
-  a witness
+  We now use @lem:function-transport. We note that $B(A) peq D(A) -> id_UU (A)$, so we get a
+  witness
   $
     r : transport^B &(p, f(two)) = \
-    &lambda (a : ¬¬two) sd transport^(id_UU_i) (p, f(two, transport^D (p^(-1), a)))
+    &lambda (a : ¬¬two) sd transport^(id_UU) (p, f(two, transport^D (p^(-1), a)))
   $
 
   Fixing a variable $u : ¬¬two$, we work with the previous two equalities pointwise using
@@ -3672,12 +3715,12 @@ as $¬(A) :peq A -> zero$. We begin with a lemma.
   $
   and
   $
-    happly(r, u) : transport^B (p, f(two), u) = transport^(id_UU_i) (p, f(two, transport^D (p^(-1), u))),
+    happly(r, u) : transport^B (p, f(two), u) = transport^(id_UU) (p, f(two, transport^D (p^(-1), u))),
   $
   so by path composition we have #math.equation(numbering: "(1)", block: true)[
     $
       happly(r, u)^(-1) & bullet happly(apd_f (p), u) : \
-                        & transport^(id_UU_i) (p, f(two, transport^D (p^(-1), u))) = f(two, u).
+                        & transport^(id_UU) (p, f(two, transport^D (p^(-1), u))) = f(two, u).
     $]<eq:happly>
 
   We now consider the inner $transport$ on the right-hand side of this identity. It has the
@@ -3693,9 +3736,9 @@ as $¬(A) :peq A -> zero$. We begin with a lemma.
   We wish to make use of the identity $s$ to apply a substitution to equation @eq:happly,
   but in order to do so we need to use $transport$ again.
 
-  We define a further shorthand type family $T : ¬¬two -> UU_i$ by
+  We define a further shorthand type family $T : ¬¬two -> UU$ by
   $
-    T(v) :peq transport^(id_UU_i) (p, f(two, v)) = f(two, v)
+    T(v) :peq transport^(id_UU) (p, f(two, v)) = f(two, v)
   $
   and define $p'$ as
   $
@@ -3704,13 +3747,13 @@ as $¬(A) :peq A -> zero$. We begin with a lemma.
   $
   so that
   $
-    p' : transport^(id_UU_i) (p, f(two, u)) = f(two, u).
+    p' : transport^(id_UU) (p, f(two, u)) = f(two, u).
   $
 
   Now, by the propositional computation rule (@lem:propositional-rules), we have an element
   $q'$ of type
   $
-    q' : transport^(id_UU_i) (ua((e, q)), f(two, u)) = e(f(two, u))
+    q' : transport^(id_UU) (ua((e, q)), f(two, u)) = e(f(two, u))
   $
   and hence by path composition
   $
@@ -3730,13 +3773,13 @@ as $¬(A) :peq A -> zero$. We begin with a lemma.
   $ g(f(two, u), p'^(-1) bullet q') : zero $
 ]
 
-#corollary([HoTT 2.3.7])[It is not the case that for all $A : UU_i$, we have
+#corollary([HoTT 2.3.7])[It is not the case that for all $A : UU$, we have
   $
     A + (¬A)
   $
 ]
 #proof[
-  Fixing $A : UU_i$ in context, we suppose that we have an element
+  Fixing $A : UU$ in context, we suppose that we have an element
   $
     p : A + (¬A).
   $
@@ -3766,9 +3809,9 @@ Having shown that the law of the excluded middle over all types is not consisten
 theory, we may ask the question: are there types such that the law does hold? As it turns
 out, we cannot prove this either, but we can show something weaker.
 
-#definition[A type $A$ is a *mere proposition* if for all $x, y : A$ we have $x = y$.
+#definition[A type $A : UU$ is a *mere proposition* if for all $x, y : A$ we have $x = y$.
 
-  We define $isProp : A -> UU_i$ as
+  We define $isProp : A -> UU$ as
   $
     isProp(A) :peq product_(x : A) product_(y : A) x =_A y.
   $
@@ -3786,7 +3829,7 @@ can be shown that it is consistent with type theory #cite(<hottbook>, supplement
 #axiom[
   The law of the excluded middle holds for mere propositions
   $
-    product_(A : UU_i) isProp(A) -> (A + ¬A)
+    product_(A : UU) isProp(A) -> (A + ¬A)
   $
 ]
 
@@ -3902,19 +3945,20 @@ functions. We present a summary of these differences in the following table.
 
 Another noteworthy aspect of the Agda presentation is the use of *implicit arguments* for
 some functions. For example, when we defined $transport$ in
-@thm:indiscernibility-of-identicals, we said #quote(block: true)[Let $A : UU_i$ be a type
-  and $D : A -> UU_i$ a type family. For every pair of elements $x : A$, $y : A$ there is a
-  function
+@thm:indiscernibility-of-identicals, we said
+#quote(block: true)[
+  Let $A : UU$ be a type and $D : A -> VV$ a type family. For every pair of elements
+  $x : A$, $y : A$ there is a function
   $ transport^D : (x =_A y) -> D(x) -> D(y) $
-  such that...] In this definition, we are assuming that the variables $A$, $D$, $x$ and $y$
-(and indeed $UU_i$, which here actually refers to two potentially-distinct universes) are in
-the context. When we use $transport$ later, we rely on the reader to infer the meaning of
-these variables, i.e. to match them up to variables existing in the context at the site of
-the usage. Since the parameters to $transport$ refer indirectly to those variables, this is
-not so difficult to do. For example, in the construction of $apd$ (@lem:apd), we suppose a
-type family $B : A -> UU_i$, put
+]
+In this definition, we are assuming that the variables $A$, $D$, $x$ and $y$ are in the
+context. When we use $transport$ later, we rely on the reader to infer the meaning of these
+variables, i.e. to match them up to variables existing in the context at the site of the
+usage. Since the parameters to $transport$ refer indirectly to those variables, this is not
+so difficult to do. For example, in the construction of $apd$ (@lem:apd), we suppose a type
+$A : UU$, a type family $B : A -> VV$ and put
 $
-  C(x, y, p) :peq transport^B (p, f(x)) =_B(y) f(y)
+  C(x, y, p) :peq transport^B (p, f(x)) =_B(y) f(y),
 $
 and thus can infer that in this case $D$ refers to $B$, $A$ refers to $A$, $x$ refers to $x$
 and $y$ refers to $y$.
