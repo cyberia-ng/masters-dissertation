@@ -630,9 +630,6 @@ calculus may be found in #cite(
   supplement: [Proposition 3.4.2],
 ).
 
-- TODO: what about "strengthening": removing a variable from the context when it does not
-  occur freely in a term?
-
 === Notation of definitions
 
 It will be necessary when we work through proofs to make definitions for various terms, in
@@ -724,8 +721,6 @@ right, so the above type may be written as simply $A -> B -> C$.
 Function terms are written using $lambda$ syntax, so $lambda (x : A) sd t$ is conceptually a
 function which binds its input to the variable $x$, and returns the term $t$ with its free
 occurrences of $x$ replaced with the input.
-
-The data for function types and terms are given by the following rules:
 
 #pt(rule-set(
   prooftree(rule(
@@ -1150,7 +1145,8 @@ $
 
 #remark[This is the first proof we present, and we hope that it demonstrates our choice of
   style going forward. While every proof we give will be directly translatable to a formal
-  proof-tree deduction/*TODO mention Agda?*/, we will go through the steps discursively.
+  proof-tree deduction (or code in a proof assistant such as Agda), we will go through the
+  steps discursively.
 
   In this case, we were relatively explicit in showing the necessary antecedents for the
   $Sigma$-Elim rule, and in pointing out an elided use of the $beta$-rule, but we will not
@@ -1616,7 +1612,26 @@ $fact$ given above is therefore valid, while $never$ is not. The recursive form 
 translates directly by pattern matching to the explicit version using the inductor in
 @example:fact.
 
-TODO: talk about double recursion, use Giacomo's notes.
+When defining a multi-parameter function, for example $f : NN -> NN -> NN$, we may use
+*doubly-recursive* pattern matching. This is simply an extension of recursive pattern
+matching, relying on the fact that we express multi-parameter functions in curried form.
+That is, $f$ is a function of natural numbers which returns a function of natural numbers.
+To make this explicit, we could write
+$
+        f(0) & :peq t \
+  f(succ(m)) & :peq t
+$
+where $t$ and $s$ are terms of type $NN -> NN$ defined using the inductor, and $s$ may
+contain $m$ freely but $t$ may not. We can then define $t$ and $s$ themselves using
+recursive pattern matching. Packaging this up, we will write a definition for $f$ like
+$
+              f(0, 0) & :peq t' \
+        f(succ(m), 0) & :peq s' \
+        f(0, succ(n)) & :peq t'' \
+  f(succ(m), succ(n)) & :peq s''
+$
+where $t'$ may not contain $m$ or $n$ freely, $s'$ may contain $m$ freely but not $n$, $t''$
+may contain $n$ freely but not $m$, and $s''$ may contain $m$ or $n$ freely.
 
 #example(prod)[
   In @example:fact, we assumed the existence of a function $prod : NN -> NN -> NN$ which
@@ -1682,7 +1697,7 @@ $
 
 By applying the $NN$-Comp rules, we see for example that
 $Fin(3) peq one + (one + (one + zero))$. We are not able to prove (yet) that $Fin(n)$ has
-exactly $n$ elements (TODO we may even take it as axiomatic? or we may prove it later).
+exactly $n$ elements, but we will show it later.
 
 == Propositions as types<sec:propositions-as-types>
 
@@ -1695,19 +1710,18 @@ propositional logic into types as follows #cite(<hottbook>, supplement: [Section
   stroke: none,
   table.header([*Logical statement*], [*Type*]),
   table.hline(),
-  [True], $one$,
-  [False], $zero$,
-  [$A$ and $B$], $A times B$,
-  [$A$ or $B$], $A + B$,
-  [$A$ implies $B$], $A -> B$,
-  [Not $A$], $A -> zero$,
+  $top$, $one$,
+  $bot$, $zero$,
+  $A and B$, $A times B$,
+  $A or B$, $A + B$,
+  $A -> B$, $A -> B$,
+  $¬A$, $A -> zero$,
 ))
 
 
 We consider a proposition to be true if its corresponding type has an element, and we call
 this element a *witness* to the truth of the proposition. A worked example in #cite(
   <hottbook>,
-  // form: "prose",
   supplement: [Section 1.11],
 ) gives a proof of one of de Morgan's laws,
 $ "if not A and not B, then not (A or B)". $
@@ -1781,12 +1795,19 @@ $
 === Predicate logic
 
 We may use the fact that we are working in dependent type theory to move from propositional
-to predicate logic by considering a type family $P : A -> UU_i$ as a predicate and
-translating
-- "for all $x$ in $A$, $P(x)$ holds" to $product_(x : A) P(x)$, and
-- "there exists an $x$ in $A$ such that $P(x)$" to $sum_(x : A) P(x)$.
+to predicate logic by considering a type family $P : A -> UU_i$ as a predicate. To add to
+our table from above, then, we have
 
-TODO make these a table
+#align(center, table(
+  columns: (auto, auto),
+  stroke: none,
+  table.header([*Logical statement*], [*Type*]),
+  table.hline(),
+  $forall (x : A) sd P(x)$,
+  $product_(x : A) P(x)$,
+  $exists (x : A) sd P(x)$,
+  $sum_(x : A) P(x)$,
+))
 
 We explore this correspondence with some further examples.
 
@@ -2363,7 +2384,6 @@ witnesses to equalities as paths.
   however, will adopt the more explicit form in all our proofs, for the sake of clarity and
   demonstration of understanding. In any case, we will not require such complex proofs
   involving multiple levels of induction for the remainder of this work.
-  /*TODO talk about Agda? */
 ]
 
 #remark[
@@ -2532,8 +2552,6 @@ will use going forward. This definition says that a homotopy between functions $
 is a function which generates witnesses to the pointwise equality of $f$ and $g$ at all
 points in their input type.
 
-FEEDBACK/TODO: in what sense is this the same as homotopy from earlier?
-
 #definition[For a type $A : UU$, a type family $P : A -> VV$ and dependent functions
   $f, g : product_(x : A) P(x)$, a *homotopy* from $f$ to $g$ is a dependent function of
   type $f ~ g : VV$, where we define
@@ -2542,9 +2560,21 @@ FEEDBACK/TODO: in what sense is this the same as homotopy from earlier?
   $
 ]
 
-We now prove two useful properties of homotopies: firstly, that they form an equivalence
-relation (which is suggested by our use of the notation $(- ~ -)$), and secondly, that they
-are well-behaved with respect to function composition.
+#remark[
+  In what sense does this idea of homotopy match up with the classical understanding of
+  homotopy from earlier? We consider, for a variable $x : A$, the type $P(x)$ as a
+  topological space. The elements $p : f ~ g$ are given by $p_x : f(x) =_P(x) g(x)$, i.e.
+  paths $p_x : [0, 1] -> P(x)$ such that $p_x (0) = f(x)$ and $p_x (1) = g(x)$, with
+  equality here in the classical sense. Then, we consider the type $product_(x : A) P(x)$ as
+  a topological space, whose points include $f$ and $g$, and recalling that we consider a
+  path between $f$ and $g$ as a homotopy $H : [0, 1] times A -> product_(x : A) P(x)$ such
+  that $H(0, -) = f$ and $H(1, -) = g$. By putting $H(t, x) = p_x (t)$ this is satisfied.
+  /* TODO Still don't quite understand this. If we have a path H between f and g, why do we need function extensionality? */
+]
+
+We now prove two useful properties of homotopies between functions: firstly, that they form
+an equivalence relation (which is suggested by our use of the notation $(- ~ -)$), and
+secondly, that they are well-behaved with respect to function composition.
 
 #lemma([HoTT book 2.4.2])[For a type $A : UU$ and a type family $P : A -> VV$, homotopy is
   an equivalence relation on each dependent function type $product_(x : A) P(x)$.
@@ -2618,8 +2648,6 @@ consider, for types $A$ and $B$, whether we can move elements from $A$ to $B$ an
     qinv(f) & :peq sum_(g : B -> A) (f compose g ~ id_B) times (g compose f ~ id_A).
   $
 ]<def:qinv>
-
-- TODO some examples? Perhaps 2.4.8
 
 Quasi-inverses are a useful approach, but they present a problem: for types $A$ and $B$ and
 a function $f : A -> B$, the type $qinv(f)$ may have multiple non-equal inhabitants (hence
@@ -2823,11 +2851,10 @@ conclude an equality of the functions as functions.
 We want to translate these rules into the language of propositional equalities, and we begin
 by constructing an analogous principle to the $"Subst"_2$ rule.
 
-
 #lemma[For a type $A : UU$, a type family $B : A -> VV$ and functions
   $f, g : product_(x : A) B(x)$, there is a function
   $
-    happly : (f = g) -> product_(x : A) f(x) = g(x).
+    happly : (f = g) -> (f ~ g)
   $
   That is to say that if two functions are (propositionally) equal, then they are
   (propositionally) equal pointwise.
@@ -2837,17 +2864,18 @@ by constructing an analogous principle to the $"Subst"_2$ rule.
   $product_(x : A) B(x)$ as $F$. Put
   $
     C : product_(f : F) product_(g: F) f = g -> UU_i \
-    C(f, g, \_) :peq product_(x : A) f(x) = g(x).
+    C(f, g, \_) :peq f ~ g
   $
-  For a variable $z : F$ we compute $C(z, z, refl_z) peq product_(x : A) z(x) = z(x)$, so we
-  put
+  i.e.
+  $ C(f, g, \_) peq product_(x : A) f(x) = g(x). $
+  For a (function) variable $z : F$ we have $C(z, z, refl_z) peq (z ~ z)$, so we put
   $
-    c : product_(z : F) C(z, z, refl_z) \
+    c(z) : z ~ z \
     c(z) :peq lambda (x : A) sd refl_(z(x)).
   $
   We then define $happly :peq ind_=(C, c, f, g)$ to get
   $
-    happly : (f = g) -> product_(x : A) f(x) = g(x)
+    happly : (f = g) -> (f ~ g)
   $
   as required.
 ]
@@ -2862,14 +2890,17 @@ an axiom.
   For a type $A : UU$, a type family $B : A -> VV$ and functions
   $f, g: product_(x : A) B(x)$, the function
   $
-    happly : (f = g) -> product_(x : A) f(x) = g(x)
+    happly : (f = g) -> (f ~ g)
   $
   is an equivalence. That is to say, there is a function of type
   $
-    funext : (product_(x : A) f(x) = g(x)) -> f = g.
+    funext : (f ~ g) -> f = g.
   $
-
-  TODO such that...
+  which satisfies the homotopies
+  $
+    funext compose happly & ~ id_(f ~ g) \
+    happly compose funext & ~ id_(f = g)
+  $
 ]<ax:function-extensionality>
 
 To add to our tools for working with identities between functions, we consider what happens
@@ -3324,8 +3355,6 @@ $
 ]
 
 #example([Finite sets])[
-  FEEDBACK: I might cut this example because it's very long and not very informative
-
   We show that $Fin(n)$ has exactly $n$ elements. We do this by recalling our definition of
   $<=$ from @ex:leq:
   $
@@ -3338,9 +3367,9 @@ $
   $
   That is, $B(n)$ consists of pairs of natural numbers $k$ and witnesses to the type
   $succ(k) <= n$, so the left projections of its elements consist precisely of natural
-  numbers strictly less than $n$. (Note that $n <= m$ is itself defined as a pair type, so
+  numbers strictly less than $n$. Note that $n <= m$ is itself defined as a pair type, so
   elements of $B(n)$ will have the form $(k, (p, q))$ where $k : NN$, $p : NN$ and
-  $q : succ(k) + p = n$.)
+  $q : succ(k) + p = n$. To save on brackets, we write elements of $B(n)$ as $(k, p, q)$.
 
   We therefore want to show a sequence of equivalences
   $
@@ -3370,7 +3399,7 @@ $
     & f(succ(n)) : Fin(succ(n)) -> B(succ(n)) \
     & f(succ(n), inl(star)) :peq (0, (n, refl_succ(n))) \
     & f(succ(n), inr(y)) :peq (succ(k), (p, ap_succ (q))) \
-    & wide "where" (k, (p, q)) peq f(n, y).
+    & wide "where" (k, p, q) peq f(n, y).
   $
 
   We define $g$ also by pattern matching. Considering $g(0)$, we want a function
@@ -3378,73 +3407,107 @@ $
     g(0) : B(0) -> Fin(0),
   $
   but recalling that $Fin(0) peq zero$, this means we must construct an element of $zero$
-  given $k : NN$, $p : NN$ and $q : succ(k) + p = 0$. To do this, we introduce a type family
-  $code : NN -> UU_0$ defined by
+  given an element $(k, p, q) : B(0)$. We fix $k : NN$, $p : NN$ and $q : succ(k) + p = 0$
+  in context. The idea will be that, by the definition of $add$, such an element $q$ cannot
+  exist, and therefore we may derive an element of $Fin(0) peq zero$. We proceed using
+  coding.
+
+  We introduce a type family $code : NN -> UU_0$ defined by
   $
     & code(0) :peq zero \
-    & code(succ(\_)) :peq one
+    & code(succ(\_)) :peq one.
   $
   and transport $code(succ(k) + p))$ across the equality $q$. From the definition of $add$,
-  we know that $succ(k) + p$ is a successor, so $code(succ(k) + p) peq one$. Therefore we
-  have
+  we know that $succ(k) + p$ is a successor, so $code(succ(k) + p) peq one$. But we also
+  have $code(0) peq zero$, so we have
   $
     transport^code (q, star) : code(0)
   $
   i.e. an element of $zero$. So we put
   $
-    g(0, (k, (p, q))) :peq transport^code (q, star) : Fin(0).
+    g(0, (k, p, q)) :peq transport^code (q, star) : Fin(0).
   $
-  We then put
+  When the first argument to $g$ is a successor, we apply another level of recursive pattern
+  matching, putting
   $
-    & g(succ(n), (0,       && (p, q))) :peq inl(star) \
-    & g(succ(n), (succ(m), && (p, q))) :peq inr(g(n, (m, (p, q)))).
+    g(succ(n), (0, p, q)) & :peq inl(star) : Fin(succ(n))
+  $
+  and using the fact that we may call $g(n, (m, (p, q))) : Fin(n)$ recursively,
+  $
+    g(succ(n), (succ(m), p, q)) & :peq inr(g(n, (m, (p, q)))).
   $
 
-  It remains to construct the sequences of homotopies $alpha$ and $beta$. Let us consider
-  $alpha$ first.
+  It remains to construct the sequences of homotopies $alpha$ and $beta$. These
+  constructions are relatively easy applications of $NN$-induction and @thm:n-is-set, but
+  they are not very informative for this example, so we omit them.
 
-  Fix $n : NN$. We want to construct
-  $
-    alpha(n) : product_(x : B(n)) f(n, g(n, x)) = x
-  $
-  which we do by pattern matching. If $n$ is zero, we have $g(n, x) : zero$ for all
-  $x : B(0)$, so we may construct $f(n, g(n, x)) = x$ freely:
-  $
-    alpha(0, x) :peq ind_zero (lambda (z : zero) sd f(n, g(n, x)) = x, g(n, x)).
-  $
-  If $n$ is a successor, i.e. $n peq succ(n')$, and $x$ is $(0, (p, q))$, then we have
-  $ g(succ(n'), (0, (p, q))) peq inl(star), $
-  and
-  $ f(succ(n'), inl(star))) peq (0, (n', refl_succ(n'))) $
-  so we need to show that $p = n'$ and $q = refl_succ(n')$. We have
-  $
-    q : succ(0) + p = succ(n'),
-  $
-  and by the uniqueness of paths in $NN$ (@thm:n-is-set), we must have $q : refl_succ(n')$
-  and hence $p = n'$.
+  // It remains to construct the sequences of homotopies $alpha$ and $beta$. Let us consider
+  // $alpha$ first.
 
-  So we put
-  $
-    alpha(0, (succ(n'), (p, q))) :peq ...
-  $
-  TODO: I don't know if this is worth it
+  // Fix $n : NN$. We want to construct
+  // $
+  //   alpha(n) : product_(x : B(n)) f(n, g(n, x)) = x
+  // $
+  // which we do by pattern matching. If the parameter is 0, we have $g(0, x) : zero$ for all
+  // $x : B(0)$, so we may construct $f(0, g(0, x)) = x$ freely:
+  // $
+  //   alpha(0, x) :peq ind_zero ((lambda (z : zero) sd f(n, g(n, x)) = x), g(n, x)).
+  // $
+  // If the parameter is a successor, i.e. $succ(n)$, and $x$ is $(0, p, q)$, then we have
+  // $ g(succ(n), (0, p, q)) peq inl(star), $
+  // hence
+  // $
+  //   f(succ(n), g(succ(n), (0, p, q))) peq f(succ(n), inl(star)) peq (0, n, refl_succ(n))
+  // $
+  // so we need to construct a witness to $(0, p, q) = (0, n, refl_succ(n))$, i.e. to show that
+  // $p = n$ and $q = refl_succ(n)$. We have
+  // $
+  //   q : succ(0) + p = succ(n),
+  // $
+  // and by the uniqueness of paths in $NN$ (@thm:n-is-set), we must have a witness
+  // $r : q = refl_succ(n)$ and hence $p peq n$.
+
+  // It is easy to show by path induction that there is a function
+  // $ product_(p : x = z) product_(q : y = w) (x, y) = (z, w) $
+
+  // So we put
+  // $
+  //   alpha(0, (succ(n), p, q)) :peq ...
+  // $
+  // TODO need to show $(a, b) = (c, d)$ is derivable from $a = b$, $c = d$. TODO: I don't know
+  // if this is worth it
 ]<ex:finite-types>
 
 = Sets and logic<sec:sets-and-logic>
 
-- TODO add table with Curry-Howard correspondence
-
 In classical set-theoretic mathematics, we make statements in the language of first-order
 logic about elements of sets. We have seen, in @sec:propositions-as-types, how we can
 translate some of first-order logic into type theory, but this is not the full story. In
-#cite(<hottbook>, supplement: [Theorem 2.15.7]), a theorem is presented which is equivalent
-(TODO better word: see comments on 2.15.7) to the classical *axiom of choice*, and is a
-logical consequence of type theory. For the classical mathematician, who is used to the
-axiom of choice being independent of Zermelo-Fraenkel set theory, this is unusual. Moreover,
-in this section we will present a theorem that the *law of the excluded middle*, i.e. that
-for any proposition $A$, we have $A or ¬A$, does not hold in general in type theory. To this
-end, we wish to explore exactly how much of classical logic we can recover using a
-type-theoretic foundation.
+#cite(<hottbook>, supplement: [Theorem 2.15.7]), a theorem is presented which is very
+similar to the classical *axiom of choice*, and is a logical consequence of type theory. For
+the classical mathematician, who is used to the axiom of choice being independent of
+Zermelo-Fraenkel set theory, this is unusual. Moreover, in this section we will present a
+theorem that the *law of the excluded middle*, i.e. that for any proposition $A$, we have
+$A or ¬A$, does not hold in general in type theory. To this end, we wish to explore exactly
+how much of classical logic we can recover using a type-theoretic foundation.
+
+We recall the Curry-Howard correspondence outlined in @sec:propositions-as-types:
+#align(center, table(
+  columns: (auto, auto),
+  stroke: none,
+  table.header([*Logical statement*], [*Type*]),
+  table.hline(),
+  $top$, $one$,
+  $bot$, $zero$,
+  $A and B$, $A times B$,
+  $A or B$, $A + B$,
+  $A -> B$, $A -> B$,
+  $¬A$, $A -> zero$,
+  $forall (x : A) sd P(x)$,
+  $product_(x : A) P(x)$,
+  $exists (x : A) sd P(x)$,
+  $sum_(x : A) P(x)$,
+))
 
 == Sets<sec:sets>
 
@@ -3518,7 +3581,6 @@ $lambda (x : A) sd t$, allowing us to elide the type of $x$ for brevity.
   $
 ]<lem:transport-path-composition>
 #proof[
-  /* TODO write more words */
   For the first claim, we consider the case of $q : a =_A x$. We put
   $
     C(x, y, p) :peq product_(q : a = x) transport^(x |-> a = x) (p, q) = q bullet p. \
@@ -3858,9 +3920,9 @@ Agda is a programming language whose type system is an extension of Martin-Löf 
 as presented in @sec:type-theory. In programming languages commonly used for software
 engineering, the type system ranges from relatively weak (C, Go) to relatively powerful
 (Rust, Haskell), but even the more powerful type systems among these are not descriptive
-enough to capture Martin-Löf type theory (TODO why?). The languages which do, such as Agda,
-Rocq and Lean, may be used as proof assistants, allowing the algorithmic verification of
-propositions and their proofs. (TODO citations)
+enough to capture Martin-Löf type theory since they do not admit dependent types. The
+languages which do, such as Agda, Rocq and Lean, may be used as proof assistants, allowing
+the algorithmic verification of propositions and their proofs.
 
 In #cite(<HoTTAgda>, form: "prose"), the authors present an in-depth formalization of #cite(
   <hottbook>,
@@ -3892,13 +3954,15 @@ In @sec:type-theory, we presented a type theory which uses inductors (the family
 functions) to express elimination and computation rules, and we then defined pattern
 matching as a shorthand for using induction. In standard Agda, pattern matching is
 foundational, and while inductors can be derived from it, they are not generally used. The
-system for pattern matching in Agda is powerful enough to be able to deduce "Axiom K" (TODO
-cite), which we mentioned in @sec:sets, and which is not compatible with univalence.
-Therefore, we must restrict Agda's pattern matching system by using the `--without-K`
-option. Furthermore, when we explore this work in Agda, we will use pattern matching where
-it makes things clearer, but because it is built in to the core of the language, we note
-that it is not making use of inductors "behind the scenes", as it is in our theoretical
-presentation above.
+system for pattern matching in Agda is powerful enough to be able to deduce "Axiom K" #cite(
+  <HoTTAgda>,
+  supplement: ["Notational remark"],
+), which we mentioned in @sec:sets, and which is not compatible with univalence. Therefore,
+we must restrict Agda's pattern matching system by using the `--without-K` option.
+Furthermore, when we explore this work in Agda, we will use pattern matching where it makes
+things clearer, but because it is built in to the core of the language, we note that it is
+not making use of inductors "behind the scenes", as it is in our theoretical presentation
+above.
 
 Another difference from standard Agda in our approach is to do with identity types. In Agda,
 identity types are another built-in feature of the language, which are expressed using the
@@ -3976,7 +4040,7 @@ some variables renamed for consistency) in the Agda presentation is
   ```
 ]
 
-== Examples
+== Examples from the literature
 
 We show some examples of Agda code from #cite(<HoTTAgda>), so that we can become familiar
 with reading it. Since that presentation is built up step-by-step, the examples we present
@@ -4033,7 +4097,7 @@ itself in the last line. Note that as we mentioned in @sec:recursive-pattern-mat
 matching of `succ n` on the left-hand side, paired with the use only of `n` on the
 right-hand side guarantees termination.
 
-== Own code (TODO/FEEDBACK naming)
+== New examples
 
 We now replicate some of the examples and proofs presented in @sec:type-theory and
 @sec:homotopy-type-theory in Agda. While #cite(<HoTTAgda>) presents a formulation of #cite(
