@@ -322,7 +322,12 @@ less definitional, the proofs given are sometimes relatively terse and in some c
 the reader. We expand on these terse proofs, sometimes greatly so, and where we use their
 results which are left to the reader, we give our own proofs. We conclude by discussing the
 formulation of the entirety of #cite(<hottbook>) in the programming language Agda, given in
-#cite(<HoTTAgda>).
+#cite(
+  <HoTTAgda>,
+).
+
+For every proposition or example that we give, we annotate it with a remark about whether it
+is directly from the source, an expansion or adaptation, or entirely original.
 
 In @sec:type-theory, we give a detailed exposition of a variant of Martin-Löf type theory,
 beginning with the syntax of $lambda$-calculus and its structural rules of deduction. We
@@ -1108,7 +1113,10 @@ $
     pi_1 & : product_(p : sum_(x : A) B(x)) B(pi_0(p))
   $
 ]
+_(This proof of typing judgments does not appear in #cite(<hottbook>). There, the
+projections are constructed and it is assumed that they satisfy the given types.)_
 #proof[
+
   We apply the "$Sigma$-Elim" rule in both cases to derive the types. Let $A : UU_i$ be a
   type and $B : A -> UU_i$ be a type family. Recall that this means that we will work in the
   context $A : UU_i, B : A -> UU_i$.
@@ -1169,6 +1177,9 @@ indeed pairs.
     pi_1((x, y)) peq y.
   $
 ]<prop:projection_equality>
+_(This result is relied on in #cite(<hottbook>, supplement: [Section 1.5, p. 29]), but is
+not proved explicitly.)_
+
 #proof[
   We will use the "$Sigma$-Comp" rule, the "$Pi$-Comp" rule and our structural rules of
   judgmental equality. Recalling our convention that $f(a,b,c)$ means $f(a)(b)(c)$, by the
@@ -1450,6 +1461,7 @@ number $n$, given $n$ itself and the value at $n$.
   require knowledge of $n$ itself, such as the factorial, may then be constructed out of
   these more basic functions.]<remark:NN-step-function>
 
+_(The following two examples are not in #cite(<hottbook>), and are entirely original.)_
 #example(add)[
   In this example, we use the inductor on $NN$ to construct an addition function.
 
@@ -1525,12 +1537,16 @@ number $n$, given $n$ itself and the value at $n$.
   $
 ]<example:add>
 
+We mentioned that the step function $c_s$, can be defined for simple functions by ignoring
+its first parameter, resulting in "accumulator" functions such as $add$, above. The next
+example presents a more complex function, which uses this parameter.
 
 #example(fact)[
-  In @example:add, we used a step function $c_s$ which ignored its first parameter, i.e. the
-  recursion counter. We now demonstrate a function, namely the factorial function, which
-  uses this value. In order to do this, we will assume that we have a function
-  $prod : NN -> NN -> NN$, which computes the product of its arguments.
+  We construct the factorial function, which we write as $fact$. This function will make use
+  of the recursion counter, i.e. the first parameter to $c_s$. In order to construct this
+  function, we will assume that we have a function $prod : NN -> NN -> NN$, which computes
+  the product of its arguments. We will see later that $prod$ can be constructed in a
+  similar way to $add$: that is, without using the recursion counter.
 
   We make the type declaration
   $ fact : NN -> NN $
@@ -1635,7 +1651,10 @@ $
 where $t'$ may not contain $m$ or $n$ freely, $s'$ may contain $m$ freely but not $n$, $t''$
 may contain $n$ freely but not $m$, and $s''$ may contain $m$ or $n$ freely.
 
-#example(prod)[
+#v(1em)
+_(The following example, like @example:add and @example:fact, is original.)_
+
+#example([$prod$])[
   In @example:fact, we assumed the existence of a function $prod : NN -> NN -> NN$ which
   computes the product of its arguments. In this example, we construct this function using
   recursive pattern matching on the second parameter.
@@ -1742,6 +1761,10 @@ $
   f &:peq ind_((A -> zero) times (B -> zero)) (C_1, lambda (x : A -> zero) sd lambda (y : B -> zero) sd g).
 $
 
+#v(1em)
+_(The following example is left as an exercise in #cite(<hottbook>, supplement: [Section
+  1.11, p. 44]).)_
+
 #example[
   It is left as an exercise in #cite(<hottbook>) to show the converse, i.e.
   #align(center)[
@@ -1813,6 +1836,9 @@ our table from above, then, we have
 
 We explore this correspondence with some further examples.
 
+#v(2em) // TODO this is 2em to make a page break -- before submitting, check this is still necessary
+_(The following example is presented discursively in #cite(<hottbook>, supplement: [Section
+  1.11, p. 45]))_
 #example[The statement
   #block(inset: (left: 2em, right: 2em))[#align(center)[if for all $x : A$, $P(x)$ holds and
     $Q(x)$ holds, then for all $x : A$, $P(x)$ holds and for all $x : A$, $Q(x)$ holds]]
@@ -1825,6 +1851,12 @@ We explore this correspondence with some further examples.
     lambda (f : product_(x : A) P(x) times Q(x)) sd (lambda (x : A) sd pi_0(f(x)), lambda (x : A) sd pi_1(f(x))).
   $
 ]
+
+#v(1em)
+_(The following example proceeds from inequality as defined in #cite(
+  <hottbook>,
+  supplement: [Section 1.11, p. 45],
+), but expands on it by working through the case of $1 <= 2$.)_
 
 #let leq = $sans("leq")$
 #example[We define inequality on the natural numbers as a type family
@@ -1931,6 +1963,13 @@ that equal terms may be substituted for each other.
   $
 ]<thm:indiscernibility-of-identicals>
 
+_(This theorem is first presented in #cite(<hottbook>, supplement: [Section 1.12, p. 48]),
+but the function is not given the name $transport$. Later, in #cite(
+  <hottbook>,
+  supplement: [Lemma 2.3.1],
+) the same result is presented using the $transport$ name. We combine and expand the proofs
+a little to point out precisely the requirements and usage of the "$=$-Elim" rule.)_
+
 #proof[
   Fix a type family $D : A -> UU_i$ and variables $x : A$, $y : A$. Define $C$, as in the
   computation and elimination rules, as
@@ -2012,6 +2051,8 @@ judgmentally equal.
 Now that we have defined identity types, we can make some statements about identities within
 our previously-defined types.
 
+#v(1em)
+_(The following two proofs are given in #cite(<hottbook>, supplement: [Section 1.6]).)_
 #proposition[The type $one$ has only one element.]<prop:one-is-a-singleton>
 #proof[
   We have defined, in the $one$-Intr rule, how to specify a particular element of $one$,
@@ -2086,6 +2127,7 @@ these laws for identity types.
 
   Furthermore, for all $x : A$, $refl_x^(-1) peq refl_x$.
 ]<lemma:identity-symmetry>
+_(This proof is given in #cite(<hottbook>, supplement: [Lemma 2.1.1]).)_
 #proof[
   We use the computation and elimination rules for identity types. For
   $C : product_(x : A) product_(y : A) (x =_A y) -> VV$, we put
@@ -2126,6 +2168,7 @@ these laws for identity types.
 
   Furthermore, for all $x : A$, $refl_x bullet refl_x peq refl_x.$
 ]<lemma:identity-transitivity>
+_(This proof is given in #cite(<hottbook>, supplement: [Lemma 2.1.2]).)_
 #proof[
   Fix variables $x : A$, $y : A$ and $z : A$ as in the statement of the lemma, and for the
   $C$ as in the elimination and computation rules for identity, put
@@ -2264,7 +2307,7 @@ into the $infinity$-groupoid structure.
 We need, however, to show that the laws of inverses and associativity hold when we consider
 witnesses to equalities as paths.
 
-#lemma([HoTT 2.1.4])[
+#lemma[
   For a type $A : UU$, elements $x, y, z, w : A$ and witnesses $p : x =_A y$, $q : y =_A z$
   and $r : z =_A w$, the following statements hold:
 
@@ -2275,6 +2318,7 @@ witnesses to equalities as paths.
 
   where these identities are second-level identities.
 ]<lem:paths-inv-assoc>
+_(This proof is given in #cite(<hottbook>, supplement: [Lemma 2.1.4]).)_
 #proof[
   All proofs use the induction principle (the $=$-Elim rule), and we work in an ambient
   context containing $x, y, z, w, p, q, r$ as in the statement of the lemma.
@@ -2411,8 +2455,8 @@ subsection, we generalize this principle to propositional equalities. In order t
 we make use of a function $ap_f$, which "applies" a function $f$ to both sides of an
 identity type.
 
-#lemma([HoTT book Lemma 2.2.1])[For $f : A -> B$ a (non-dependent) function and $x : A$,
-  $y : A$ elements, there is a function
+#lemma[For $f : A -> B$ a (non-dependent) function and $x : A$, $y : A$ elements, there is a
+  function
   $
     ap_f : (x =_A y) -> (f(x) =_B f(y)).
   $
@@ -2421,6 +2465,8 @@ identity type.
   $ ap_f (refl_z) peq refl_f(z) $
   for all $z : A$.
 ]
+// TODO check page breaks
+_(This proof is given in #cite(<hottbook>, supplement: [Lemma 2.2.1]).)_
 #proof[
   Put
   $
@@ -2450,7 +2496,7 @@ We also note that $ap_f$ has a functorial relationship with paths under composit
 inverse. We will not prove this, as we will not make use of it, but it is worth stating
 anyway.
 
-#lemma([HoTT Book 2.2.2])[
+#lemma[
   Let $f: A -> B$, $g : B -> C$ be functions, $x, y, z : A$ be variables and $p : x =_A y$,
   $q : y =_A z$ be paths.
 
@@ -2461,7 +2507,9 @@ anyway.
   + $ap_id_A (p) = p$
 
 ]<lemma:ap-functoriality>
-#proof[Omitted]
+_(The above lemma is stated in #cite(<hottbook>, supplement: [Lemma 2.2.2]), and the proof
+is omitted there also.)_
+#v(1em)
 
 We have defined $ap_f$ in the case of $f : A -> B$ a non-dependent function. This makes
 sense for non-dependent functions, because $f$ has the same return type regardless of its
@@ -2471,13 +2519,14 @@ We cannot form an identity type $g(x) = g(y)$ because these terms have different
 overcome this by defining a "sibling" function to $ap$, called $apd$ ("apply dependently"),
 which uses $transport$ to resolve this problem.
 
-#lemma([HoTT Book 2.3.4])[
+#lemma[
   For a type $A : UU$, a type family $B : A -> VV$, a dependent function
   $f : product_(x : A) B(x)$ and elements $a, b : A$, there is a function
   $
     apd_f : product_(p : a = b) transport^B (p, f(a)) =_(B(b)) f(b)
   $
 ]<lem:apd>
+_(This proof is given in #cite(<hottbook>, supplement: [Lemma 2.3.4]).)_
 #proof[
   We proceed by path induction on $p$. We put
   $
@@ -2509,12 +2558,14 @@ application. In this sense, we say that all functions in type theory are *contin
 
 The following lemma describes a useful interaction between $ap$ and $transport$.
 
-#lemma([HoTT 2.3.10])[For types $A : UU$ and $B : VV$, a type family $D: B -> WW$, a
-  function $f : A -> B$, elements $x, y : A$ and a witness $p : x = y$, we have
+#lemma[For types $A : UU$ and $B : VV$, a type family $D: B -> WW$, a function $f : A -> B$,
+  elements $x, y : A$ and a witness $p : x = y$, we have
   $
     transport^D (ap_f (p)) = transport^(D compose f) (p).
   $
 ]<lem:transport-ap>
+_(The statement of this lemma is given in #cite(<hottbook>, supplement: [Lemma 2.3.10]), but
+the proof is left as an exercise.)_
 #proof[
   We proceed by path induction on $p$. We put
   $
@@ -2578,8 +2629,8 @@ We now prove two useful properties of homotopies between functions: firstly, tha
 an equivalence relation (which is suggested by our use of the notation $(- ~ -)$), and
 secondly, that they are well-behaved with respect to function composition.
 
-#lemma([HoTT book 2.4.2])[For a type $A : UU$ and a type family $P : A -> VV$, homotopy is
-  an equivalence relation on each dependent function type $product_(x : A) P(x)$.
+#lemma[For a type $A : UU$ and a type family $P : A -> VV$, homotopy is an equivalence
+  relation on each dependent function type $product_(x : A) P(x)$.
 
   We state this formally using the shorthand $F :peq product_(x : A) P(x)$. We claim the
   following functions exist:
@@ -2589,6 +2640,8 @@ secondly, that they are well-behaved with respect to function composition.
     t & : product_(f : F) product_(g : F) product_(h : F) (f ~ g) -> (g ~ h) -> (f ~ h).
   $
 ]<lemma:homotopy-equivalence>
+_(The statement of this lemma is given in #cite(<hottbook>, supplement: [Lemma 2.4.2])), but
+the proof is left as an exercise.)_
 #proof[
   (Left to reader in HoTT)
 
@@ -2609,6 +2662,9 @@ secondly, that they are well-behaved with respect to function composition.
 
   That is to say, homotopies are preserved under function
   composition.]<lemma:homotopy-function-composition>
+_(This lemma is not stated in #cite(<hottbook>)\; rather it is implicitly used on their p.
+78 in their formulation of our @prop:qinv-is-equiv. We feel it is clearer for it to be
+stated explicitly.)_
 #proof[Let $x : A$ be a variable in the context. Then we have $e(x) : B$ and hence
   $
     alpha(e(x)) : (f compose e)(x) =_C (g compose e)(x).
@@ -2696,8 +2752,10 @@ they are logically equivalent.
 #proposition[For each $f : A -> B$,
   + there is a function of type $qinv(f) -> isequiv(f)$; and
   + there is a function of type $isequiv(f) -> qinv(f)$.
-
 ]<prop:qinv-is-equiv>
+_(The construction of these functions is given tersely in #cite(<hottbook>, supplement: [p.
+  78]). The proof of statement (2) is significantly expanded in order to make clear the
+steps involved in the composition of homotopies.)_
 #proof[
   Statement (1) is satisfied by the function $(g, alpha, beta) |-> (g, alpha, g, beta)$.
 
@@ -2734,6 +2792,12 @@ they are logically equivalent.
 
 We explore the concept of equivalence using an example.
 
+#v(1em)
+_(The following example is given as part of the proof of #cite(
+  <hottbook>,
+  supplement: [Lemma 3.1.8],
+).)_
+
 #example[
   Let the type $two : UU_i$ be defined as $two :peq one + one$. We write the elements of
   $two$, which are formally $inl(star)$ and $inr(star)$, as $0_two$ and $1_two$
@@ -2768,7 +2832,9 @@ We will now use equivalence to show an interesting property of the singleton typ
 only does it have a single element, but indeed there is only a single witness to any
 equality between its elements.
 
-#theorem([HoTT 2.8.1])[For any $x, y : one$, we have $(x = y) equiv one$.]<thm:one-is-a-set>
+#theorem[For any $x, y : one$, we have $(x = y) equiv one$.]<thm:one-is-a-set>
+_(This theorem is given in #cite(<hottbook>, supplement: [Theorem 2.8.1])). We expand the
+proof significantly to use the induction principle in its explicit form.)_
 #proof[
   We construct a function $f : (x =_one y) -> one$ by setting $f(\_) :peq star$ and we aim
   to show that it has a quasi-inverse. We need a function $g : one -> (x =_one y)$. By the
@@ -2800,7 +2866,7 @@ equality between its elements.
     & alpha(a) :peq refl_star.
   $
 
-  For $beta$, we use the path induction principle (rules "$=$-Intr" and "$=$-Comp"). We set
+  For $beta$, we use the path induction principle (rules "$=$-Elim" and "$=$-Comp"). We set
   $
     & C : product_(x : one) product_(y : one) (x =_one y) -> UU_i \
     & C(x, y, p) :peq g(f(p)) =_(x =_one y) p \
@@ -2829,9 +2895,6 @@ equality between its elements.
   $
 
   Therefore we have exhibited a quasi-inverse to $f$ as required.
-
-  - TODO make a note somewhere about this proof being significantly more in-depth than in
-    HoTT book
 ]
 
 == Function extensionality
@@ -2861,6 +2924,8 @@ by constructing an analogous principle to the $"Subst"_2$ rule.
   That is to say that if two functions are (propositionally) equal, then they are
   (propositionally) equal pointwise.
 ]
+_(This lemma is stated in #cite(<hottbook>, supplement: [Equation 2.9.2]), but the explicit
+construction is omitted.)_
 #proof[
   Fix $A, B, f, g$ as in the statement of the lemma. For brevity, we write the type
   $product_(x : A) B(x)$ as $F$. Put
@@ -2888,7 +2953,7 @@ propositionally equal as functions. Unfortunately, with the rules of type theory
 given in @sec:type-theory, there is no way to do this. As a consequence, we must take it as
 an axiom.
 
-#axiom([Function extensionality])[
+#axiom([Function extensionality; #cite(<hottbook>, supplement: [Axiom 2.9.3])])[
   For a type $A : UU$, a type family $B : A -> VV$ and functions
   $f, g: product_(x : A) B(x)$, the function
   $
@@ -2912,7 +2977,7 @@ function $f' : A(x_2) -> B(x_2)$. As the following lemma shows, it turns out tha
 equal to a composition of $f$ with ordinary transport operations on type families $A$ and
 $B$.
 
-#lemma([HoTT 2.9.4])[
+#lemma[
   In a context consisting of
   $
     & X   && : UU,               && x_1 && : X, \
@@ -2951,6 +3016,10 @@ $B$.
 
   ]
 ]<lem:function-transport>
+_(This lemma is stated in pointwise form in #cite(<hottbook>, supplement: [Equation 2.9.4]),
+and the proof is omitted. We feel that giving the lemma in this form is stronger, since to
+move from the pointwise form to the statement given here, we would require function
+extensionality. The commutative diagram is original and, we hope, adds clarity.)_
 #proof[
   We proceed by path induction. Fix $X, A, B$ as in the lemma and let
   $ f' : product_(x_1 : X) A(x_1) -> B(x_1). $
@@ -3005,6 +3074,8 @@ It is easy enough to go the other way:
     idtoequiv : (A =_UU B) -> (A equiv B).
   $
 ]
+_(This lemma is given in #cite(<hottbook>, supplement: [2.10.1])). We expand the proof to
+make explicit the application of the path induction principle.)_
 #proof[
   We fix $A$ and $B$ as in the statement of the lemma, and also fix a path $p : A = B$.
 
@@ -3054,13 +3125,16 @@ It is easy enough to go the other way:
 As it turns out #cite(<hottbook>, supplement: [Section 2.10]), it is not possible to derive
 the converse, so we must take it as an axiom. This is the axiom known as *univalence*.
 
-#axiom([HoTT 2.10.3, Univalence])[
+#axiom([Univalence; #cite(<hottbook>, supplement: [Axiom 2.10.3])])[
   For types $A : UU$ and $B: UU$, the function $idtoequiv$ is an equivalence. That is, there
   is a witness to the type $isequiv(idtoequiv)$, so we have
   $
     (A = B) equiv (A equiv B).
   $
 ]<axiom:univalence>
+
+- TODO remark about HoTT's misuse of notation referring to equivalences as just their first
+  projection
 
 #remark[In @sec:homotopies-and-equivalences we mentioned that we chose the definition of
   $isequiv$ over $qinv$ because of its property of having at most one inhabitant. The
@@ -3077,6 +3151,8 @@ the converse, so we must take it as an axiom. This is the axiom known as *unival
 ]
 
 #lemma([Propositional rules])[
+  - TODO rewrite so the statement of the lemma doesn't include the proof
+
   Using univalence, we can derive rules which are analogous to our data about types:
   introduction, elimination, computation and uniqueness.
 
@@ -3139,6 +3215,11 @@ an equality $p : x =_A y$, we transport a value of $code(x)$ into a value of $co
 which we then use to make some statement about $x$ and $y$ when they are equal. This is best
 illustrated with an example.
 
+#v(1em)
+_(The following example is an alternative presentation of the discussion in #cite(
+  <hottbook>,
+  supplement: [Section 2.12, pp. 93--94],
+).)_
 #example[
   We consider the coproduct type $A + B$ for types $A$ and $B$ and show that for all $a : A$
   and $b : B$, it is not the case that $inl(a) =_(A + B) inr(b)$.
@@ -3185,11 +3266,14 @@ $
   code(succ(m), succ(n)) & :peq code(m, n)
 $
 
-#theorem([HoTT 2.13.1])[For all $m, n : NN$, we have
+#theorem[For all $m, n : NN$, we have
   $ (m = n) equiv code(m, n). $
 
   That is to say, there is at most one witness to $m = n$.
 ]<thm:n-is-set>
+_(This theorem is from #cite(<hottbook>, supplement: [Theorem 2.13.1]). The proof is
+expanded; significantly so in the construction of the homotopy $beta$, in order to show
+which steps are by judgmental equality and which are by propositional equality.)_
 #proof[
   We define
   $
@@ -3355,6 +3439,10 @@ $
   $
   as required.
 ]
+
+// TODO: page break check
+#v(1em)
+_(The following example is entirely original.)_
 
 #example([Finite sets])[
   We show that $Fin(n)$ has exactly $n$ elements. We do this by recalling our definition of
@@ -3595,6 +3683,9 @@ $lambda (x : A) sd t$, allowing us to elide the type of $x$ for brevity.
     &transport^(x |-> x = x) (p, q) &&=_(y = y) p^(-1) bullet q bullet p quad &&"for" q : x = x
   $
 ]<lem:transport-path-composition>
+_(This lemma is stated in #cite(<hottbook>, supplement: [Lemma 2.11.2])), but the proof
+given is "Path induction on $p$, followed by the unit laws for composition". We show the
+proof explicitly.)_
 #proof[
   For the first claim, we consider the case of $q : a =_A x$. We put
   $
@@ -3624,6 +3715,9 @@ also an $(n+1)$-type.
 #proposition[If $A$ is a set, then $A$ is a 1-type, i.e. there is a function
   $ g : isSet(A) -> is1Type(A). $
 ]
+_(This result is given in #cite(<hottbook>, supplement: [Lemma 3.1.8]). The proof given is
+very terse, and involves several changes of context which are left implicit. We expand the
+proof and make the movement between contexts explicit.)_
 #proof[
   This proof will involve a lot of moving between contexts, using the weakening rule to add
   variables and function introduction to remove them. A diagram of the movement between
@@ -3686,7 +3780,6 @@ also an $(n+1)$-type.
     A : UU tack g : isSet(A) -> is1Type(A)
   $
   as required.
-  - TODO remark about contexts not being explicit in HoTT book
 
   #figure(
     diagram({
@@ -3732,6 +3825,7 @@ $¬(A) :peq A -> zero$. We begin with a lemma.
 
 #lemma[Using the type $two$ from @example:two-equiv, let $u, v : ¬¬two$. Then we have
   $u = v$.]<lem:two-double-negation-is-set>
+_This lemma is given inline in the proof of #cite(<hottbook>, supplement: [Theorem 3.2.2])._
 #proof[
   Fix an element $x : ¬two$, i.e. $x : two -> zero$. Then we have $u(x) : zero$ and
   $v(x) : zero$, so we can derive a witness to $u(x) = v(x)$:
@@ -3749,8 +3843,9 @@ $¬(A) :peq A -> zero$. We begin with a lemma.
   as required.
 ]
 
-#theorem([HoTT 3.2.2])[It is not the case that for all $A : UU$ we have
+#theorem[It is not the case that for all $A : UU$ we have
   $¬¬A -> A$.]<thm:no-double-negation>
+_(This theorem is given in #cite(<hottbook>, supplement: [Theorem 3.2.2]).)_
 #proof[
   We suppose that for every universe $UU$, we have we have a function
   $ f : product_(A : UU) ¬¬A -> A, $
@@ -3855,6 +3950,7 @@ $¬(A) :peq A -> zero$. We begin with a lemma.
     A + (¬A)
   $
 ]
+_(This corollary is given in #cite(<hottbook>, supplement: [Corollary 2.3.7]).)_
 #proof[
   Fixing $A : UU$ in context, we suppose that we have an element
   $
