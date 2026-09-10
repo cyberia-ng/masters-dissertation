@@ -165,9 +165,11 @@
 #let zero = $bold(0)$
 #let ctx = $sans("ctx")$
 #let Fin = $"Fin"$
+#let FinNat = $"FinNat"$
 #let inl = $sans("inl")$
 #let inr = $sans("inr")$
 #let succ = $sans("succ")$
+#let prev = $sans("prev")$
 #let add = $sans("add")$
 #let prod = $sans("prod")$
 #let fact = $sans("fact")$
@@ -3361,56 +3363,57 @@ $
     n <= m :peq sum_(p : NN) n + p = m
   $
 
-  We define a type family $B : NN -> UU_0$ as
+  We define a type family $FinNat : NN -> UU_0$ as
   $
-    B(n) :peq sum_(k : NN) (succ(k) <= n).
+    FinNat(n) :peq sum_(k : NN) (succ(k) <= n).
   $
-  That is, $B(n)$ consists of pairs of natural numbers $k$ and witnesses to the type
+  That is, $FinNat(n)$ consists of pairs of natural numbers $k$ and witnesses to the type
   $succ(k) <= n$, so the left projections of its elements consist precisely of natural
   numbers strictly less than $n$. Note that $n <= m$ is itself defined as a pair type, so
-  elements of $B(n)$ will have the form $(k, (p, q))$ where $k : NN$, $p : NN$ and
-  $q : succ(k) + p = n$. To save on brackets, we write elements of $B(n)$ as $(k, p, q)$.
+  elements of $FinNat(n)$ will have the form $(k, (p, q))$ where $k : NN$, $p : NN$ and
+  $q : succ(k) + p = n$. To save on brackets, we write elements of $FinNat(n)$ as
+  $(k, p, q)$.
 
   We therefore want to show a sequence of equivalences
   $
-    product_(n : NN) Fin(n) equiv B(n).
+    product_(n : NN) Fin(n) equiv FinNat(n).
   $
   Because we are working with a sequence of equivalences over $NN$, we will make our
   quasi-inverses functions of $NN$ also.
 
   We want functions
   $
-    f : product_(n : NN) Fin(n) -> B(n), quad g : product_(n : NN) B(n) -> Fin(n)
+    f : product_(n : NN) Fin(n) -> FinNat(n), quad g : product_(n : NN) FinNat(n) -> Fin(n)
   $
   and sequences of homotopies
   $
-    alpha : product_(n : NN) f(n) compose g(n) ~ id_B(n), quad beta : product_(n : NN) g(n) compose f(n) ~ id_Fin(n).
+    alpha : product_(n : NN) f(n) compose g(n) ~ id_FinNat(n), quad beta : product_(n : NN) g(n) compose f(n) ~ id_Fin(n).
   $
 
   We define $f$ by pattern matching:
   $
-    & f(0) : Fin(0) -> B(0) \
-    & f(0, z) :peq ind_zero (lambda (\_ : zero) sd B(0), z)
+    & f(0) : Fin(0) -> FinNat(0) \
+    & f(0, z) :peq ind_zero (lambda (\_ : zero) sd FinNat(0), z)
   $
   that is, when $n peq 0$, $Fin(0) peq zero$, so we can use $ind_zero$ to give us an element
   of whatever type we like. The case for a successor itself uses pattern matching for
   coproduct and pair types:
   $
-    & f(succ(n)) : Fin(succ(n)) -> B(succ(n)) \
-    & f(succ(n), inl(star)) :peq (0, (n, refl_succ(n))) \
-    & f(succ(n), inr(y)) :peq (succ(k), (p, ap_succ (q))) \
+    & f(succ(n)) : Fin(succ(n)) -> FinNat(succ(n)) \
+    & f(succ(n), inl(star)) :peq (0, n, refl_succ(n)) \
+    & f(succ(n), inr(y)) :peq (succ(k), p, ap_succ (q)) \
     & wide "where" (k, p, q) peq f(n, y).
   $
 
   We define $g$ also by pattern matching. Considering $g(0)$, we want a function
   $
-    g(0) : B(0) -> Fin(0),
+    g(0) : FinNat(0) -> Fin(0),
   $
   but recalling that $Fin(0) peq zero$, this means we must construct an element of $zero$
-  given an element $(k, p, q) : B(0)$. We fix $k : NN$, $p : NN$ and $q : succ(k) + p = 0$
-  in context. The idea will be that, by the definition of $add$, such an element $q$ cannot
-  exist, and therefore we may derive an element of $Fin(0) peq zero$. We proceed using
-  coding.
+  given an element $(k, p, q) : FinNat(0)$. We fix $k : NN$, $p : NN$ and
+  $q : succ(k) + p = 0$ in context. The idea will be that, by the definition of $add$, such
+  an element $q$ cannot exist, and therefore we may derive an element of $Fin(0) peq zero$.
+  We proceed using coding.
 
   We introduce a type family $code : NN -> UU_0$ defined by
   $
@@ -3428,18 +3431,30 @@ $
     g(0, (k, p, q)) :peq transport^code (q, star) : Fin(0).
   $
   When the first argument to $g$ is a successor, we apply another level of recursive pattern
-  matching, putting
+  matching. For $k peq 0$, we put
   $
     g(succ(n), (0, p, q)) & :peq inl(star) : Fin(succ(n))
   $
-  and using the fact that we may call $g(n, (m, (p, q))) : Fin(n)$ recursively,
+  When $k peq succ(m)$, we need to transform $q : succ(succ(m)) + p = succ(n)$ into
+  $q' : succ(m) + p = n$. To do this, we define a utility function $prev$:
   $
-    g(succ(n), (succ(m), p, q)) & :peq inr(g(n, (m, (p, q)))).
+        prev : NN & -> NN \
+          prev(0) & :peq 0 \
+    prev(succ(n)) & :peq n.
+  $
+  It may seem odd that we consider the previous value to 0 to be 0, but since we will be
+  applying this function only in the case of a successor, it does not matter. Applying
+  $prev$ to $q$, we get $ap_prev (q) : succ(m) + p = n$ as required.
+
+  For the final recursive definition of $g$, we use the fact that we may call
+  $g(n, (m, p, ap_prev (q))) : Fin(n)$ recursively,
+  $
+    g(succ(n), (succ(m), p, q)) & :peq inr(g(n, (m, p, ap_prev (q)))).
   $
 
   It remains to construct the sequences of homotopies $alpha$ and $beta$. These
-  constructions are relatively easy applications of $NN$-induction and @thm:n-is-set, but
-  they are not very informative for this example, so we omit them.
+  constructions are relatively easy applications of $NN$-induction, but they are not very
+  informative for this example, so we omit them.
 
   // It remains to construct the sequences of homotopies $alpha$ and $beta$. Let us consider
   // $alpha$ first.
@@ -4158,7 +4173,7 @@ differences.
   ]
 ]<ex:oneplusone-agda>
 
-- Something about transport
+- TODO some words
 
 #example[In this example we will show how function extensionality is constructed and used in
   the Agda presentation. In the Agda presentation, the function `funext` is different to our
@@ -4244,6 +4259,135 @@ differences.
   $
     funext(lambda (m : NN) sd funext(f(m))) : add_1 = add_2.
   $
+]<ex:agda-funext>
+
+We finish by reproducing @ex:finite-types in Agda, showing that the family of finite types
+$Fin(n)$ are equivalent to the family of types of natural numbers less than $n$,
+$FinNat(n)$. We again do not show the homotopies $alpha$ and $beta$, for the sake of keeping
+the example to a reasonable length; rather when we show the family of equivalences, we state
+the existence of such homotopies as an explicit assumption.
+
+#example[
+  We refer to the main example which we are translating, @ex:finite-types, as "the source
+  example". We will also refer to other examples for certain functions, such as the
+  "less-than-or-equal" type $leq$, and these we will refer to by their numbering.
+
+  We begin by reproducing our definition of $qinv$ and $isequiv$. Equivalences are defined
+  in #cite(<HoTTAgda>), but with an alternative definition concepts which we have not
+  covered. Therefore, we construct quasi-inverses and equivalences as we did in
+  @sec:homotopies-and-equivalences:
+  #ourcode[```
+  id : ( A : 𝓤 ̇ ) → A → A
+  id A a = a
+
+  qinv : {A : 𝓤 ̇} {B : 𝓥 ̇} (f : A → B) → 𝓤 ⊔ 𝓥 ̇
+  qinv {A = A} {B = B} f =
+    Σ g ꞉ (B → A) , ((f ∘ g) ∼ (id B)) × ((g ∘ f) ∼ (id A))
+
+  is-equiv : {A : 𝓤 ̇} {B : 𝓥 ̇} (f : A → B) → 𝓤 ⊔ 𝓥 ̇
+  is-equiv {A = A} {B = B} f =
+    (Σ g ꞉ (B → A) , f ∘ g ∼ (id B))
+      × (Σ h ꞉ (B → A) , h ∘ f ∼ (id A))
+
+  _≃_ : (A : 𝓤 ̇) → (B : 𝓥 ̇) → 𝓤 ⊔ 𝓥 ̇
+  A ≃ B = Σ f ꞉ (A → B) , is-equiv f
+
+  qinv-to-equiv : {A : 𝓤 ̇} {B : 𝓥 ̇} {f : A → B}
+    → (qinv f) → (is-equiv f)
+  qinv-to-equiv (g , (α , β)) = ((g , α) , (g , β))
+  ```]
+
+  The first function written, `id`, corresponds to the identity function on a type, so where
+  we write in mathematical terms $id_A$, in Agda we write `id A`. The definitions of `qinv`,
+  `is-equiv` and `≃` match precisely the definitions given in @def:qinv and
+  @def:equivalence, and the function `qinv-to-equiv` represents the first function given in
+  @prop:qinv-is-equiv.
+
+  We then define the function `_≤_`, whose underscores signify that it is to be used in
+  infix form. This is the function $leq$ which we defined in @ex:leq and also denoted in
+  infix form there.
+
+  #ourcode[```
+   _≤_ : ℕ → ℕ → 𝓤₀ ̇
+   n ≤ m = Σ p ꞉ ℕ , (add p n) ＝ m
+  ```]
+  It states that $n <= m$ is a type family given by $sum_(p : NN) add(p, n) = m$, i.e. a
+  pair consisting of a natural number $p$ and a witness to the proposition $p + n = m$.
+
+  We now define `Fin` and `FinNat`, corresponding to our types $Fin$ and $FinNat$ from
+  @sec:finite-types and the source example respectively.
+  #ourcode[```
+    Fin : ℕ → 𝓤₀ ̇
+    Fin 0 = 𝟘
+    Fin (succ n) = 𝟙 + (Fin n)
+
+    FinNat : ℕ → 𝓤₀ ̇
+    FinNat n = Σ k ꞉ ℕ , (succ k) ≤ n
+  ```]
+
+  Then, we define the function $f : product_(n : NN) Fin(n) -> FinNat(n)$ from the source
+  example, for which we intend to show for all $n : NN$, $f(n)$ has a quasi-inverse
+  $g(n) : FinNat(n) -> Fin(n)$.
+
+  #ourcode[```
+  f : (n : ℕ) → Fin n → FinNat n
+  f 0 z = 𝟘-induction (λ _ → FinNat 0) z
+  f (succ n) (inl _) = (0 , (n , refl (succ n)))
+  f (succ n) (inr y) = (succ k , (p , ap succ q))
+    where
+      k = pr₁ (f n y)
+      p = pr₁ (pr₂ (f n y))
+      q = pr₂ (pr₂ (f n y))
+  ```]
+  As in the source example, we define `f` by recursive pattern matching, using the
+  $zero$-inductor, which we term $ind_zero$ mathematically, and in Agda is called
+  `𝟘-induction`, in the case where `n` is 0, and recursion in the case where `n` is a
+  successor.
+
+  For the quasi-inverse, we translate the recursive pattern matching definition of $g$ given
+  in the source example. In the case where `n` is 0, we use transport and coding to derive
+  an element of $Fin(0)$, i.e. $zero$, and in the case of a successor we apply pattern
+  matching on the coproduct type $Fin(succ(n)) peq one + Fin(n)$.
+  #ourcode[```
+  g : (n : ℕ) → FinNat n → Fin n
+  g 0 (k , (p , q)) = 𝟘-induction (λ _ → Fin 0) z
+    where
+      code : ℕ → 𝓤₀ ̇
+      code 0 = 𝟘
+      code (succ _) = 𝟙
+      z : 𝟘
+      z = transport code q ⋆
+  g (succ n) (0 , (p , q)) = inl ⋆
+  g (succ n) (succ m , (p , q)) = inr (g n (m , (p , ap prev q)))
+    where
+      prev : ℕ → ℕ
+      prev 0 = 0
+      prev (succ n) = n
+  ```]
+  As mentioned in the source example, the final pattern-matching case requires a utility
+  function `prev`, which gives the predecessor to a natural number, unless it is 0 in which
+  case it yields 0. Since we are applying `prev` only to successors, this slighly odd
+  behaviour is inconsequential.
+
+  Finally, we state the equivalence. As mentioned, we have not shown the required homotopies
+  $alpha : (f compose g) ~ id_FinNat(n)$ and $beta : (g compose f) ~ id_Fin(n)$, so we
+  assume that we are given them as arguments, much like with function extensionality in
+  @ex:agda-funext.
+  #ourcode[```
+  fin-equivalence : (n : ℕ)
+    → ((f n ∘ g n) ∼ id (FinNat n))
+    → ((g n ∘ f n) ∼ id (Fin n))
+    → Fin n ≃ FinNat n
+  fin-equivalence n alpha beta =
+    (f n , qinv-to-equiv (g n , (alpha , beta)))
+  ```]
+  The type signature of the function `fin-equivalence` says that it takes arguments of a
+  natural number `n`, and the above homotopies, and returns the equivalence (given these
+  arguments) `Fin n ≃ FinNat n`. This is constructed as a tuple
+  $
+    (f(n), sans("qinv-to-equiv")((g(n), alpha, beta))) : Fin(n) equiv FinNat(n)
+  $
+  where $sans("qinv-to-equiv")$ denotes the unnamed first function in @prop:qinv-is-equiv.
 ]
 
 #pagebreak()
