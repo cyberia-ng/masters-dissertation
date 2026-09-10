@@ -106,7 +106,18 @@
     ),
   ),
   abstract: [
-    An abstract
+    Type theory is a critical area of mathematical foundations, as well as being highly
+    relevant to computer scientists who work on functional programming languages. The
+    homotopical interpretation, made by the Univalent Foundations Program, applies concepts
+    from algebraic topology to type theory, in an attempt to resolve some of its
+    discrepancies with classical mathematics. We present a guided tour through a variant of
+    Martin-Löf type theory, detailing how elements of types can be considered as proofs of
+    propositions using the Curry-Howard correspondence, and explore the homotopical
+    interpretation with Voevodsky's univalence axiom. We show that the law of the excluded
+    middle is in general inconsistent with univalent foundations, but we outline that a
+    restricted version of it can be recovered in some cases. We discuss the presentation of
+    homotopy type theory in the programming language Agda, presenting some example results
+    from the literature, and some of our own.
   ],
   bibliography: bibliography(
     "dissertation.bib",
