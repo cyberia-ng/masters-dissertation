@@ -1472,7 +1472,8 @@ number $n$, given $n$ itself and the value at $n$.
   require knowledge of $n$ itself, such as the factorial, may then be constructed out of
   these more basic functions.]<remark:NN-step-function>
 
-_(The following two examples are not in #cite(<hottbook>), and are entirely our own constructions.)_
+_(The following two examples are not in #cite(<hottbook>), and are entirely our own
+constructions.)_
 #example(add)[
   In this example, we use the inductor on $NN$ to construct an addition function.
 
@@ -1847,7 +1848,7 @@ our table from above, then, we have
 
 We explore this correspondence with some further examples.
 
-#v(2em) // TODO this is 2em to make a page break -- before submitting, check this is still necessary
+#v(1em)
 _(The following example is presented discursively in #cite(<hottbook>, supplement: [Section
   1.11, p. 45]))_
 #example[The statement
@@ -2476,7 +2477,6 @@ identity type.
   $ ap_f (refl_z) peq refl_f(z) $
   for all $z : A$.
 ]
-// TODO check page breaks
 _(This proof is given in #cite(<hottbook>, supplement: [Lemma 2.2.1]).)_
 #proof[
   Put
@@ -3144,8 +3144,13 @@ the converse, so we must take it as an axiom. This is the axiom known as *unival
   $
 ]<axiom:univalence>
 
-- TODO remark about HoTT's misuse of notation referring to equivalences as just their first
-  projection
+#remark[
+  In #cite(<hottbook>), the authors make use of a misuse of notation in which the elements
+  of an equivalence $A equiv B$ are taken as the first projection, i.e. $f : A -> B$. We
+  avoid this, so we write $e : A equiv B$ to mean that $e$ is a tuple
+  $(f, (g, alpha, h, beta))$ as in @def:equivalence, and where we use to the function in one
+  direction, we write $pi_0 (e)$.
+]
 
 #remark[In @sec:homotopies-and-equivalences we mentioned that we chose the definition of
   $isequiv$ over $qinv$ because of its property of having at most one inhabitant. The
@@ -3161,36 +3166,41 @@ the converse, so we must take it as an axiom. This is the axiom known as *unival
   )
 ]
 
-#lemma([Propositional rules])[
-  - TODO rewrite so the statement of the lemma doesn't include the proof
+Using univalence, we can derive rules which are analogous to our data about types:
+introduction, elimination, computation and uniqueness.
 
-  Using univalence, we can derive rules which are analogous to our data about types:
-  introduction, elimination, computation and uniqueness.
+#lemma([Propositional rules of univalence])[
+  For types $A, B : UU$, the univalence axiom yields the following statements:
+  #pad(left: 15pt)[
+    / Propositional introduction rule: There is an element
+      $ ua : (A equiv B) -> (A = B). $
+    / Propositional elimination rule: There is an element
+      $ idtoequiv : (A = B) -> (A equiv B). $
+    / Propositional computation rule: For $e : A equiv B$, we have
+      $ transport^id (ua(e)) = pi_0 (e). $
+    / Propositional uniqueness principle: We have
+      $ ua compose idtoequiv ~ id_(A = B). $
+  ]
+]<lem:propositional-rules>
+_(This lemma is a formalization of the discussion in #cite(<hottbook>, supplement: [Section
+  2.10, p. 90]). The explicit proof is not given in the source.)_
+#proof[
+  For the introduction rule, @axiom:univalence says that the type $isequiv(idtoequiv)$ is
+  inhabited. Using @prop:qinv-is-equiv, we get an element of $qinv(idtoequiv)$. Unfolding
+  what this means using @def:qinv, we get an element
+  $
+    (ua, alpha, beta) : sum_(ua : A equiv B -> A = B) (idtoequiv compose ua ~ id_(A equiv B)) times (ua compose idtoequiv ~ id_(A = B)),
+  $
+  i.e. $ua$ has type
+  $
+    ua : A equiv B -> A = B.
+  $
 
-  @axiom:univalence says that the type $isequiv(idtoequiv)$ is inhabited. Using
-  @prop:qinv-is-equiv, we get an element of $qinv(idtoequiv)$. Unfolding what this means
-  using @def:qinv, we get an element
-  $
-    (ua, alpha, beta) : sum_(ua : A equiv B -> A = B) (idtoequiv compose ua ~ id_(A equiv B)) times (ua compose idtoequiv ~ id_(A = B)).
-  $
+  For the elimination rule, we have already defined $idtoequiv$ with the required type.
 
-  The element $ua$ has type
-  $
-    ua : A equiv B -> A = B,
-  $
-  and we term this the *propositional introduction rule*: in order to construct an equality
-  between types, it is sufficient to give an equivalence.
-
-  For elimination, we simply take $idtoequiv$. We have
-  $
-    idtoequiv : (A = B) -> (A equiv B),
-  $
-  which we term the *propositional elimination rule*: in order to construct a function out
-  of an equality between types, it is sufficient to give a function out of an equivalence
-  between types, and post-compose it with $idtoequiv$.
-
-  For computation, we begin by unfolding the definition of an equivalence from
-  @def:equivalence. For an identity $p : A = B$, we have
+  For the propositional computation rule, we use the fact that $ua$ given by univalence is
+  precisely a quasi-inverse for $idtoequiv$. We begin by unfolding the definition of an
+  equivalence from @def:equivalence. For an identity $p : A = B$, we have
   $
     idtoequiv(p) : sum_(f : A -> B) (sum_(g : B -> A) f compose g ~ id_B) times (sum_(h : B -> A) g compose f ~ id_A)
   $
@@ -3205,17 +3215,21 @@ the converse, so we must take it as an axiom. This is the axiom known as *unival
 
   Fixing an equivalence $e : A equiv B$ we get
   $
-    ap_pi_0 (alpha(e)) : transport^(id_UU) (ua(e)) = pi_0 (e),
+    ap_pi_0 (alpha(e)) : transport^id (ua(e)) = pi_0 (e),
   $
-  which we term the *propositional computation rule*.
+  as required.
 
-  For uniqueness, we consider the homotopy
+  For the uniqueness principle, we take the homotopy $beta$ defined above in the type
+  $qinv(idtoequiv)$. We have
   $
-           & beta : ua compose idtoequiv ~ id_(A = B) \
-    "i.e." & beta : product_(p : A = B) ua(idtoequiv(p)) = p
+    & beta : ua compose idtoequiv ~ id_(A = B) \
   $
-  which we term the *propositional uniqueness principle*.
-]<lem:propositional-rules>
+  i.e.
+  $
+    beta : product_(p : A = B) ua(idtoequiv(p)) = p
+  $
+  as required.
+]
 
 == Transport and coding
 
@@ -3451,7 +3465,6 @@ which steps are by judgmental equality and which are by propositional equality.)
   as required.
 ]
 
-// TODO: page break check
 #v(1em)
 _(The following example is entirely our own construction.)_
 
@@ -4280,18 +4293,23 @@ differences.
   ]
 ]<ex:oneplusone-agda>
 
-- TODO some words
+We mentioned in the above example that it did not matter which definition of addition we
+chose. This leads into the next example, which uses function extensionality to show that
+these definitions are equal.
 
-#example[In this example we will show how function extensionality is constructed and used in
-  the Agda presentation. In the Agda presentation, the function `funext` is different to our
-  function $funext$ from @ax:function-extensionality. When we write in Agda code, we use
-  `funext` as defined there, and when we write in mathematical terms, we use $funext$ as we
-  defined previously.
+Before beginning the example, we note that in the Agda presentation, the function `funext`
+is different to our function $funext$ from @ax:function-extensionality in a way which we
+will discuss. For clarity of notation, when we write in Agda code, we use `funext` as
+defined there, and when we write in mathematical terms, we use $funext$ as we defined
+previously.
 
-  We mentioned in @ex:oneplusone-agda that it did not matter which definition of addition we
-  chose. We will now show that these definitions are equal. If we name the first definition
-  (which uses pattern matching) $add_1$, and the second definition (which uses the
-  specialized inductor) $add_2$, we want to show an equality
+#example[
+  We show that two of the definitions of addition used in @ex:oneplusone-agda are equal,
+  using function extensionality. The proof that the third definition of addition is equal to
+  one either these is completely analogous.
+
+  If we name the first definition (which uses pattern matching) $add_1$, and the second
+  definition (which uses the specialized inductor) $add_2$, we want to show an equality
   $ add_1 = add_2. $
 
   Since this an equality between functions, we will need to first show a pointwise equality,
@@ -4368,7 +4386,7 @@ differences.
   $
 ]<ex:agda-funext>
 
-We finish by reproducing @ex:finite-types in Agda, showing that the family of finite types
+We conclude by reproducing @ex:finite-types in Agda, showing that the family of finite types
 $Fin(n)$ are equivalent to the family of types of natural numbers less than $n$,
 $FinNat(n)$. We again do not show the homotopies $alpha$ and $beta$, for the sake of keeping
 the example to a reasonable length; rather when we show the family of equivalences, we state
@@ -4376,7 +4394,7 @@ the existence of such homotopies as an explicit assumption.
 
 #example[
   We refer to the main example which we are translating, @ex:finite-types, as "the source
-  example". We will also refer to other examples for certain functions, such as the
+  example". We will also refer to other examples for certain constructions, such as the
   "less-than-or-equal" type $leq$, and these we will refer to by their numbering.
 
   We begin by reproducing our definition of $qinv$ and $isequiv$. Equivalences are defined
