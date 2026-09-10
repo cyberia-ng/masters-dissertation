@@ -312,13 +312,9 @@ considered as points in a topological space, a witness to their equality corresp
 path between them. The concept of different proofs of equality is then captured by differing
 paths, and witnesses can be unified by applying continuous maps which deform one path into
 another. Furthermore, the idea of identity of isomorphic structures is captured by the
-*Univalence Axiom*, which states exactly this. #cite(
+*Univalence Axiom*, which states exactly this #cite(
   <hottbook>,
-)
-
-Of particular note is that, although we "lose" such useful tools as the law of the excluded
-middle by working in homotopy type theory, we gain a theorem which closely resembles the
-axiom of choice.
+).
 
 == General structure and section overview
 
@@ -376,10 +372,53 @@ law of the excluded middle) is in general inconsistent with type theory, but we 
 kind of type for which we may consistently assume that law.
 
 In @sec:agda, we depart from the strictly mathematical focus of the previous sections and
-work through some parts of #cite(<HoTTAgda>) in the Agda programming language. We give an
-introduction to Agda, aimed at a reader who has a little experience with programming but not
-(necessarily) with functional programming or dependently-typed languages. We present some
-examples of code taken directly from #cite(<HoTTAgda>) and give some examples of our own.
+work through some parts of #cite(<HoTTAgda>), which is an encoding of homotopy type theory
+from #cite(<hottbook>) in the Agda programming language. We give an introduction to Agda,
+aimed at a reader who has a little experience with programming but not (necessarily) with
+functional programming or dependently-typed languages. We present some examples of code
+taken directly from #cite(<HoTTAgda>) and give some examples of our own.
+
+== Examples of notation
+
+To give the reader a brief idea with the kind of notation we will be using for types, we
+introduce two examples: dependent functions and identity types. A dependent function is a
+function whose output type depends on its input value. Where the type of a non-dependent
+function might be written as
+$
+  f : A -> B,
+$
+meaning a function $f$ that takes an parameter of type $A$ and returns an element of type
+$B$, we write
+$
+  g : product_(x : A) B(x)
+$
+for a function $g$ which takes a parameter $x$ of type $A$ and returns an element of the
+type $B(x)$. The type $B(x)$ here is a type which may refer to the element $x$ in its
+definition (properly, we say $B$ is a _type family_). An example of such a type family,
+which we will make good use of in this work, is the type of a finite set of $n$ elements,
+$Fin(n)$.
+
+An identity type is a type which represents an equality between two elements of a base type.
+It may be "inhabited" by a witness to the equality, or it may be uninhabited, in which case
+we cannot conclude the equality. For variables $x$ and $y$ of a type $A$, a witness $p$ to
+their equality is written
+$
+  p : x =_A y.
+$
+
+Combining these concepts, we may make statements such as the "indiscernibility of
+identicals". We say that there is an element of the type
+$
+  product_(p : x =_A y) (C(x) -> C(y)),
+$
+that is, there is some function which, given a witness to the equality of $x$ and $y$,
+yields a function which may transform any element of a type $C(x)$ into $C(y)$. In logical
+terms, this type represents, for a given predicate $P$, the statement
+$
+  forall x sd forall y sd (x = y) -> (P(x) -> P(y)).
+$
+
+These ideas will of course be defined rigorously in the main text.
 
 = Type theory<sec:type-theory>
 
