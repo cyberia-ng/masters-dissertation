@@ -409,11 +409,12 @@ $
 Combining these concepts, we may make statements such as the "indiscernibility of
 identicals". We say that there is an element of the type
 $
-  product_(p : x =_A y) (C(x) -> C(y)),
+  product_(x : A) product_(y : A) (x =_A y) -> (C(x) -> C(y)),
 $
-that is, there is some function which, given a witness to the equality of $x$ and $y$,
-yields a function which may transform any element of a type $C(x)$ into $C(y)$. In logical
-terms, this type represents, for a given predicate $P$, the statement
+that is, there is some function which, given elements $x$ and $y$ of a type $A$ and a
+witness to their equality, yields a function which may transform any element of a type
+$C(x)$ into an element of $C(y)$. In logical terms, this type represents, for a given
+predicate $P$, the statement
 $
   forall x sd forall y sd (x = y) -> (P(x) -> P(y)).
 $
