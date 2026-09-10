@@ -522,8 +522,8 @@ language theory. As a result, we will often leave contexts fairly implicit, usin
 such as "for types $A : UU_i$ and elements $x : A$" to discursively define a context. Where
 explicit manipulation of a context is required (for example in introducing a function by
 capturing a variable in a $lambda$ expression), we will of course make a note of the change.
-Moreover, in our proof trees, we will write the context explicitly as part of the judgment,
-even if we will not do much manipulation of it.
+Moreover, in our rules of deduction, we will write the context explicitly as part of the
+judgment, even if we will not do much manipulation of it.
 
 == Structural rules<sec:structural-rules>
 
@@ -624,8 +624,8 @@ typing judgments and in judgmental equalities
 
 Although these rules must be stated at least once, the process of reading (and writing)
 proofs using them explicitly is rather tedious, and therefore we will use them implicitly
-going forward. A demonstration of a proof using the structural rules for simply-typed lambda
-calculus may be found in #cite(
+going forward. A demonstration of a proof using the structural rules for simply-typed
+$lambda$-calculus may be found in previous work #cite(
   <mainproject>,
   supplement: [Proposition 3.4.2],
 ).
@@ -676,9 +676,9 @@ new type we introduce, we give the following data:
 ]
 
 To avoid clutter in our type rules, we will sometimes omit antecedents that say that a
-certain type is in a certain universe, and rely on the reader to infer that types used in
-the rule are valid in the context. For example, in the "$->$-Intr" rule which we give below,
-we write
+certain type exists in some universe, and rely on the reader to infer that types used in the
+rule are valid in the context. For example, in the "$->$-Intr" rule which we give below, we
+write
 #pt(prooftree(rule(
   $Gamma, x : A tack t : B$,
   $Gamma tack lambda(x : A) sd t : A -> B$,
