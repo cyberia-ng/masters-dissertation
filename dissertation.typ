@@ -338,7 +338,7 @@ formulation of the entirety of #cite(<hottbook>) in the programming language Agd
 ).
 
 For every proposition or example that we give, we annotate it with a remark about whether it
-is directly from the source, an expansion or adaptation, or entirely original.
+is directly from the source, an expansion or adaptation, or entirely our own construction.
 
 In @sec:type-theory, we give a detailed exposition of a variant of Martin-Löf type theory,
 beginning with the syntax of $lambda$-calculus and its structural rules of deduction. We
@@ -1472,7 +1472,7 @@ number $n$, given $n$ itself and the value at $n$.
   require knowledge of $n$ itself, such as the factorial, may then be constructed out of
   these more basic functions.]<remark:NN-step-function>
 
-_(The following two examples are not in #cite(<hottbook>), and are entirely original.)_
+_(The following two examples are not in #cite(<hottbook>), and are entirely our own constructions.)_
 #example(add)[
   In this example, we use the inductor on $NN$ to construct an addition function.
 
@@ -1663,7 +1663,7 @@ where $t'$ may not contain $m$ or $n$ freely, $s'$ may contain $m$ freely but no
 may contain $n$ freely but not $m$, and $s''$ may contain $m$ or $n$ freely.
 
 #v(1em)
-_(The following example, like @example:add and @example:fact, is original.)_
+_(The following example, like @example:add and @example:fact, is our own construction.)_
 
 #example([$prod$])[
   In @example:fact, we assumed the existence of a function $prod : NN -> NN -> NN$ which
@@ -3030,7 +3030,7 @@ $B$.
 _(This lemma is stated in pointwise form in #cite(<hottbook>, supplement: [Equation 2.9.4]),
 and the proof is omitted. We feel that giving the lemma in this form is stronger, since to
 move from the pointwise form to the statement given here, we would require function
-extensionality. The commutative diagram is original and, we hope, adds clarity.)_
+extensionality. The commutative diagram is our own and, we hope, adds clarity.)_
 #proof[
   We proceed by path induction. Fix $X, A, B$ as in the lemma and let
   $ f' : product_(x_1 : X) A(x_1) -> B(x_1). $
@@ -3453,7 +3453,7 @@ which steps are by judgmental equality and which are by propositional equality.)
 
 // TODO: page break check
 #v(1em)
-_(The following example is entirely original.)_
+_(The following example is entirely our own construction.)_
 
 #example([Finite sets])[
   We show that $Fin(n)$ has exactly $n$ elements. We do this by recalling our definition of
