@@ -4553,6 +4553,51 @@ the existence of such homotopies as an explicit assumption.
     (f(n), sans("qinv-to-equiv")((g(n), alpha, beta))) : Fin(n) equiv FinNat(n)
   $
   where $sans("qinv-to-equiv")$ denotes the unnamed first function in @prop:qinv-is-equiv.
-]
+
+  We give a full definition of $alpha$ in Agda in an appendix.
+]<ex:finnat-agda>
+
+#set heading(numbering: "A", supplement: [Appendix])
+#counter(heading).update(0)
+
+#pagebreak()
+
+= Appendix: Agda construction of $alpha$ from @ex:finnat-agda
+
+```
+  α : (n : ℕ) → (f n ∘ g n) ∼ id (FinNat n)
+  α 0 (k , (p , q)) = 𝟘-induction (λ _ → f 0 (g 0 (k , (p , q))) ＝ (k , (p , q))) z
+    where
+      code : ℕ → 𝓤₀ ̇
+      code 0 = 𝟘
+      code (succ _) = 𝟙
+      z : 𝟘
+      z = transport code q ⋆
+  α (succ n) (0 , (p , q)) = transport (λ x → f (succ n) (g (succ n) (0 , (p , x))) ＝ (0 , (p , x))) succ-prev-q-is-q homotopy-with-succ-prev-q
+    where
+      C : (x y : ℕ) → (x ＝ y) → 𝓤₀ ̇
+      C x y r = (f (succ y) (g (succ y) (0 , (x , ap succ r)))) ＝ (0 , (x , ap succ r))
+      c : (z : ℕ) → C z z (refl z)
+      c z = refl (0 , (z , refl (succ z)))
+
+      homotopy-with-succ-prev-q : (f (succ n) (g (succ n) (0 , (p , ap succ (ap prev q))))) ＝ (0 , (p , ap succ (ap prev q)))
+      homotopy-with-succ-prev-q = 𝕁 ℕ C c p n (ap prev q)
+
+      succ-prev-q-is-q : ap succ (ap prev q) ＝ q
+      succ-prev-q-is-q = ℕ-is-set (succ p) (succ n) (ap succ (ap prev q)) q
+  α (succ n) (succ k , (p , q)) = transport (λ x → f (succ n) (g (succ n) (succ k , p , q)) ＝ (succ k , (p , x))) succ-prev-q-is-q ind-hyp-at-fg
+    where
+      ind-hyp : f n (g n (k , p , ap prev q)) ＝ (k , p , ap prev q)
+      ind-hyp = α n (k , (p , ap prev q))
+
+      D : (x : FinNat n) → 𝓤₀ ̇
+      D x = f (succ n) (g (succ n) (succ k , p , q)) ＝ (succ (pr₁ x) , pr₁ (pr₂ x) , ap succ (pr₂ (pr₂ x)))
+
+      ind-hyp-at-fg : (f (succ n) (g (succ n) (succ k , (p , q)))) ＝ (succ k , (p , ap succ (ap prev q)))
+      ind-hyp-at-fg = transport D ind-hyp (refl _)
+
+      succ-prev-q-is-q : ap succ (ap prev q) ＝ q
+      succ-prev-q-is-q = ℕ-is-set _ (succ n) (ap succ (ap prev q)) q
+```
 
 #pagebreak()
